@@ -16,6 +16,6 @@ University Pilot jest aplikacją webową zaprojektowaną do automatycznego gener
 
 - **Back-end**: C#, EF Core, ASP.NET Core
 
-- **Baza danych**: PostgreSQL
+- **Baza danych**: MSSQL
   
 - **ML**: Python
