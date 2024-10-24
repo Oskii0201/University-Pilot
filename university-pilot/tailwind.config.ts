@@ -9,8 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        lightGray: "var(--background)",
+        darkGray: "var(--foreground)",
+        veryDarkGray: "#1A1A1A",
+        offWhite: "#FFFFFF",
+
+        mutedBlue: "#64748B",
+        darkMutedBlue: "#4B5563",
+        darkNavy: "#334155",
+
+        softGreen: "#27AE60",
+        softRed: "#E74C3C",
+        mutedGold: "#F1C40F",
+
+        hoverLightGray: "#E5E5E5",
+        hoverDarkGray: "#2C2C2C",
       },
     },
   },
