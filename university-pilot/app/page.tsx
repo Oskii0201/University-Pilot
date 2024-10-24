@@ -1,7 +1,13 @@
 export default function Home() {
   return (
-    <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
-      hello world
+    <div>
+      <h1 className="text-3xl font-bold">
+        Witamy w aplikacji University Pilot
+      </h1>
+      <p className="mt-4">
+        Korzystaj z aplikacji do generowania siatek zajęć i zarządzania
+        zasobami!
+      </p>
     </div>
   );
 }
