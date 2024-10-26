@@ -1,10 +1,17 @@
-﻿namespace UniversityPilot.DAL.Areas.Identity.Models
-{
-    public class Role
-    {
-        public int ID { get; set; }
-        public string Type { get; set; }
+﻿using UniversityPilot.DAL.Areas.Shared;
 
-        public ICollection<User> Users { get; set; }
+namespace UniversityPilot.DAL.Areas.Identity.Models
+{
+    public class Role : IModelBase
+    {
+        public Role()
+        {
+            Users = new HashSet<User>();
+        }
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public virtual ICollection<User> Users { get; set; }
     }
 }

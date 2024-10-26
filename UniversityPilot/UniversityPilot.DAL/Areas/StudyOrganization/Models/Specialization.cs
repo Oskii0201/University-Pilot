@@ -1,15 +1,22 @@
-﻿using UniversityPilot.DAL.Areas.Students.Models;
+﻿using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.Students.Models;
 
 namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 {
-    public class Specialization
+    public class Specialization : IModelBase
     {
-        public int ID { get; set; }
-        public int FieldOfStudyID { get; set; }
+        public Specialization()
+        {
+            FieldOfStudies = new HashSet<FieldOfStudy>();
+            Students = new HashSet<Student>();
+            Courses = new HashSet<Course>();
+        }
+
+        public int Id { get; set; }
         public string Name { get; set; }
 
-        public FieldOfStudy FieldOfStudy { get; set; }
-        public ICollection<StudentSpecialization> StudentSpecializations { get; set; }
-        public ICollection<CourseSpecialization> CourseSpecializations { get; set; }
+        public virtual ICollection<FieldOfStudy> FieldOfStudies { get; set; }
+        public virtual ICollection<Student> Students { get; set; }
+        public virtual ICollection<Course> Courses { get; set; }
     }
 }

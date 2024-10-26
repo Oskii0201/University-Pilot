@@ -1,10 +1,17 @@
-﻿namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
+﻿using UniversityPilot.DAL.Areas.Shared;
+
+namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 {
-    public class CourseType
+    public class CourseType : IModelBase
     {
-        public int ID { get; set; }
+        public CourseType()
+        {
+            Courses = new HashSet<Course>();
+        }
+
+        public int Id { get; set; }
         public string Name { get; set; }
 
-        public ICollection<Course> Courses { get; set; }
+        public virtual ICollection<Course> Courses { get; set; }
     }
 }

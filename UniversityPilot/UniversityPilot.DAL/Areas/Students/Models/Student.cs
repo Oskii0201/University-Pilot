@@ -1,16 +1,22 @@
 ﻿using UniversityPilot.DAL.Areas.Identity.Models;
+using UniversityPilot.DAL.Areas.StudyOrganization.Models;
+using UniversityPilot.DAL.Areas.UniversityAndScheduling.Models;
 
 namespace UniversityPilot.DAL.Areas.Students.Models
 {
-    public class Student
+    public class Student : User
     {
-        public int ID { get; set; }
-        public int UserID { get; set; }
+        public Student() : base()
+        {
+            CourseGroups = new HashSet<CourseGroup>();
+            FieldOfStudies = new HashSet<FieldOfStudy>();
+            Specializations = new HashSet<Specialization>();
+        }
+
         public int Indeks { get; set; }
 
-        public User User { get; set; }
-        public ICollection<StudentGroup> StudentGroups { get; set; }
-        public ICollection<StudentFieldOfStudy> StudentFieldsOfStudy { get; set; }
-        public ICollection<StudentSpecialization> StudentSpecializations { get; set; }
+        public virtual ICollection<CourseGroup> CourseGroups { get; set; }
+        public virtual ICollection<FieldOfStudy> FieldOfStudies { get; set; }
+        public virtual ICollection<Specialization> Specializations { get; set; }
     }
 }

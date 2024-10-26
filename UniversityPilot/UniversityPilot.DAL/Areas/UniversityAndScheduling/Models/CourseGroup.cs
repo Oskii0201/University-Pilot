@@ -1,18 +1,23 @@
-﻿using UniversityPilot.DAL.Areas.Students.Models;
+﻿using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.Students.Models;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 
 namespace UniversityPilot.DAL.Areas.UniversityAndScheduling.Models
 {
-    public class CourseGroup
+    public class CourseGroup : IModelBase
     {
-        public int ID { get; set; }
-        public string GroupName { get; set; }
-        public int CourseID { get; set; }
-        public int InstructorID { get; set; }
-        public int? PreferedClassroomID { get; set; }
+        public CourseGroup()
+        {
+            Courses = new HashSet<Course>();
+            Students = new HashSet<Student>();
+            CourseSchedules = new HashSet<CourseSchedule>();
+        }
 
-        public Course Course { get; set; }
-        public Instructor Instructor { get; set; }
-        public ICollection<StudentGroup> StudentGroups { get; set; }
+        public int Id { get; set; }
+        public string GroupName { get; set; }
+
+        public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<Student> Students { get; set; }
+        public virtual ICollection<CourseSchedule> CourseSchedules { get; set; }
     }
 }
