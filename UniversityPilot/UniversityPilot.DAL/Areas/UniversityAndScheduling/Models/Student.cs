@@ -1,8 +1,7 @@
 ﻿using UniversityPilot.DAL.Areas.Identity.Models;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
-using UniversityPilot.DAL.Areas.UniversityAndScheduling.Models;
 
-namespace UniversityPilot.DAL.Areas.Students.Models
+namespace UniversityPilot.DAL.Areas.UniversityAndScheduling.Models
 {
     public class Student : User
     {

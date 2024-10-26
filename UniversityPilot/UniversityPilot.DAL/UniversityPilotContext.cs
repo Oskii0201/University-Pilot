@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using UniversityPilot.DAL.Areas.Identity.Models;
-using UniversityPilot.DAL.Areas.Students.Models;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 using UniversityPilot.DAL.Areas.UniversityAndScheduling.Models;
 
@@ -37,12 +36,6 @@ namespace UniversityPilot.DAL
 
         #endregion DbSet Identity
 
-        #region DbSet Students
-
-        public DbSet<Student> Students { get; set; }
-
-        #endregion DbSet Students
-
         #region DbSet Study Organization
 
         public DbSet<Course> Courses { get; set; }
@@ -59,6 +52,8 @@ namespace UniversityPilot.DAL
         public DbSet<CourseSchedule> CourseSchedules { get; set; }
         public DbSet<Holiday> Holidays { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
+        public DbSet<Student> Students { get; set; }
+
         public DbSet<StudySchedule> StudySchedules { get; set; }
 
         #endregion DbSet University and Scheduling
@@ -92,24 +87,6 @@ namespace UniversityPilot.DAL
             });
 
             #endregion Identity Configuration
-
-            #region Students Configuration
-
-            modelBuilder.Entity<Student>(entity =>
-            {
-                entity.Property(e => e.Indeks).IsRequired();
-                entity.HasMany(e => e.CourseGroups)
-                      .WithMany(cg => cg.Students)
-                      .UsingEntity(j => j.ToTable("StudentCourseGroup"));
-                entity.HasMany(e => e.FieldOfStudies)
-                      .WithMany(fs => fs.Students)
-                      .UsingEntity(j => j.ToTable("StudentFieldOfStudy"));
-                entity.HasMany(e => e.Specializations)
-                      .WithMany(s => s.Students)
-                      .UsingEntity(j => j.ToTable("StudentSpecialization"));
-            });
-
-            #endregion Students Configuration
 
             #region Study Organization Configuration
 
@@ -247,6 +224,20 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.Courses)
                       .WithMany(c => c.Instructors)
                       .UsingEntity(j => j.ToTable("InstructorCourse"));
+            });
+
+            modelBuilder.Entity<Student>(entity =>
+            {
+                entity.Property(e => e.Indeks).IsRequired();
+                entity.HasMany(e => e.CourseGroups)
+                      .WithMany(cg => cg.Students)
+                      .UsingEntity(j => j.ToTable("StudentCourseGroup"));
+                entity.HasMany(e => e.FieldOfStudies)
+                      .WithMany(fs => fs.Students)
+                      .UsingEntity(j => j.ToTable("StudentFieldOfStudy"));
+                entity.HasMany(e => e.Specializations)
+                      .WithMany(s => s.Students)
+                      .UsingEntity(j => j.ToTable("StudentSpecialization"));
             });
 
             modelBuilder.Entity<StudySchedule>(entity =>

@@ -1,5 +1,4 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
-using UniversityPilot.DAL.Areas.Students.Models;
 using UniversityPilot.DAL.Areas.UniversityAndScheduling.Models;
 
 namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
