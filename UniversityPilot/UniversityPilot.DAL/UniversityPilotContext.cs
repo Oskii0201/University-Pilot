@@ -79,7 +79,7 @@ namespace UniversityPilot.DAL
                       .IsRequired(false);
                 entity.HasOne(e => e.Role)
                       .WithMany(r => r.Users)
-                      .HasForeignKey(e => e.RoleID);
+                      .HasForeignKey(e => e.RoleId);
                 entity.HasDiscriminator<string>("Discriminator")
                       .HasValue<User>("User")
                       .HasValue<Student>("Student")
@@ -92,7 +92,7 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
                 entity.HasMany(e => e.Users)
                       .WithOne(u => u.Role)
-                      .HasForeignKey(u => u.RoleID);
+                      .HasForeignKey(u => u.RoleId);
             });
 
             #endregion Identity Configuration
