@@ -41,7 +41,7 @@ namespace UniversityPilot.BLL.Areas.Identity.Services
                 PhoneNumber = dto.PhoneNumber,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                RoleId = 1,
+                RoleId = 2,
             };
 
             newUser.PasswordHash = _passwordHasher.HashPassword(newUser, dto.Password);

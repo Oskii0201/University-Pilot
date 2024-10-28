@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UniversityPilot.BLL;
 using UniversityPilot.DAL;
+using UniversityPilot.DAL.Areas.Identity.Models;
+using UniversityPilot.DAL.Seeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,5 +63,13 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<UniversityPilotContext>();
+    var passwordHasher = serviceScope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+    var seeder = new DataSeeder(context, passwordHasher);
+    seeder.SeedDatabase();
+}
 
 app.Run();
