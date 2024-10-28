@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniversityPilot.DAL;
@@ -11,9 +12,11 @@ using UniversityPilot.DAL;
 namespace UniversityPilot.DAL.Migrations
 {
     [DbContext(typeof(UniversityPilotContext))]
-    partial class UniversityPilotContextModelSnapshot : ModelSnapshot
+    [Migration("20241027081756_UpdateUser_PasswordHash_AddPhoneAndEmailConfirmation")]
+    partial class UpdateUser_PasswordHash_AddPhoneAndEmailConfirmation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,12 +219,12 @@ namespace UniversityPilot.DAL.Migrations
                         .HasMaxLength(24)
                         .HasColumnType("character varying(24)");
 
-                    b.Property<int>("RoleId")
+                    b.Property<int>("RoleID")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleID");
 
                     b.ToTable("Users");
 
@@ -622,7 +625,7 @@ namespace UniversityPilot.DAL.Migrations
                 {
                     b.HasOne("UniversityPilot.DAL.Areas.Identity.Models.Role", "Role")
                         .WithMany("Users")
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

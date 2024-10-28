@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
@@ -17,15 +18,13 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.10" />
+
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\UniversityPilot.BLL\UniversityPilot.BLL.csproj" />
 		<ProjectReference Include="..\UniversityPilot.DAL\UniversityPilot.DAL.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Controllers\" />
 	</ItemGroup>
 
 </Project>

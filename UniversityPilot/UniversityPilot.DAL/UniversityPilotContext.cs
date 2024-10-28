@@ -70,10 +70,16 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Password).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.EmailIsConfirmed)
+                      .HasDefaultValue(false)
+                      .IsRequired();
+                entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.PhoneNumber)
+                      .HasMaxLength(24)
+                      .IsRequired(false);
                 entity.HasOne(e => e.Role)
                       .WithMany(r => r.Users)
-                      .HasForeignKey(e => e.RoleID);
+                      .HasForeignKey(e => e.RoleId);
                 entity.HasDiscriminator<string>("Discriminator")
                       .HasValue<User>("User")
                       .HasValue<Student>("Student")
@@ -84,6 +90,9 @@ namespace UniversityPilot.DAL
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+                entity.HasMany(e => e.Users)
+                      .WithOne(u => u.Role)
+                      .HasForeignKey(u => u.RoleId);
             });
 
             #endregion Identity Configuration
