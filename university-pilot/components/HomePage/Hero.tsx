@@ -20,7 +20,7 @@ export const Hero = () => {
           </p>
           <Link
             href="/#howitworks"
-            className="w-fit rounded-md bg-green-700 px-6 py-3 font-semibold uppercase text-offWhite transition-colors hover:bg-green-600"
+            className="mx-auto w-fit rounded-md bg-green-700 px-6 py-3 font-semibold uppercase text-offWhite transition-colors hover:bg-green-600"
           >
             Dowiedz się więcej
           </Link>
