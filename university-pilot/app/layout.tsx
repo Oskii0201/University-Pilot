@@ -16,7 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className="hover:scroll scroll-smooth scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-600"
+    >
       <body className="flex min-h-screen flex-col antialiased">
         <ToastContainer
           position="top-center"
