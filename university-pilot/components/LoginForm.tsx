@@ -16,11 +16,10 @@ const LoginForm = () => {
       await login(email, password);
       router.push("/dashboard");
     } catch (e) {
-      console.log(e);
       toast.error(
         <div>
           <h2 className="font-semibold"> Oops!</h2>
-          <p>Something&#39;s gone wrong</p>
+          <p>{e.message}</p>
         </div>,
       );
     }
