@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar/Sidebar";
+import React from "react";
+import { ToastContainer } from "react-toastify";
 
 export const metadata: Metadata = {
   title: "University Pilot",
@@ -15,18 +16,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className="hover:scroll scroll-smooth scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-600"
+    >
       <body className="flex min-h-screen flex-col antialiased">
-        <div className="flex flex-1">
-          <Sidebar />
-          <div className="ml-24 flex flex-1 flex-col md:ml-48 lg:ml-72">
-            <Header />
-
-            <main className="ml-24 flex-1 p-6">{children}</main>
-
-            <Footer />
-          </div>
-        </div>
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+        />
+        <main className="flex flex-1 justify-center">{children}</main>
+        <Footer />
       </body>
     </html>
   );

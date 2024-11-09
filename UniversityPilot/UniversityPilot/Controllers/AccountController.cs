@@ -29,7 +29,25 @@ namespace UniversityPilot.Controllers
         public IActionResult Login([FromBody] LoginDto dto)
         {
             string token = _accountService.GenerateJwt(dto);
-            return Ok(token);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddHours(2)
+            };
+
+            Response.Cookies.Append("session_token", token, cookieOptions);
+
+            return Ok(new { message = "Zalogowano pomyślnie" });
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("session_token");
+            return Ok(new { message = "Wylogowano pomyślnie" });
         }
 
         [HttpGet]

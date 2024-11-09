@@ -1,19 +1,19 @@
+import { Header } from "@/components/HomePage/Header";
+import { Hero } from "@/components/HomePage/Hero";
+import { Features } from "@/components/HomePage/Features";
+import { Benefits } from "@/components/HomePage/Benefits";
+import { HowItWorks } from "@/components/HomePage/HowItWorks";
+import { CTO } from "@/components/HomePage/CTO";
+
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold">
-        Witamy w aplikacji University Pilot
-      </h1>
-      <p className="mt-4">
-        Korzystaj z aplikacji do generowania siatek zajęć i zarządzania
-        zasobami!
-      </p>
-      <div className="bg-offWhite rounded-lg p-6 shadow-lg">
-        <h2 className="text-darkGray text-xl font-semibold">
-          Karta informacyjna
-        </h2>
-        <p className="text-darkGray">To jest przykładowy opis karty.</p>
-      </div>
+    <div className="text-off w-full text-offWhite">
+      <Header />
+      <Hero />
+      <Features />
+      <Benefits />
+      <HowItWorks />
+      <CTO />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+import tailwind_scrollbar from "tailwind-scrollbar";
+
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -18,7 +20,7 @@ const config: Config = {
         darkMutedBlue: "#4B5563",
         darkNavy: "#334155",
 
-        softGreen: "#27AE60",
+        softGreen: "#22c55e",
         softRed: "#E74C3C",
         mutedGold: "#F1C40F",
 
@@ -27,6 +29,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [tailwind_scrollbar],
 };
 export default config;

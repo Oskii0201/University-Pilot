@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 type NavItem = {
   icon: JSX.Element;
@@ -19,11 +20,15 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { icon: <FaHome />, label: "Dashboard", href: "/dashboard" },
-  { icon: <FaCalendarAlt />, label: "Harmonogramy", href: "/schedules" },
-  { icon: <FaChalkboard />, label: "Sale", href: "/rooms" },
-  { icon: <FaUsers />, label: "Grupy", href: "/groups" },
-  { icon: <FaBook />, label: "Przedmioty", href: "/subjects" },
-  { icon: <FaUserTie />, label: "Wykładowcy", href: "/lecturers" },
+  {
+    icon: <FaCalendarAlt />,
+    label: "Harmonogramy",
+    href: "/dashboard/schedules",
+  },
+  { icon: <FaChalkboard />, label: "Sale", href: "/dashboard/rooms" },
+  { icon: <FaUsers />, label: "Grupy", href: "/dashboard/groups" },
+  { icon: <FaBook />, label: "Przedmioty", href: "/dashboard/subjects" },
+  { icon: <FaUserTie />, label: "Wykładowcy", href: "/dashboard/lecturers" },
 ];
 
 const Navigation: React.FC = () => {
