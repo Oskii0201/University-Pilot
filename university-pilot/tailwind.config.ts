@@ -17,11 +17,15 @@ const config: Config = {
         offWhite: "#FFFFFF",
 
         mutedBlue: "#64748B",
+        softBlue: "#3275e5",
+        darkBlue: "#2563eb",
         darkMutedBlue: "#4B5563",
         darkNavy: "#334155",
 
-        softGreen: "#22c55e",
+        softGreen: "#16a34a",
+        mutedGreen: "#15803d",
         softRed: "#E74C3C",
+        mutedRed: "#f53925",
         mutedGold: "#F1C40F",
 
         hoverLightGray: "#E5E5E5",
