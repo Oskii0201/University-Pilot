@@ -8,7 +8,7 @@ namespace UniversityPilot.Controllers
     {
         [HttpPost]
         [Route("Upload")]
-        public async Task<IActionResult> Upload(string dataset, IFormFile file)
+        public async Task<IActionResult> Upload([FromForm] string dataset, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
