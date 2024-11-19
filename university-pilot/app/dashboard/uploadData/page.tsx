@@ -86,7 +86,7 @@ export default function CsvUploadForm() {
             id="file"
             type="file"
             accept=".csv"
-            onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+            onChange={(e) => setFile(e.target?.files?.[0] || null)}
             className="w-full rounded border bg-offWhite p-2"
             required
           />
