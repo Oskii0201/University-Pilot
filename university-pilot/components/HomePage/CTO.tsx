@@ -1,3 +1,5 @@
+import { Button } from "@/components/Button";
+
 export const CTO = () => {
   return (
     <section
@@ -30,9 +32,9 @@ export const CTO = () => {
           className="mb-4 h-32 w-full rounded bg-gray-800 px-4 py-2"
           required
         ></textarea>
-        <button className="w-fit rounded-md bg-green-700 px-6 py-3 font-semibold uppercase text-offWhite transition-colors hover:bg-green-600">
+        <Button color="green" width="w-fit" additionalClasses="uppercase">
           Wyślij
-        </button>
+        </Button>
       </form>
     </section>
   );
