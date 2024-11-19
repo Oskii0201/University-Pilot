@@ -1,6 +1,6 @@
 import Image from "next/image";
 import universityPilotDashboard from "@/public/imageplacehgolder.png";
-import Link from "next/link";
+import { Button } from "@/components/Button";
 
 export const Hero = () => {
   return (
@@ -18,12 +18,14 @@ export const Hero = () => {
             proces tworzenia harmonogramów zajęć na uczelniach wyższych.
             Oszczędzaj czas i eliminuj błędy podczas planowania.
           </p>
-          <Link
+          <Button
+            color="green"
             href="/#howitworks"
-            className="mx-auto w-fit rounded-md bg-green-700 px-6 py-3 font-semibold uppercase text-offWhite transition-colors hover:bg-green-600"
+            width="w-fit"
+            additionalClasses="mx-auto uppercase"
           >
             Dowiedz się więcej
-          </Link>
+          </Button>
         </div>
         <div className="mt-8 w-full md:w-auto">
           <Image

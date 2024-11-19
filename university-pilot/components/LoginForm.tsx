@@ -4,6 +4,7 @@ import { login } from "@/app/lib/auth";
 import { toast } from "react-toastify";
 import React, { useState } from "react";
 import { FaLock, FaUser } from "react-icons/fa";
+import { Button } from "@/components/Button";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -64,13 +65,9 @@ const LoginForm = () => {
           Zapomniałeś hasła?
         </a>
       </div>
-
-      <button
-        type="submit"
-        className="mt-6 w-full rounded-md bg-green-700 py-3 font-semibold uppercase text-offWhite transition-colors hover:bg-green-600"
-      >
-        Login
-      </button>
+      <Button color="green" type="submit" additionalClasses="uppercase">
+        Zaloguj
+      </Button>
     </form>
   );
 };

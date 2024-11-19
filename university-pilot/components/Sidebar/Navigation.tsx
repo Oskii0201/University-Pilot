@@ -11,6 +11,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { BsDatabaseFillAdd } from "react-icons/bs";
 
 type NavItem = {
   icon: JSX.Element;
@@ -29,6 +30,11 @@ const navItems: NavItem[] = [
   { icon: <FaUsers />, label: "Grupy", href: "/dashboard/groups" },
   { icon: <FaBook />, label: "Przedmioty", href: "/dashboard/subjects" },
   { icon: <FaUserTie />, label: "Wykładowcy", href: "/dashboard/lecturers" },
+  {
+    icon: <BsDatabaseFillAdd />,
+    label: "Wgraj dane",
+    href: "/dashboard/uploadData",
+  },
 ];
 
 const Navigation: React.FC = () => {
