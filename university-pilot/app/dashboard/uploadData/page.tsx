@@ -42,11 +42,11 @@ export default function CsvUploadForm() {
       toast.success(<p>Zakończono pomyślnie dodawanie pliku.</p>);
       router.push("/dashboard");
     } catch (error) {
-      console.error("Upload failed:", error);
       toast.error(
         <div>
           <h2 className="font-semibold"> Oops!</h2>
           <p>Nie udało się dodać pliku. Prosze spróbować ponownie</p>
+          <p>{error}</p>
         </div>,
       );
     }
