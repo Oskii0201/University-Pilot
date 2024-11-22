@@ -20,18 +20,22 @@ export default function CsvUploadForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!file || !selectedDataset) {
       toast.error(
         <div>
-          <h2 className="font-semibold"> Oops!</h2>
+          <h2 className="font-semibold">Oops!</h2>
           <p>Proszę wybrać zbiór danych oraz dodać plik csv</p>
         </div>,
       );
+      return;
     }
 
     const formData = new FormData();
     formData.append("dataset", selectedDataset);
+
     formData.append("file", file);
+
     try {
       await apiClient.post("/file/upload", formData, {
         headers: {
@@ -44,9 +48,9 @@ export default function CsvUploadForm() {
     } catch (error) {
       toast.error(
         <div>
-          <h2 className="font-semibold"> Oops!</h2>
-          <p>Nie udało się dodać pliku. Prosze spróbować ponownie</p>
-          <p>{error}</p>
+          <h2 className="font-semibold">Oops!</h2>
+          <p>Nie udało się dodać pliku. Proszę spróbować ponownie</p>
+          <p>{String(error)}</p>
         </div>,
       );
     }

@@ -17,14 +17,17 @@ const LoginForm = () => {
       await login(email, password);
       router.push("/dashboard");
     } catch (e) {
+      const errorMessage =
+        e instanceof Error ? e.message : "Wystąpił nieznany błąd.";
       toast.error(
         <div>
-          <h2 className="font-semibold"> Oops!</h2>
-          <p>{e.message}</p>
+          <h2 className="font-semibold">Oops!</h2>
+          <p>{errorMessage}</p>
         </div>,
       );
     }
   };
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
       <div className="relative">

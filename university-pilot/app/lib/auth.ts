@@ -8,7 +8,11 @@ export const login = async (email: string, password: string) => {
     });
     return response.data;
   } catch (e) {
-    throw new Error("Błąd logowania. Sprawdź swoje dane.", e);
+    const errorMessage =
+      e instanceof Error ? e.message : "Wystąpił nieznany błąd.";
+    throw new Error(
+      `Błąd logowania. Sprawdź swoje dane. Szczegóły: ${errorMessage}`,
+    );
   }
 };
 
