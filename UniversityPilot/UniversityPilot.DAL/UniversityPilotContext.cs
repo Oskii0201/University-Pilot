@@ -38,9 +38,8 @@ namespace UniversityPilot.DAL
 
         #region DbSet Study Organization
 
+        public DbSet<StudyProgram> StudyPrograms { get; set; }
         public DbSet<Course> Courses { get; set; }
-        public DbSet<CourseType> CourseTypes { get; set; }
-        public DbSet<FieldOfStudy> FieldsOfStudy { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
 
         #endregion DbSet Study Organization
@@ -99,73 +98,56 @@ namespace UniversityPilot.DAL
 
             #region Study Organization Configuration
 
+            modelBuilder.Entity<StudyProgram>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EnrollmentYear).IsRequired();
+                entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.FieldOfStudy).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.StudyForm).IsRequired();
+                entity.Property(e => e.SummerRecruitment).IsRequired();
+
+                entity.HasMany(e => e.Specializations)
+                      .WithMany(s => s.StudyPrograms)
+                      .UsingEntity(j => j.ToTable("StudyProgramSpecialization"));
+
+                entity.HasMany(e => e.Courses)
+                      .WithMany(c => c.StudyProgram)
+                      .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+            });
+
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.CourseName).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.CourseCode).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Credits).IsRequired();
-                entity.Property(e => e.CourseDuration).IsRequired();
-                entity.Property(e => e.Online).IsRequired();
-                entity.HasOne(e => e.CourseType)
-                      .WithMany(ct => ct.Courses)
-                      .HasForeignKey(e => e.CourseTypeId);
-                entity.HasMany(e => e.CourseGroups)
-                      .WithMany(c => c.Courses)
-                      .UsingEntity(j => j.ToTable("CourseGroupCourse"));
-                entity.HasMany(e => e.FieldOfStudies)
-                      .WithMany(fs => fs.Courses)
-                      .UsingEntity(j => j.ToTable("CourseFieldOfStudy"));
-                entity.HasMany(e => e.Specializations)
-                      .WithMany(s => s.Courses)
-                      .UsingEntity(j => j.ToTable("CourseSpecialization"));
-                entity.HasMany(e => e.Instructors)
-                      .WithMany(i => i.Courses)
-                      .UsingEntity(j => j.ToTable("InstructorCourse"));
-            });
-
-            modelBuilder.Entity<CourseType>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
-                entity.HasMany(e => e.Courses)
-                      .WithOne(c => c.CourseType)
-                      .HasForeignKey(c => c.CourseTypeId);
-            });
-
-            modelBuilder.Entity<FieldOfStudy>(entity =>
-            {
-                entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.FormOfStudy).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.LevelOfEducation).IsRequired().HasMaxLength(50);
-                entity.HasMany(e => e.Specializations)
-                      .WithMany(s => s.FieldOfStudies)
-                      .UsingEntity(j => j.ToTable("SpecializationFieldOfStudy"));
-                entity.HasMany(e => e.Students)
-                      .WithMany(s => s.FieldOfStudies)
-                      .UsingEntity(j => j.ToTable("StudentFieldOfStudy"));
-                entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.FieldOfStudies)
-                      .UsingEntity(j => j.ToTable("CourseFieldOfStudy"));
-                entity.HasMany(e => e.StudySchedules)
-                      .WithMany(ss => ss.FieldOfStudies)
-                      .UsingEntity(j => j.ToTable("FieldOfStudySchedules"));
+                entity.Property(e => e.Semester).IsRequired();
+                entity.Property(e => e.CourseType).IsRequired();
+                entity.Property(e => e.Hours).IsRequired();
+                entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.ECTS).IsRequired();
+
+                entity.HasOne(e => e.Specialization)
+                      .WithMany(s => s.Courses)
+                      .HasForeignKey(e => e.SpecializationId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasMany(e => e.StudyProgram)
+                      .WithMany(sp => sp.Courses)
+                      .UsingEntity(j => j.ToTable("StudyProgramCourse"));
             });
 
             modelBuilder.Entity<Specialization>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.HasMany(e => e.FieldOfStudies)
-                      .WithMany(fs => fs.Specializations)
-                      .UsingEntity(j => j.ToTable("SpecializationFieldOfStudy"));
-                entity.HasMany(e => e.Students)
-                      .WithMany(s => s.Specializations)
-                      .UsingEntity(j => j.ToTable("StudentSpecialization"));
+
+                entity.HasMany(e => e.StudyPrograms)
+                      .WithMany(sp => sp.Specializations)
+                      .UsingEntity(j => j.ToTable("StudyProgramSpecialization"));
+
                 entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.Specializations)
-                      .UsingEntity(j => j.ToTable("CourseSpecialization"));
+                      .WithOne(c => c.Specialization)
+                      .HasForeignKey(c => c.SpecializationId);
             });
 
             #endregion Study Organization Configuration
@@ -191,9 +173,6 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.CourseSchedules)
                       .WithOne(cs => cs.CourseGroup)
                       .HasForeignKey(cs => cs.CourseGroupId);
-                entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.CourseGroups)
-                      .UsingEntity(j => j.ToTable("CourseGroupCourse"));
                 entity.HasMany(e => e.Students)
                       .WithMany(s => s.CourseGroups)
                       .UsingEntity(j => j.ToTable("StudentCourseGroup"));
@@ -230,9 +209,6 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.CourseSchedules)
                       .WithOne(cs => cs.Instructor)
                       .HasForeignKey(cs => cs.InstructorId);
-                entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.Instructors)
-                      .UsingEntity(j => j.ToTable("InstructorCourse"));
             });
 
             modelBuilder.Entity<Student>(entity =>
@@ -241,12 +217,6 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.CourseGroups)
                       .WithMany(cg => cg.Students)
                       .UsingEntity(j => j.ToTable("StudentCourseGroup"));
-                entity.HasMany(e => e.FieldOfStudies)
-                      .WithMany(fs => fs.Students)
-                      .UsingEntity(j => j.ToTable("StudentFieldOfStudy"));
-                entity.HasMany(e => e.Specializations)
-                      .WithMany(s => s.Students)
-                      .UsingEntity(j => j.ToTable("StudentSpecialization"));
             });
 
             modelBuilder.Entity<StudySchedule>(entity =>
@@ -255,9 +225,6 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.StartDate).IsRequired();
                 entity.Property(e => e.EndDate).IsRequired();
-                entity.HasMany(e => e.FieldOfStudies)
-                      .WithMany(fs => fs.StudySchedules)
-                      .UsingEntity(j => j.ToTable("FieldOfStudySchedules"));
             });
 
             #endregion University and Scheduling Configuration

@@ -1,4 +1,5 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.Shared.Enumes;
 
 namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 {
@@ -10,13 +11,16 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         }
 
         public int Id { get; set; }
-        public string CourseName { get; set; }
+        public string Name { get; set; }
         public int Semester { get; set; }
-        public string CourseType { get; set; }
-        public string Specialization { get; set; }
+        public CourseTypes CourseType { get; set; }
+
         public int Hours { get; set; }
         public string AssessmentType { get; set; }
         public int ECTS { get; set; }
+
+        public string? SpecializationId { get; set; }
+        public virtual Specialization? Specialization { get; set; }
 
         public virtual IEnumerable<StudyProgram> StudyProgram { get; set; }
     }
