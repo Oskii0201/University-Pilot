@@ -1,52 +1,45 @@
 import React from "react";
+import { format, isSameMonth, addDays } from "date-fns";
+import { pl } from "date-fns/locale";
 
-interface MonthViewProps {
-  prevMonthDates: Date[];
-  currentMonthDates: Date[];
-  nextMonthDates: Date[];
-  rows: number;
+interface DateRange {
+  start: Date;
+  end: Date;
 }
 
-const MonthView: React.FC<MonthViewProps> = ({
-  prevMonthDates,
-  currentMonthDates,
-  nextMonthDates,
-  rows,
-}) => {
-  const calendarDays = [
-    ...prevMonthDates,
-    ...currentMonthDates,
-    ...nextMonthDates,
-  ];
+interface MonthViewProps {
+  range: DateRange;
+  currentDate: Date;
+}
+
+const MonthView: React.FC<MonthViewProps> = ({ range, currentDate }) => {
+  const days: Date[] = [];
+  let day = new Date(range.start);
+
+  while (day <= range.end) {
+    days.push(new Date(day));
+    day = addDays(day, 1);
+  }
 
   return (
-    <div className="mx-auto w-full">
-      <div className="grid grid-cols-7 gap-0 bg-gray-100">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} className="border p-2 text-center text-sm font-semibold">
-            {new Date(2024, 0, i + 1).toLocaleDateString("pl-PL", {
-              weekday: "short",
-            })}
+    <div className="mx-auto w-full bg-gray-100 text-center">
+      <div className="grid grid-cols-7">
+        {["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].map((day) => (
+          <div key={day} className="border p-1 font-semibold">
+            {day}
           </div>
         ))}
-      </div>
-      <div
-        className={`grid grid-cols-7 grid-rows-${rows} gap-0 text-center text-sm font-medium`}
-      >
-        {calendarDays.map((day, index) => {
-          const isCurrentMonth =
-            day.getMonth() === currentMonthDates[0].getMonth();
-          return (
-            <div
-              key={index}
-              className={`border p-2 ${
-                isCurrentMonth ? "bg-offWhite" : "bg-gray-100 text-gray-400"
-              }`}
-            >
-              {day.getDate()}
-            </div>
-          );
-        })}
+
+        {days.map((day, index) => (
+          <div
+            key={index}
+            className={`border p-2 ${
+              isSameMonth(day, currentDate) ? "bg-offWhite" : "text-gray-500"
+            }`}
+          >
+            {format(day, "d", { locale: pl })}{" "}
+          </div>
+        ))}
       </div>
     </div>
   );
