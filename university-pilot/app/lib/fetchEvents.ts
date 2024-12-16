@@ -1,5 +1,4 @@
-import apiClient from "@/app/lib/apiClient"; // Import instancji Axios
-import events from "@/data/events.json"; // Tymczasowy import pliku JSON
+import events from "@/data/events.json";
 import { Event } from "@/app/types";
 
 /**
@@ -36,7 +35,6 @@ export const fetchEvents = async (
       return eventStart <= endDate && eventEnd >= startDate;
     });
 
-    // Zwracamy przefiltrowane dane z lokalnego pliku JSON
     return filteredEvents;
   } catch (error) {
     console.error("Błąd podczas pobierania eventów:", error);
