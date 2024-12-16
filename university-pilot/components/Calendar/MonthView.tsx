@@ -11,7 +11,7 @@ interface DateRange {
 interface MonthViewProps {
   range: DateRange;
   currentDate: Date;
-  events: Event[]; // Lista eventów przypisanych do kalendarza
+  events: Event[];
 }
 
 const MonthView: React.FC<MonthViewProps> = ({
@@ -33,14 +33,12 @@ const MonthView: React.FC<MonthViewProps> = ({
   return (
     <div className="mx-auto w-full bg-gray-100 text-center">
       <div className="grid grid-cols-7">
-        {/* Nazwy dni tygodnia */}
         {["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].map((day) => (
           <div key={day} className="border p-1 font-semibold">
             {day}
           </div>
         ))}
 
-        {/* Dni miesiąca */}
         {days.map((day, index) => {
           const dayEvents = getEventsForDay(day);
 
