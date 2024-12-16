@@ -6,8 +6,8 @@ interface CalendarHeaderProps {
   onPrevClick: () => void;
   onNextClick: () => void;
   onTodayClick: () => void;
-  onViewChange: (view: "month" | "week") => void;
-  currentView: "month" | "week";
+  onViewChange: (view: "month" | "week" | "table") => void;
+  currentView: "month" | "week" | "table";
 }
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -59,13 +59,21 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         >
           Miesiąc
         </button>
-        <button
+        {/*<button
           onClick={() => onViewChange("week")}
-          className={`rounded-r px-4 py-2 ${
+          className={`px-4 py-2 ${
             currentView === "week" ? "bg-softBlue text-white" : "bg-gray-300"
           }`}
         >
           Tydzień
+        </button>*/}
+        <button
+          onClick={() => onViewChange("table")}
+          className={`rounded-r px-4 py-2 ${
+            currentView === "table" ? "bg-blue-500 text-white" : "bg-gray-300"
+          }`}
+        >
+          Tabela
         </button>
       </div>
     </div>
