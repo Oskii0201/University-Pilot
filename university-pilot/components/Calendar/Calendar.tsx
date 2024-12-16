@@ -6,19 +6,34 @@ import WeekView from "./WeekView";
 import { calculateRange } from "@/components/Calendar/lib/calculateRange";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
 import { LoadingCircle } from "@/components/LoadingCircle";
+import { Event } from "@/types/Event";
 
 type CalendarView = "month" | "week";
 
-const Calendar: React.FC = () => {
+interface CalendarProps {
+  /**
+   * Callback wywoływany przy każdej zmianie daty w kalendarzu.
+   * Używany do synchronizacji stanu daty w komponencie nadrzędnym.
+   */
+  onDateChange?: (date: Date) => void;
+
+  /**
+   * Lista eventów, które mają być wyświetlane w kalendarzu.
+   * Eventy powinny być filtrowane i odpowiadać zakresowi wyświetlanemu w danym widoku.
+   */
+  events?: Event[];
+}
+
+const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
   const [view, setView] = useState<CalendarView | null>(null);
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedView = localStorage.getItem(
+    const savedView = sessionStorage.getItem(
       "calendar-view",
     ) as CalendarView | null;
-    const savedDate = localStorage.getItem("calendar-date");
+    const savedDate = sessionStorage.getItem("calendar-date");
 
     setView(savedView || "month");
     setCurrentDate(savedDate ? new Date(savedDate) : new Date());
@@ -26,9 +41,21 @@ const Calendar: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (view) localStorage.setItem("calendar-view", view);
-    if (currentDate)
-      localStorage.setItem("calendar-date", currentDate.toISOString());
+    if (view) sessionStorage.setItem("calendar-view", view);
+    if (currentDate) {
+      sessionStorage.setItem("calendar-date", currentDate.toISOString());
+      onDateChange?.(currentDate); // Powiadomienie nadrzędnego komponentu
+
+      // Obliczenie i zapis zakresu dat do localStorage
+      const range = calculateRange(view, currentDate);
+      sessionStorage.setItem(
+        "calendar-range",
+        JSON.stringify({
+          start: range.start.toISOString(),
+          end: range.end.toISOString(),
+        }),
+      );
+    }
   }, [view, currentDate]);
 
   const handleNavigation = (direction: "prev" | "next" | "today") => {
@@ -75,9 +102,9 @@ const Calendar: React.FC = () => {
       />
 
       {view === "month" ? (
-        <MonthView range={range} currentDate={currentDate} />
+        <MonthView range={range} currentDate={currentDate} events={events} />
       ) : (
-        <WeekView range={range} />
+        <WeekView range={range} events={events} />
       )}
     </div>
   );
