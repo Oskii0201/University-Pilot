@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import MonthView from "./MonthView";
 import EventTableView from "./EventTableView";
+import EventModal from "./EventModal";
 import { calculateRange } from "@/components/Calendar/lib/calculateRange";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
 import { LoadingCircle } from "@/components/LoadingCircle";
@@ -19,6 +20,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
   const [view, setView] = useState<CalendarView | null>(null);
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     const savedView = sessionStorage.getItem(
@@ -46,7 +48,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
         }),
       );
     }
-  }, [view, currentDate]);
+  }, [view, currentDate, onDateChange]);
 
   const handleNavigation = (direction: "prev" | "next" | "today") => {
     if (!currentDate || !view) return;
@@ -74,6 +76,10 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
     setCurrentDate(newDate);
   };
 
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+  };
+
   if (isLoading || !view || !currentDate) {
     return <LoadingCircle />;
   }
@@ -81,7 +87,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
   const range = calculateRange(view, currentDate);
 
   return (
-    <div className="calendar">
+    <div className="calendar relative">
       <CalendarHeader
         currentDate={currentDate}
         onPrevClick={() => handleNavigation("prev")}
@@ -92,12 +98,22 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
       />
 
       {view === "month" ? (
-        <MonthView range={range} currentDate={currentDate} events={events} />
+        <MonthView
+          range={range}
+          currentDate={currentDate}
+          events={events}
+          onEventClick={handleEventClick}
+        />
       ) : view === "table" ? (
-        <EventTableView events={events} />
+        <EventTableView events={events} onEventClick={handleEventClick} />
       ) : (
         <p>Funkcja WeekView zostanie wdrożona w przyszłości.</p>
       )}
+
+      <EventModal
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+      />
     </div>
   );
 };

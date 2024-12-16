@@ -5,9 +5,13 @@ import { Event } from "@/app/types";
 
 interface EventTableViewProps {
   events: Event[];
+  onEventClick: (event: Event) => void;
 }
 
-const EventTableView: React.FC<EventTableViewProps> = ({ events }) => {
+const EventTableView: React.FC<EventTableViewProps> = ({
+  events,
+  onEventClick,
+}) => {
   return (
     <div className="w-full">
       <div className="hidden md:block">
@@ -23,7 +27,11 @@ const EventTableView: React.FC<EventTableViewProps> = ({ events }) => {
           <tbody>
             {events.length > 0 ? (
               events.map((event) => (
-                <tr key={event.id} className="hover:bg-gray-50">
+                <tr
+                  key={event.id}
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={() => onEventClick(event)}
+                >
                   <td className="border p-2 font-semibold">
                     {format(new Date(event.startTime), "EEEE, dd.MM.yyyy", {
                       locale: pl,
@@ -54,8 +62,9 @@ const EventTableView: React.FC<EventTableViewProps> = ({ events }) => {
         {events.length > 0 ? (
           events.map((event) => (
             <div
+              onClick={() => onEventClick(event)}
               key={event.id}
-              className="rounded-lg border bg-white p-2 shadow-sm"
+              className="cursor-pointer rounded-lg border bg-white p-2 shadow-sm"
             >
               <div className="font-semibold text-blue-600">
                 {format(new Date(event.startTime), "EEEE, dd.MM.yyyy", {

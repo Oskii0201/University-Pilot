@@ -12,12 +12,14 @@ interface MonthViewProps {
   range: DateRange;
   currentDate: Date;
   events: Event[];
+  onEventClick: (event: Event) => void;
 }
 
 const MonthView: React.FC<MonthViewProps> = ({
   range,
   currentDate,
   events,
+  onEventClick,
 }) => {
   const days: Date[] = [];
   let day = new Date(range.start);
@@ -57,7 +59,8 @@ const MonthView: React.FC<MonthViewProps> = ({
                 {dayEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="rounded bg-blue-200 px-1 text-sm text-blue-800"
+                    onClick={() => onEventClick(event)}
+                    className="cursor-pointer rounded bg-blue-200 px-1 text-sm text-blue-800"
                   >
                     {event.title}
                   </div>
