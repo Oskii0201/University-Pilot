@@ -31,6 +31,9 @@ const config: Config = {
         hoverLightGray: "#E5E5E5",
         hoverDarkGray: "#2C2C2C",
       },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)"],
+      },
     },
   },
   plugins: [tailwind_scrollbar],

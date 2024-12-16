@@ -1,6 +1,7 @@
+"use client";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Header from "@/components/Header";
-import React, { Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import Loading from "@/app/dashboard/loading";
 
 interface LayoutProps {
@@ -8,13 +9,18 @@ interface LayoutProps {
 }
 
 function Layout({ children }: LayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex flex-1">
-      <Sidebar />
-      <div className="ml-24 flex flex-1 flex-col md:ml-48 lg:ml-72">
-        <Header />
+    <div className="flex min-h-screen w-full">
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+      <div className="flex flex-1 flex-col md:ml-48 lg:ml-72">
+        <Header onHamburgerClick={() => setIsSidebarOpen(true)} />
         <Suspense fallback={<Loading />}>
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 p-4 md:p-6">
+            <div className="w-full max-w-screen-2xl">{children}</div>
+          </main>
         </Suspense>
       </div>
     </div>
