@@ -1,9 +1,13 @@
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
 
 export const calculateRange = (
-  view: "month" | "week" | "table",
+  view: null | "month" | "week" | "table",
   date: Date,
 ) => {
+  if (!view) {
+    return { start: new Date(), end: new Date() };
+  }
+
   if (view === "month") {
     const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
     const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
