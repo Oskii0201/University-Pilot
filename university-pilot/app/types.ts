@@ -5,4 +5,5 @@ export interface Event {
   startTime: string;
   endTime: string;
   room?: string;
+  lecturer?: string;
 }
