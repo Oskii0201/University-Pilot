@@ -2,25 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import MonthView from "./MonthView";
-import WeekView from "./WeekView";
+import EventTableView from "./EventTableView";
 import { calculateRange } from "@/components/Calendar/lib/calculateRange";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
 import { LoadingCircle } from "@/components/LoadingCircle";
-import { Event } from "@/types/Event";
+import { Event } from "@/app/types";
 
-type CalendarView = "month" | "week";
+type CalendarView = "month" | "week" | "table";
 
 interface CalendarProps {
-  /**
-   * Callback wywoływany przy każdej zmianie daty w kalendarzu.
-   * Używany do synchronizacji stanu daty w komponencie nadrzędnym.
-   */
   onDateChange?: (date: Date) => void;
-
-  /**
-   * Lista eventów, które mają być wyświetlane w kalendarzu.
-   * Eventy powinny być filtrowane i odpowiadać zakresowi wyświetlanemu w danym widoku.
-   */
   events?: Event[];
 }
 
@@ -44,9 +35,8 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
     if (view) sessionStorage.setItem("calendar-view", view);
     if (currentDate) {
       sessionStorage.setItem("calendar-date", currentDate.toISOString());
-      onDateChange?.(currentDate); // Powiadomienie nadrzędnego komponentu
+      onDateChange?.(currentDate);
 
-      // Obliczenie i zapis zakresu dat do localStorage
       const range = calculateRange(view, currentDate);
       sessionStorage.setItem(
         "calendar-range",
@@ -61,20 +51,20 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
   const handleNavigation = (direction: "prev" | "next" | "today") => {
     if (!currentDate || !view) return;
 
-    const increment = view === "month" ? 1 : 7;
+    const increment = view === "week" ? 7 : 1;
     const newDate = new Date(currentDate);
 
     if (direction === "prev") {
-      if (view === "month") {
-        newDate.setMonth(currentDate.getMonth() - 1);
-      } else {
+      if (view === "week") {
         newDate.setDate(currentDate.getDate() - increment);
+      } else {
+        newDate.setMonth(currentDate.getMonth() - 1);
       }
     } else if (direction === "next") {
-      if (view === "month") {
-        newDate.setMonth(currentDate.getMonth() + 1);
-      } else {
+      if (view === "week") {
         newDate.setDate(currentDate.getDate() + increment);
+      } else {
+        newDate.setMonth(currentDate.getMonth() + 1);
       }
     } else {
       setCurrentDate(new Date());
@@ -103,8 +93,10 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
 
       {view === "month" ? (
         <MonthView range={range} currentDate={currentDate} events={events} />
+      ) : view === "table" ? (
+        <EventTableView events={events} />
       ) : (
-        <WeekView range={range} events={events} />
+        <p>Funkcja WeekView zostanie wdrożona w przyszłości.</p>
       )}
     </div>
   );
