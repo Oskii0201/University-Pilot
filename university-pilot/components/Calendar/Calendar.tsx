@@ -8,6 +8,7 @@ import { calculateRange } from "@/components/Calendar/lib/calculateRange";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
 import { LoadingCircle } from "@/components/LoadingCircle";
 import { Event } from "@/app/types";
+import { toast } from "react-toastify";
 
 type CalendarView = "month" | "week" | "table";
 
@@ -20,7 +21,26 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
   const [view, setView] = useState<CalendarView | null>(null);
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isSmall = window.matchMedia("(max-width: 768px)").matches;
+      setIsSmallScreen(isSmall);
+
+      if (isSmall && view === "month") {
+        setView("table");
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [view]);
 
   useEffect(() => {
     const savedView = sessionStorage.getItem(
@@ -80,6 +100,14 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
     setSelectedEvent(event);
   };
 
+  const handleViewChange = (newView: CalendarView) => {
+    if (isSmallScreen && newView === "month") {
+      toast.warning("Widok kalendarza jest niedostępny na małych ekranach");
+      return;
+    }
+    setView(newView);
+  };
+
   if (isLoading || !view || !currentDate) {
     return <LoadingCircle />;
   }
@@ -93,8 +121,9 @@ const Calendar: React.FC<CalendarProps> = ({ onDateChange, events = [] }) => {
         onPrevClick={() => handleNavigation("prev")}
         onNextClick={() => handleNavigation("next")}
         onTodayClick={() => handleNavigation("today")}
-        onViewChange={setView}
+        onViewChange={handleViewChange}
         currentView={view}
+        isSmallScreen={isSmallScreen}
       />
 
       {view === "month" ? (
