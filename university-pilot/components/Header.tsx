@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({ onHamburgerClick }) => {
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 rounded bg-white p-2 shadow-lg">
+          <div className="absolute right-0 z-40 mt-2 w-48 rounded bg-white p-2 shadow-lg">
             <ul className="text-sm">
               <li>
                 <button
