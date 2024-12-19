@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Footer from "@/components/Footer";
 import React from "react";
 import { ToastContainer } from "react-toastify";
+import { GeistSans } from "geist/font/sans";
 
 export const metadata: Metadata = {
   title: "University Pilot",
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="hover:scroll scroll-smooth scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-600"
+      className={`hover:scroll ${GeistSans.variable} scroll-smooth scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-600`}
     >
       <body className="flex min-h-screen flex-col antialiased">
         <ToastContainer

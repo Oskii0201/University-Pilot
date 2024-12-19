@@ -1,6 +1,7 @@
 import React from "react";
-import { format, isSameMonth, addDays } from "date-fns";
+import { format, isSameMonth, addDays, isSameDay } from "date-fns";
 import { pl } from "date-fns/locale";
+import { Event } from "@/app/types";
 
 interface DateRange {
   start: Date;
@@ -10,16 +11,26 @@ interface DateRange {
 interface MonthViewProps {
   range: DateRange;
   currentDate: Date;
+  events: Event[];
+  onEventClick: (event: Event) => void;
 }
 
-const MonthView: React.FC<MonthViewProps> = ({ range, currentDate }) => {
+const MonthView: React.FC<MonthViewProps> = ({
+  range,
+  currentDate,
+  events,
+  onEventClick,
+}) => {
   const days: Date[] = [];
   let day = new Date(range.start);
-
   while (day <= range.end) {
     days.push(new Date(day));
     day = addDays(day, 1);
   }
+
+  const getEventsForDay = (day: Date) => {
+    return events.filter((event) => isSameDay(new Date(event.startTime), day));
+  };
 
   return (
     <div className="mx-auto w-full bg-gray-100 text-center">
@@ -30,16 +41,34 @@ const MonthView: React.FC<MonthViewProps> = ({ range, currentDate }) => {
           </div>
         ))}
 
-        {days.map((day, index) => (
-          <div
-            key={index}
-            className={`border p-2 ${
-              isSameMonth(day, currentDate) ? "bg-offWhite" : "text-gray-500"
-            }`}
-          >
-            {format(day, "d", { locale: pl })}{" "}
-          </div>
-        ))}
+        {days.map((day, index) => {
+          const dayEvents = getEventsForDay(day);
+
+          return (
+            <div
+              key={index}
+              className={`border p-2 ${
+                isSameMonth(day, currentDate) ? "bg-offWhite" : "text-gray-500"
+              }`}
+            >
+              <div className="font-bold">
+                {format(day, "d", { locale: pl })}
+              </div>
+
+              <div className="mt-2 space-y-1">
+                {dayEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    onClick={() => onEventClick(event)}
+                    className="cursor-pointer rounded bg-blue-200 px-1 text-sm text-blue-800"
+                  >
+                    {event.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
