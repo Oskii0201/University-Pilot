@@ -19,6 +19,10 @@ type NavItem = {
   href: string;
 };
 
+interface NavigationProps {
+  onLinkClick?: () => void;
+}
+
 const navItems: NavItem[] = [
   { icon: <FaHome />, label: "Dashboard", href: "/dashboard" },
   {
@@ -37,7 +41,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const Navigation: React.FC = () => {
+const Navigation: React.FC<NavigationProps> = ({ onLinkClick }) => {
   const pathname = usePathname();
 
   return (
@@ -59,6 +63,7 @@ const Navigation: React.FC = () => {
               href={item.href}
               aria-label={item.label}
               className={`flex items-center justify-center space-x-2 p-2 md:justify-start ${activeLinkClass}`}
+              onClick={onLinkClick}
             >
               <span>{item.icon}</span>
               <span className="hidden md:block">{item.label}</span>
