@@ -13,7 +13,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 
         public int Id { get; set; }
 
-        public int EnrollmentYear { get; set; }
+        public string AcademicYear { get; set; }
         public string StudyDegree { get; set; }
         public string FieldOfStudy { get; set; }
         public StudyForms StudyForm { get; set; }

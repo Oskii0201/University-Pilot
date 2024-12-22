@@ -79,9 +79,23 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<Holiday>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.Date).IsRequired();
-                entity.Property(e => e.Description).IsRequired(false).HasMaxLength(200);
+                entity.Property(e => e.Description).IsRequired(false).HasMaxLength(256);
+            });
+
+            modelBuilder.Entity<Semester>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.AcademicYear).IsRequired().HasMaxLength(16);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(64);
+                entity.Property(e => e.StartDate).IsRequired();
+                entity.Property(e => e.EndDate).IsRequired();
+
+                entity.HasMany(e => e.Courses)
+                      .WithOne(c => c.Semester)
+                      .HasForeignKey(c => c.SemesterId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             #endregion AcademicCalendar Configuration
@@ -126,9 +140,9 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<StudyProgram>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.EnrollmentYear).IsRequired();
-                entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.FieldOfStudy).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.AcademicYear).IsRequired().HasMaxLength(16);
+                entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(64);
+                entity.Property(e => e.FieldOfStudy).IsRequired().HasMaxLength(128);
                 entity.Property(e => e.StudyForm).IsRequired();
                 entity.Property(e => e.SummerRecruitment).IsRequired();
 
@@ -144,12 +158,17 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Semester).IsRequired();
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
+                entity.Property(e => e.SemesterNumber).IsRequired();
                 entity.Property(e => e.CourseType).IsRequired();
                 entity.Property(e => e.Hours).IsRequired();
-                entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.ECTS).IsRequired();
+
+                entity.HasOne(e => e.Semester)
+                      .WithMany(s => s.Courses)
+                      .HasForeignKey(e => e.SemesterId)
+                      .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasOne(e => e.Specialization)
                       .WithMany(s => s.Courses)
@@ -164,7 +183,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<Specialization>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
 
                 entity.HasMany(e => e.StudyPrograms)
                       .WithMany(sp => sp.Specializations)
@@ -182,7 +201,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<Classroom>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.RoomNumber).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.RoomNumber).IsRequired().HasMaxLength(32);
                 entity.Property(e => e.Floor).IsRequired();
                 entity.Property(e => e.SeatCount).IsRequired();
                 entity.HasMany(e => e.CourseSchedules)
@@ -194,7 +213,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<CourseGroup>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.GroupName).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.GroupName).IsRequired().HasMaxLength(64);
                 entity.HasMany(e => e.CourseSchedules)
                       .WithOne(cs => cs.CourseGroup)
                       .HasForeignKey(cs => cs.CourseGroupId);
@@ -208,7 +227,7 @@ namespace UniversityPilot.DAL
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.StartDateTime).IsRequired();
                 entity.Property(e => e.EndDateTime).IsRequired();
-                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(32);
                 entity.HasOne(e => e.CourseGroup)
                       .WithMany(cg => cg.CourseSchedules)
                       .HasForeignKey(e => e.CourseGroupId);
@@ -222,7 +241,7 @@ namespace UniversityPilot.DAL
 
             modelBuilder.Entity<Instructor>(entity =>
             {
-                entity.Property(e => e.ContractType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.ContractType).IsRequired().HasMaxLength(64);
                 entity.HasMany(e => e.CourseSchedules)
                       .WithOne(cs => cs.Instructor)
                       .HasForeignKey(cs => cs.InstructorId);
@@ -239,7 +258,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<StudySchedule>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
                 entity.Property(e => e.StartDate).IsRequired();
                 entity.Property(e => e.EndDate).IsRequired();
             });
