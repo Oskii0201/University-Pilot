@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.Identity.Models;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
-using UniversityPilot.DAL.Areas.UniversityAndScheduling.Models;
+using UniversityPilot.DAL.Areas.UniversityComponents.Models;
 
 namespace UniversityPilot.DAL
 {

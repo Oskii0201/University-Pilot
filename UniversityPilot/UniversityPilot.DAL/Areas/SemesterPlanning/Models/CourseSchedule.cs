@@ -1,6 +1,7 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.UniversityComponents.Models;
 
-namespace UniversityPilot.DAL.Areas.UniversityAndScheduling.Models
+namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
 {
     public class CourseSchedule : IModelBase
     {

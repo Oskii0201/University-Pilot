@@ -1,7 +1,8 @@
 ﻿using UniversityPilot.DAL.Areas.Identity.Models;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 
-namespace UniversityPilot.DAL.Areas.UniversityAndScheduling.Models
+namespace UniversityPilot.DAL.Areas.UniversityComponents.Models
 {
     public class Instructor : User
     {
