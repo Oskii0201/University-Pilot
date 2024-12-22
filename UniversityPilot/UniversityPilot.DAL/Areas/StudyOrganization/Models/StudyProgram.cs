@@ -1,4 +1,5 @@
-﻿using UniversityPilot.DAL.Areas.Shared;
+﻿using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
+using UniversityPilot.DAL.Areas.Shared;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 
 namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
@@ -9,6 +10,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         {
             Courses = new HashSet<Course>();
             Specializations = new HashSet<Specialization>();
+            ScheduleClassDays = new HashSet<ScheduleClassDay>();
         }
 
         public int Id { get; set; }
@@ -21,5 +23,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 
         public virtual ICollection<Specialization> Specializations { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }
 }

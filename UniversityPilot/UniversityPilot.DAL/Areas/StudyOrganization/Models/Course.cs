@@ -20,7 +20,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public string AssessmentType { get; set; }
         public int ECTS { get; set; }
 
-        public int? SemesterId { get; set; } // Nowe pole dla relacji z Semester
+        public int? SemesterId { get; set; }
         public virtual Semester? Semester { get; set; }
 
         public string? SpecializationId { get; set; }

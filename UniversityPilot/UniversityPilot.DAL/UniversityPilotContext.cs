@@ -45,13 +45,14 @@ namespace UniversityPilot.DAL
 
         #endregion DbSet Identity
 
-        #region DbSet Semester Planing
+        #region DbSet Semester Planning
 
         public DbSet<CourseGroup> CourseGroups { get; set; }
         public DbSet<CourseSchedule> CourseSchedules { get; set; }
-        public DbSet<StudySchedule> StudySchedules { get; set; }
+        public DbSet<ClassDay> ClassDays { get; set; }
+        public DbSet<ScheduleClassDay> ScheduleClassDays { get; set; }
 
-        #endregion DbSet Semester Planing
+        #endregion DbSet Semester Planning
 
         #region DbSet Study Organization
 
@@ -96,6 +97,10 @@ namespace UniversityPilot.DAL
                       .WithOne(c => c.Semester)
                       .HasForeignKey(c => c.SemesterId)
                       .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasMany(e => e.ScheduleClassDays)
+                      .WithOne(scd => scd.Semester)
+                      .HasForeignKey(scd => scd.SemesterId);
             });
 
             #endregion AcademicCalendar Configuration
@@ -135,6 +140,40 @@ namespace UniversityPilot.DAL
 
             #endregion Identity Configuration
 
+            #region Semester Planning Configuration
+
+            modelBuilder.Entity<ClassDay>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.StartTime).IsRequired();
+                entity.Property(e => e.EndTime).IsRequired();
+
+                entity.HasMany(e => e.ScheduleClassDays)
+                      .WithMany(scd => scd.ClassDays)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayClassDay"));
+            });
+
+            modelBuilder.Entity<ScheduleClassDay>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+
+                entity.HasOne(e => e.Semester)
+                      .WithMany(s => s.ScheduleClassDays)
+                      .HasForeignKey(e => e.SemesterId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(e => e.StudyPrograms)
+                      .WithMany(sp => sp.ScheduleClassDays)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
+
+                entity.HasMany(e => e.ClassDays)
+                      .WithMany(cd => cd.ScheduleClassDays)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayClassDay"));
+            });
+
+            #endregion Semester Planning Configuration
+
             #region Study Organization Configuration
 
             modelBuilder.Entity<StudyProgram>(entity =>
@@ -153,6 +192,10 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.Courses)
                       .WithMany(c => c.StudyProgram)
                       .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+
+                entity.HasMany(e => e.ScheduleClassDays)
+                      .WithMany(scd => scd.StudyPrograms)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
             });
 
             modelBuilder.Entity<Course>(entity =>
@@ -253,14 +296,6 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.CourseGroups)
                       .WithMany(cg => cg.Students)
                       .UsingEntity(j => j.ToTable("StudentCourseGroup"));
-            });
-
-            modelBuilder.Entity<StudySchedule>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
-                entity.Property(e => e.StartDate).IsRequired();
-                entity.Property(e => e.EndDate).IsRequired();
             });
 
             #endregion University and Scheduling Configuration

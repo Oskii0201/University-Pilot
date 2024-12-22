@@ -4,9 +4,16 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
 {
     public class ClassDay : IModelBase
     {
+        public ClassDay()
+        {
+            ScheduleClassDays = new HashSet<ScheduleClassDay>();
+        }
+
         public int Id { get; set; }
-        public string DayOfWeek { get; set; }
-        public TimeSpan StartTime { get; set; }
-        public TimeSpan EndTime { get; set; }
+
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+
+        public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }
 }

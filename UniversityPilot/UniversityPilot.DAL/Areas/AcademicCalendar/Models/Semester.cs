@@ -1,4 +1,5 @@
-﻿using UniversityPilot.DAL.Areas.Shared;
+﻿using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
+using UniversityPilot.DAL.Areas.Shared;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 
 namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
@@ -8,6 +9,7 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
         public Semester()
         {
             Courses = new HashSet<Course>();
+            ScheduleClassDays = new HashSet<ScheduleClassDay>();
         }
 
         public int Id { get; set; }
@@ -18,5 +20,6 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
         public DateTime EndDate { get; set; }
 
         public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }
 }
