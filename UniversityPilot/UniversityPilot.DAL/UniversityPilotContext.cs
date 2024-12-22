@@ -31,11 +31,12 @@ namespace UniversityPilot.DAL
             }
         }
 
-        #region DbSet AcademicCalendar
+        #region DbSet Academic Calendar
 
         public DbSet<Holiday> Holidays { get; set; }
+        public DbSet<Semester> Semesters { get; set; }
 
-        #endregion DbSet AcademicCalendar
+        #endregion DbSet Academic Calendar
 
         #region DbSet Identity
 
@@ -43,6 +44,14 @@ namespace UniversityPilot.DAL
         public DbSet<User> Users { get; set; }
 
         #endregion DbSet Identity
+
+        #region DbSet Semester Planing
+
+        public DbSet<CourseGroup> CourseGroups { get; set; }
+        public DbSet<CourseSchedule> CourseSchedules { get; set; }
+        public DbSet<StudySchedule> StudySchedules { get; set; }
+
+        #endregion DbSet Semester Planing
 
         #region DbSet Study Organization
 
@@ -52,18 +61,14 @@ namespace UniversityPilot.DAL
 
         #endregion DbSet Study Organization
 
-        #region DbSet University and Scheduling
+        #region DbSet University Components
 
         public DbSet<Classroom> Classrooms { get; set; }
-        public DbSet<CourseGroup> CourseGroups { get; set; }
-        public DbSet<CourseSchedule> CourseSchedules { get; set; }
-
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Student> Students { get; set; }
+        public DbSet<StudentGroupMembership> StudentGroupsMembership { get; set; }
 
-        public DbSet<StudySchedule> StudySchedules { get; set; }
-
-        #endregion DbSet University and Scheduling
+        #endregion DbSet University Components
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
