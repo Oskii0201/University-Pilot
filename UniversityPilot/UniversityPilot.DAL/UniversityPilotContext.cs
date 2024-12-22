@@ -31,6 +31,12 @@ namespace UniversityPilot.DAL
             }
         }
 
+        #region DbSet AcademicCalendar
+
+        public DbSet<Holiday> Holidays { get; set; }
+
+        #endregion DbSet AcademicCalendar
+
         #region DbSet Identity
 
         public DbSet<Role> Roles { get; set; }
@@ -51,7 +57,7 @@ namespace UniversityPilot.DAL
         public DbSet<Classroom> Classrooms { get; set; }
         public DbSet<CourseGroup> CourseGroups { get; set; }
         public DbSet<CourseSchedule> CourseSchedules { get; set; }
-        public DbSet<Holiday> Holidays { get; set; }
+
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<Student> Students { get; set; }
 
@@ -62,6 +68,18 @@ namespace UniversityPilot.DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            #region AcademicCalendar Configuration
+
+            modelBuilder.Entity<Holiday>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Date).IsRequired();
+                entity.Property(e => e.Description).IsRequired(false).HasMaxLength(200);
+            });
+
+            #endregion AcademicCalendar Configuration
 
             #region Identity Configuration
 
@@ -195,14 +213,6 @@ namespace UniversityPilot.DAL
                 entity.HasOne(e => e.Instructor)
                       .WithMany(i => i.CourseSchedules)
                       .HasForeignKey(e => e.InstructorId);
-            });
-
-            modelBuilder.Entity<Holiday>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Date).IsRequired();
-                entity.Property(e => e.Description).IsRequired(false).HasMaxLength(200);
             });
 
             modelBuilder.Entity<Instructor>(entity =>
