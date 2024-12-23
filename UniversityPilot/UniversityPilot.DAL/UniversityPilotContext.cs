@@ -170,6 +170,8 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.ClassDays)
                       .WithMany(cd => cd.ScheduleClassDays)
                       .UsingEntity(j => j.ToTable("ScheduleClassDayClassDay"));
+
+                entity.HasIndex(e => e.SemesterId);
             });
 
             #endregion Semester Planning Configuration
@@ -221,6 +223,8 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.StudyProgram)
                       .WithMany(sp => sp.Courses)
                       .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+
+                entity.HasIndex(e => e.SemesterId);
             });
 
             modelBuilder.Entity<Specialization>(entity =>
