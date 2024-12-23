@@ -9,6 +9,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
     {
         public Course()
         {
+            CourseGroups = new List<CourseGroup>();
             StudyProgram = new HashSet<StudyProgram>();
         }
 
@@ -30,6 +31,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public int? SharedCourseGroupId { get; set; }
         public virtual SharedCourseGroup SharedCourseGroup { get; set; }
 
-        public virtual IEnumerable<StudyProgram> StudyProgram { get; set; }
+        public virtual ICollection<CourseGroup> CourseGroups { get; set; }
+        public virtual ICollection<StudyProgram> StudyProgram { get; set; }
     }
 }

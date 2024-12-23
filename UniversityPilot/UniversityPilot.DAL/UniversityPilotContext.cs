@@ -167,6 +167,10 @@ namespace UniversityPilot.DAL
                       .WithOne(cs => cs.CourseGroup)
                       .HasForeignKey(cs => cs.CourseGroupId);
 
+                entity.HasMany(e => e.Courses)
+                      .WithMany(c => c.CourseGroups)
+                      .UsingEntity(j => j.ToTable("CourseGroupCourse"));
+
                 entity.HasMany(e => e.Students)
                       .WithMany(s => s.CourseGroups)
                       .UsingEntity(j => j.ToTable("StudentCourseGroup"));
@@ -281,6 +285,10 @@ namespace UniversityPilot.DAL
                 entity.HasOne(e => e.SharedCourseGroup)
                       .WithMany(scg => scg.Courses)
                       .HasForeignKey(e => e.SharedCourseGroupId);
+
+                entity.HasMany(e => e.CourseGroups)
+                      .WithMany(cg => cg.Courses)
+                      .UsingEntity(j => j.ToTable("CourseGroupCourse"));
 
                 entity.HasIndex(e => e.SemesterId);
             });
