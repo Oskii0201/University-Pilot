@@ -9,12 +9,12 @@ namespace UniversityPilot.DAL.Areas.UniversityComponents.Models
         public Instructor() : base()
         {
             CourseSchedules = new HashSet<CourseSchedule>();
-            Courses = new HashSet<Course>();
+            CoursesDetails = new HashSet<CourseDetails>();
         }
 
         public string ContractType { get; set; }
 
         public virtual ICollection<CourseSchedule> CourseSchedules { get; set; }
-        public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<CourseDetails> CoursesDetails { get; set; }
     }
 }
