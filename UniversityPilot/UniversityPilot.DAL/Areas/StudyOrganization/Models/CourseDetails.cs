@@ -1,0 +1,29 @@
+﻿using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
+using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.Shared.Enumes;
+
+namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
+{
+    public class CourseDetails : IModelBase
+    {
+        public CourseDetails()
+        {
+            CourseGroups = new HashSet<CourseGroup>();
+        }
+
+        public int Id { get; set; }
+
+        public CourseTypes CourseType { get; set; }
+        public int Hours { get; set; }
+        public string AssessmentType { get; set; }
+        public int ECTS { get; set; }
+
+        public int CourseId { get; set; }
+        public virtual Course Course { get; set; }
+
+        public int? SharedCourseGroupId { get; set; }
+        public virtual SharedCourseGroup SharedCourseGroup { get; set; }
+
+        public virtual ICollection<CourseGroup> CourseGroups { get; set; }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
 
-namespace UniversityPilot.DAL.Areas.UniversityAndScheduling.Models
+namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
 {
     public class Holiday : IModelBase
     {

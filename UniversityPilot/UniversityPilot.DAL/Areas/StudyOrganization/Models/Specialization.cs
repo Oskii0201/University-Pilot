@@ -1,5 +1,4 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
-using UniversityPilot.DAL.Areas.UniversityAndScheduling.Models;
 
 namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 {
@@ -7,16 +6,14 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
     {
         public Specialization()
         {
-            FieldOfStudies = new HashSet<FieldOfStudy>();
-            Students = new HashSet<Student>();
             Courses = new HashSet<Course>();
+            StudyPrograms = new HashSet<StudyProgram>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<FieldOfStudy> FieldOfStudies { get; set; }
-        public virtual ICollection<Student> Students { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<StudyProgram> StudyPrograms { get; set; }
     }
 }
