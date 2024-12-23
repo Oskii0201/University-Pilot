@@ -1,4 +1,5 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.Shared.Enumes;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 using UniversityPilot.DAL.Areas.UniversityComponents.Models;
 
@@ -15,6 +16,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
 
         public int Id { get; set; }
         public string GroupName { get; set; }
+        public CourseTypes CourseType { get; set; }
 
         public virtual ICollection<Course> Courses { get; set; }
         public virtual ICollection<Student> Students { get; set; }
