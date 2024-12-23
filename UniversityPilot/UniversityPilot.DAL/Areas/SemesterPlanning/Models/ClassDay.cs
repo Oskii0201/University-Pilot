@@ -11,8 +11,8 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
 
         public int Id { get; set; }
 
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public DateTime EndDateTime { get; set; }
 
         public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }

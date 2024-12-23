@@ -51,6 +51,7 @@ namespace UniversityPilot.DAL
         public DbSet<CourseSchedule> CourseSchedules { get; set; }
         public DbSet<ClassDay> ClassDays { get; set; }
         public DbSet<ScheduleClassDay> ScheduleClassDays { get; set; }
+        public DbSet<SharedCourseGroup> sharedCourseGroups { get; set; }
 
         #endregion DbSet Semester Planning
 
@@ -145,8 +146,8 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<ClassDay>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.StartTime).IsRequired();
-                entity.Property(e => e.EndTime).IsRequired();
+                entity.Property(e => e.StartDateTime).IsRequired();
+                entity.Property(e => e.EndDateTime).IsRequired();
 
                 entity.HasMany(e => e.ScheduleClassDays)
                       .WithMany(scd => scd.ClassDays)
@@ -156,7 +157,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<ScheduleClassDay>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(256);
 
                 entity.HasOne(e => e.Semester)
                       .WithMany(s => s.ScheduleClassDays)
@@ -172,6 +173,17 @@ namespace UniversityPilot.DAL
                       .UsingEntity(j => j.ToTable("ScheduleClassDayClassDay"));
 
                 entity.HasIndex(e => e.SemesterId);
+            });
+
+            modelBuilder.Entity<SharedCourseGroup>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
+
+                entity.HasMany(e => e.Courses)
+                      .WithOne(c => c.SharedCourseGroup)
+                      .HasForeignKey(c => c.SharedCourseGroupId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             #endregion Semester Planning Configuration
@@ -223,6 +235,10 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.StudyProgram)
                       .WithMany(sp => sp.Courses)
                       .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+
+                entity.HasOne(e => e.SharedCourseGroup)
+                      .WithMany(scg => scg.Courses)
+                      .HasForeignKey(e => e.SharedCourseGroupId);
 
                 entity.HasIndex(e => e.SemesterId);
             });

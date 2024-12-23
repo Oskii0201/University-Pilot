@@ -1,4 +1,5 @@
 ﻿using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 using UniversityPilot.DAL.Areas.Shared;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 
@@ -23,8 +24,11 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public int? SemesterId { get; set; }
         public virtual Semester? Semester { get; set; }
 
-        public string? SpecializationId { get; set; }
+        public int? SpecializationId { get; set; }
         public virtual Specialization? Specialization { get; set; }
+
+        public int? SharedCourseGroupId { get; set; }
+        public virtual SharedCourseGroup SharedCourseGroup { get; set; }
 
         public virtual IEnumerable<StudyProgram> StudyProgram { get; set; }
     }
