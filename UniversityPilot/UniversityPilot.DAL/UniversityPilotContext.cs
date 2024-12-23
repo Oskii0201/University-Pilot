@@ -283,6 +283,10 @@ namespace UniversityPilot.DAL
                       .WithOne(cd => cd.Course)
                       .HasForeignKey(cd => cd.CourseId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(e => e.Instructors)
+                      .WithMany(i => i.Courses)
+                      .UsingEntity(j => j.ToTable("CourseInstructor"));
             });
 
             modelBuilder.Entity<CourseDetails>(entity =>
@@ -344,6 +348,10 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.CourseSchedules)
                       .WithOne(cs => cs.Instructor)
                       .HasForeignKey(cs => cs.InstructorId);
+
+                entity.HasMany(e => e.Courses)
+                      .WithMany(c => c.Instructors)
+                      .UsingEntity(j => j.ToTable("CourseInstructor"));
             });
 
             modelBuilder.Entity<Student>(entity =>
