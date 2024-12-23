@@ -57,9 +57,10 @@ namespace UniversityPilot.DAL
 
         #region DbSet Study Organization
 
-        public DbSet<StudyProgram> StudyPrograms { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<CourseDetails> CoursesDetails { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
+        public DbSet<StudyProgram> StudyPrograms { get; set; }
 
         #endregion DbSet Study Organization
 
@@ -163,17 +164,17 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.GroupName).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.CourseType).IsRequired();
 
-                entity.HasMany(e => e.CourseSchedules)
-                      .WithOne(cs => cs.CourseGroup)
-                      .HasForeignKey(cs => cs.CourseGroupId);
-
-                entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.CourseGroups)
-                      .UsingEntity(j => j.ToTable("CourseGroupCourse"));
+                entity.HasMany(e => e.CourseDetails)
+                      .WithMany(cd => cd.CourseGroups)
+                      .UsingEntity(j => j.ToTable("CourseGroupCourseDetails"));
 
                 entity.HasMany(e => e.Students)
                       .WithMany(s => s.CourseGroups)
                       .UsingEntity(j => j.ToTable("StudentCourseGroup"));
+
+                entity.HasMany(e => e.CourseSchedules)
+                      .WithOne(cs => cs.CourseGroup)
+                      .HasForeignKey(cs => cs.CourseGroupId);
             });
 
             modelBuilder.Entity<CourseSchedule>(entity =>
@@ -222,9 +223,9 @@ namespace UniversityPilot.DAL
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
 
-                entity.HasMany(e => e.Courses)
-                      .WithOne(c => c.SharedCourseGroup)
-                      .HasForeignKey(c => c.SharedCourseGroupId)
+                entity.HasMany(e => e.CoursesDetails)
+                      .WithOne(cd => cd.SharedCourseGroup)
+                      .HasForeignKey(cd => cd.SharedCourseGroupId)
                       .OnDelete(DeleteBehavior.SetNull);
             });
 
@@ -246,7 +247,7 @@ namespace UniversityPilot.DAL
                       .UsingEntity(j => j.ToTable("StudyProgramSpecialization"));
 
                 entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.StudyProgram)
+                      .WithMany(c => c.StudyPrograms)
                       .UsingEntity(j => j.ToTable("StudyProgramCourse"));
 
                 entity.HasMany(e => e.ScheduleClassDays)
@@ -263,10 +264,6 @@ namespace UniversityPilot.DAL
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
                 entity.Property(e => e.SemesterNumber).IsRequired();
-                entity.Property(e => e.CourseType).IsRequired();
-                entity.Property(e => e.Hours).IsRequired();
-                entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(64);
-                entity.Property(e => e.ECTS).IsRequired();
 
                 entity.HasOne(e => e.Semester)
                       .WithMany(s => s.Courses)
@@ -278,19 +275,37 @@ namespace UniversityPilot.DAL
                       .HasForeignKey(e => e.SpecializationId)
                       .OnDelete(DeleteBehavior.SetNull);
 
-                entity.HasMany(e => e.StudyProgram)
+                entity.HasMany(e => e.StudyPrograms)
                       .WithMany(sp => sp.Courses)
                       .UsingEntity(j => j.ToTable("StudyProgramCourse"));
 
+                entity.HasMany(e => e.CoursesDetails)
+                      .WithOne(cd => cd.Course)
+                      .HasForeignKey(cd => cd.CourseId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CourseDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CourseType).IsRequired();
+                entity.Property(e => e.Hours).IsRequired();
+                entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(64);
+                entity.Property(e => e.ECTS).IsRequired();
+
+                entity.HasOne(e => e.Course)
+                      .WithMany(c => c.CoursesDetails)
+                      .HasForeignKey(e => e.CourseId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasOne(e => e.SharedCourseGroup)
-                      .WithMany(scg => scg.Courses)
-                      .HasForeignKey(e => e.SharedCourseGroupId);
+                      .WithMany(scg => scg.CoursesDetails)
+                      .HasForeignKey(e => e.SharedCourseGroupId)
+                      .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasMany(e => e.CourseGroups)
-                      .WithMany(cg => cg.Courses)
-                      .UsingEntity(j => j.ToTable("CourseGroupCourse"));
-
-                entity.HasIndex(e => e.SemesterId);
+                      .WithMany(cg => cg.CourseDetails)
+                      .UsingEntity(j => j.ToTable("CourseGroupCourseDetails"));
             });
 
             modelBuilder.Entity<Specialization>(entity =>

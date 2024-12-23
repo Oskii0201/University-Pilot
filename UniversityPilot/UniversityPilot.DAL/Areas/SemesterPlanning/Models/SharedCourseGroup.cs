@@ -7,12 +7,12 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
     {
         public SharedCourseGroup()
         {
-            Courses = new HashSet<Course>();
+            CoursesDetails = new HashSet<CourseDetails>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<CourseDetails> CoursesDetails { get; set; }
     }
 }

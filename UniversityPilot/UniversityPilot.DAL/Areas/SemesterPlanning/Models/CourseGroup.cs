@@ -9,7 +9,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
     {
         public CourseGroup()
         {
-            Courses = new HashSet<Course>();
+            CourseDetails = new HashSet<CourseDetails>();
             Students = new HashSet<Student>();
             CourseSchedules = new HashSet<CourseSchedule>();
         }
@@ -18,7 +18,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
         public string GroupName { get; set; }
         public CourseTypes CourseType { get; set; }
 
-        public virtual ICollection<Course> Courses { get; set; }
+        public virtual ICollection<CourseDetails> CourseDetails { get; set; }
         public virtual ICollection<Student> Students { get; set; }
         public virtual ICollection<CourseSchedule> CourseSchedules { get; set; }
     }
