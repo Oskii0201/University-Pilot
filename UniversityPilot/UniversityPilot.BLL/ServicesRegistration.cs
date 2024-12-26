@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using UniversityPilot.BLL.Areas.Files.Interfaces;
+using UniversityPilot.BLL.Areas.Files.Services;
 using UniversityPilot.BLL.Areas.Identity.DTO;
 using UniversityPilot.BLL.Areas.Identity.Interfaces;
 using UniversityPilot.BLL.Areas.Identity.Services;
@@ -22,6 +24,12 @@ namespace UniversityPilot.BLL
             services.AddHttpContextAccessor();
 
             #endregion Identity
+
+            #region Files
+
+            services.AddScoped<ICsvService, CsvService>();
+
+            #endregion Files
         }
     }
 }

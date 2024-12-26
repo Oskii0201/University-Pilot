@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UniversityPilot.BLL.Areas.Files.DTO;
+using UniversityPilot.BLL.Areas.Files.Interfaces;
 
 namespace UniversityPilot.Controllers
 {
@@ -6,29 +8,23 @@ namespace UniversityPilot.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
+        private readonly ICsvService _csvService;
+
+        public FileController(ICsvService csvService)
+        {
+            _csvService = csvService;
+        }
+
         [HttpPost]
         [Route("Upload")]
-        public async Task<IActionResult> Upload([FromForm] string dataset, IFormFile file)
+        public async Task<IActionResult> Upload([FromBody] UploadDatasetDto data)
         {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("No file uploaded.");
-            }
+            var result = await _csvService.UploadCsvAsync(data);
 
-            if (Path.GetExtension(file.FileName).ToLower() != ".csv")
-            {
-                return BadRequest("The file is not in CSV format.");
-            }
+            if (result.IsSuccess)
+                return Ok(new { message = result.Message });
 
-            // TODO: Przetwarzanie pliku CSV
-            try
-            {
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return BadRequest(new { message = result.Message, errors = result.Errors });
         }
     }
 }
