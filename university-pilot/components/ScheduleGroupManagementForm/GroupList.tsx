@@ -6,7 +6,6 @@ import {
 import { Collapse } from "react-collapse";
 import { CiCircleRemove } from "react-icons/ci";
 import Select from "react-select";
-import { toast } from "react-toastify";
 import { Group, Course } from "@/app/types";
 
 interface GroupListProps {
@@ -36,21 +35,12 @@ const GroupList: React.FC<GroupListProps> = ({
     groupName: string,
     courses: Course[],
   ) => {
-    toast.info(
-      <>
-        <p>
-          Czy na pewno chcesz usunąć grupę <strong>{groupName}</strong>?
-        </p>
-        <div className="mt-2 flex justify-end gap-2">
-          <button
-            onClick={() => handleRemoveGroup(groupId, courses)}
-            className="rounded bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
-          >
-            Usuń
-          </button>
-        </div>
-      </>,
+    const confirmed = window.confirm(
+      `Czy na pewno chcesz usunąć grupę "${groupName}"?\nWszystkie kursy zostaną przeniesione do listy nieprzypisanych kierunków.`,
     );
+    if (confirmed) {
+      handleRemoveGroup(groupId, courses);
+    }
   };
 
   return (
