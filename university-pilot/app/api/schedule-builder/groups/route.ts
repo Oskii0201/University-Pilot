@@ -20,3 +20,12 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+let groups = [
+  { id: "1", name: "Grupa 1", courses: ["Matematyka", "Fizyka"] },
+  { id: "2", name: "Grupa 2", courses: ["Chemia", "Biologia"] },
+];
+
+export async function GET() {
+  return NextResponse.json(groups);
+}

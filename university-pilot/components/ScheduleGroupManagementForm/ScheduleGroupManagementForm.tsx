@@ -22,7 +22,9 @@ const ScheduleGroupManagementForm: React.FC = () => {
     const loadSemesters = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get<Semester[]>("/api/semesters");
+        const response = await axios.get<Semester[]>(
+          "/api/schedule-builder/groups/semesters",
+        );
         setSemesters(response.data);
       } catch (error) {
         toast.error("Nie udało się załadować semestrów.");
@@ -75,7 +77,7 @@ const ScheduleGroupManagementForm: React.FC = () => {
 
     try {
       const response = await axios.get<Course[]>(
-        `/api/courses?semesterId=${selectedOption.value}`,
+        `/api/schedule-builder/groups/courses?semesterId=${selectedOption.value}`,
       );
       setUnassignedCourses(response.data);
     } catch (error) {
@@ -149,7 +151,7 @@ const ScheduleGroupManagementForm: React.FC = () => {
     };
 
     try {
-      await axios.post("/api/groups", data);
+      await axios.post("/api/schedule-builder/groups", data);
       toast.success("Formularz wysłany pomyślnie!");
     } catch (error) {
       toast.error("Wystąpił błąd podczas wysyłania formularza.");
