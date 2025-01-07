@@ -18,23 +18,18 @@ const ScheduleGroupManagementForm: React.FC = () => {
   const [unassignedCourses, setUnassignedCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchData = async <T,>(url: string): Promise<T | null> => {
-    try {
-      const response = await axios.get<T>(url);
-      return response.data;
-    } catch (error) {
-      toast.error("Wystąpił błąd podczas pobierania danych.");
-      console.error(error);
-      return null;
-    }
-  };
-
   useEffect(() => {
     const loadSemesters = async () => {
       setIsLoading(true);
-      const data = await fetchData<Semester[]>("/api/semesters");
-      if (data) setSemesters(data);
-      setIsLoading(false);
+      try {
+        const response = await axios.get<Semester[]>("/api/semesters");
+        setSemesters(response.data);
+      } catch (error) {
+        toast.error("Nie udało się załadować semestrów.");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadSemesters();
@@ -78,12 +73,17 @@ const ScheduleGroupManagementForm: React.FC = () => {
     setUnassignedCourses([]);
     setIsLoading(true);
 
-    const data = await fetchData<Course[]>(
-      `/api/courses?semesterId=${selectedOption.value}`,
-    );
-    if (data) setUnassignedCourses(data);
-
-    setIsLoading(false);
+    try {
+      const response = await axios.get<Course[]>(
+        `/api/courses?semesterId=${selectedOption.value}`,
+      );
+      setUnassignedCourses(response.data);
+    } catch (error) {
+      toast.error("Nie udało się załadować kierunków.");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEditGroupName = (groupId: string, newName: string) => {
@@ -149,12 +149,8 @@ const ScheduleGroupManagementForm: React.FC = () => {
     };
 
     try {
-      const response = await axios.post("/api/groups", data);
-      if (response.status === 200) {
-        toast.success("Formularz wysłany pomyślnie!");
-      } else {
-        throw new Error("Błąd podczas wysyłania danych");
-      }
+      await axios.post("/api/groups", data);
+      toast.success("Formularz wysłany pomyślnie!");
     } catch (error) {
       toast.error("Wystąpił błąd podczas wysyłania formularza.");
       console.error(error);
