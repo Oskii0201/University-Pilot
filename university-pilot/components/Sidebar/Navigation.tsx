@@ -27,8 +27,8 @@ const navItems: NavItem[] = [
   { icon: <FaHome />, label: "Dashboard", href: "/dashboard" },
   {
     icon: <FaCalendarAlt />,
-    label: "Harmonogramy",
-    href: "/dashboard/schedules",
+    label: "Harmonogram",
+    href: "/dashboard/schedule-builder",
   },
   { icon: <FaChalkboard />, label: "Sale", href: "/dashboard/rooms" },
   { icon: <FaUsers />, label: "Grupy", href: "/dashboard/groups" },
