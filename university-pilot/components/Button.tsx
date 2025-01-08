@@ -3,7 +3,7 @@ import Link from "next/link";
 
 type ButtonProps = {
   children: string;
-  color?: "green" | "red" | "blue";
+  color?: "green" | "red" | "blue" | "grey";
   onClick?: () => void;
   href?: string;
   width?: string;
@@ -11,6 +11,7 @@ type ButtonProps = {
   type?: "submit" | "reset" | "button" | undefined;
   disabled?: boolean;
   bold?: boolean;
+  uniqueId?: string;
 };
 
 export const Button: React.FC<ButtonProps> = ({

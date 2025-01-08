@@ -51,7 +51,7 @@ const GroupList: React.FC<GroupListProps> = ({
           <li
             key={group.id}
             className="cursor-pointer rounded border bg-gray-100 p-4 transition hover:shadow"
-            onClick={() => toggleGroup(group.id)} // Otwieranie grupy po kliknięciu w całe li
+            onClick={() => toggleGroup(group.id)}
           >
             <div className="flex items-center justify-between">
               <input

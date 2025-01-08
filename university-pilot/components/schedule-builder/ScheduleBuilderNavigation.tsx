@@ -14,17 +14,15 @@ const ScheduleBuilderNavigation = () => {
   return (
     <div className="mb-4 flex flex-wrap gap-2 border-b pb-2">
       {tabs.map((tab) => (
-        <>
-          <Button
-            key={tab.href}
-            href={tab.href}
-            width="w-fit"
-            color="grey"
-            bold={false}
-          >
-            {tab.label}
-          </Button>
-        </>
+        <Button
+          key={tab.href}
+          href={tab.href}
+          width="w-fit"
+          color="grey"
+          bold={false}
+        >
+          {tab.label}
+        </Button>
       ))}
     </div>
   );
