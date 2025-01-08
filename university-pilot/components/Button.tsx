@@ -22,7 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
   type,
   disabled = false,
 }) => {
-  const baseStyles = `rounded-md px-6 py-3 font-semibold text-offWhite transition-colors text-center ${width} ${additionalClasses}`;
+  const baseStyles = `rounded-md px-4 py-2 font-semibold text-offWhite transition-colors text-center ${width} ${additionalClasses}`;
   const colorStyles = {
     green: "bg-mutedGreen hover:bg-softGreen",
     red: "bg-mutedRed hover:bg-softRed",
