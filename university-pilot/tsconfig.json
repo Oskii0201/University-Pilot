@@ -7,11 +7,11 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "commonjs", // Zmieniono z "esnext" dla lepszej współpracy z Jest
+    "moduleResolution": "node", // Zmieniono z "bundler", aby uniknąć problemów z testami
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx", // Zmieniono z "preserve" dla kompatybilności z narzędziami testowymi
     "incremental": true,
     "plugins": [
       {
@@ -22,6 +22,13 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "__tests__/**/*.ts", // Dodano folder testów
+    "__tests__/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "e2e"] // Wykluczono testy e2e dla Playwright
 }
