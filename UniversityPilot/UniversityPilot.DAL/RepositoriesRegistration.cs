@@ -2,6 +2,8 @@
 using UniversityPilot.DAL.Areas.Identity.Interfaces;
 using UniversityPilot.DAL.Areas.Identity.Repositories;
 using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
+using UniversityPilot.DAL.Areas.StudyOrganization.Repositories;
 
 namespace UniversityPilot.DAL
 {
@@ -20,6 +22,16 @@ namespace UniversityPilot.DAL
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             #endregion Shared
+
+            #region StudyOrganization
+
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<ICourseDetailsRepository, CourseDetailsRepository>();
+            services.AddScoped<IFieldOfStudyRepository, FieldOfStudyRepository>();
+            services.AddScoped<ISpecializationRepository, SpecializationRepository>();
+            services.AddScoped<IStudyProgramRepository, StudyProgramRepository>();
+
+            #endregion StudyOrganization
         }
     }
 }
