@@ -236,7 +236,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<StudyProgram>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.AcademicYear).IsRequired().HasMaxLength(16);
+                entity.Property(e => e.EnrollmentYear).IsRequired().HasMaxLength(16);
                 entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.FieldOfStudy).IsRequired().HasMaxLength(128);
                 entity.Property(e => e.StudyForm).IsRequired();
