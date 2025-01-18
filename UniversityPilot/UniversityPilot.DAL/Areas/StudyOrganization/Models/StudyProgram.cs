@@ -11,7 +11,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         {
             Semesters = new HashSet<Semester>();
             Courses = new HashSet<Course>();
-            Specializations = new HashSet<Specialization>();
             ScheduleClassDays = new HashSet<ScheduleClassDay>();
         }
 
@@ -24,7 +23,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public bool SummerRecruitment { get; set; }
 
         public virtual ICollection<Semester> Semesters { get; set; }
-        public virtual ICollection<Specialization> Specializations { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
         public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }

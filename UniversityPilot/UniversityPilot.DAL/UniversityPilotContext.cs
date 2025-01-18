@@ -242,10 +242,6 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.StudyForm).IsRequired();
                 entity.Property(e => e.SummerRecruitment).IsRequired();
 
-                entity.HasMany(e => e.Specializations)
-                      .WithMany(s => s.StudyPrograms)
-                      .UsingEntity(j => j.ToTable("StudyProgramSpecialization"));
-
                 entity.HasMany(e => e.Courses)
                       .WithMany(c => c.StudyPrograms)
                       .UsingEntity(j => j.ToTable("StudyProgramCourse"));
@@ -316,10 +312,6 @@ namespace UniversityPilot.DAL
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
-
-                entity.HasMany(e => e.StudyPrograms)
-                      .WithMany(sp => sp.Specializations)
-                      .UsingEntity(j => j.ToTable("StudyProgramSpecialization"));
 
                 entity.HasMany(e => e.Courses)
                       .WithOne(c => c.Specialization)
