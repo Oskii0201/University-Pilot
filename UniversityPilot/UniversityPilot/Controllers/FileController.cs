@@ -17,9 +17,9 @@ namespace UniversityPilot.Controllers
 
         [HttpPost]
         [Route("Upload")]
-        public async Task<IActionResult> Upload([FromBody] UploadDatasetDto data)
+        public async Task<IActionResult> Upload([FromForm] string dataset, IFormFile file)
         {
-            var result = await _csvService.UploadAsync(data);
+            var result = await _csvService.UploadAsync(new UploadDatasetDto(dataset, file));
 
             if (result.IsSuccess)
                 return Ok(new { message = result.Message });
