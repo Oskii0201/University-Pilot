@@ -5,6 +5,6 @@ namespace UniversityPilot.BLL.Areas.Files.Interfaces
 {
     public interface ICsvService
     {
-        public Task<Result> UploadCsvAsync(UploadDatasetDto data);
+        public Task<Result> UploadAsync(UploadDatasetDto data);
     }
 }

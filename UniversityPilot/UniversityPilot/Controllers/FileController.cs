@@ -19,7 +19,7 @@ namespace UniversityPilot.Controllers
         [Route("Upload")]
         public async Task<IActionResult> Upload([FromBody] UploadDatasetDto data)
         {
-            var result = await _csvService.UploadCsvAsync(data);
+            var result = await _csvService.UploadAsync(data);
 
             if (result.IsSuccess)
                 return Ok(new { message = result.Message });
