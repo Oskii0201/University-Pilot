@@ -18,9 +18,12 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 
         public string EnrollmentYear { get; set; }
         public string StudyDegree { get; set; }
-        public string FieldOfStudy { get; set; }
+
         public StudyForms StudyForm { get; set; }
         public bool SummerRecruitment { get; set; }
+
+        public int FieldOfStudyId { get; set; }
+        public virtual FieldOfStudy FieldOfStudy { get; set; }
 
         public virtual ICollection<Semester> Semesters { get; set; }
         public virtual ICollection<Course> Courses { get; set; }

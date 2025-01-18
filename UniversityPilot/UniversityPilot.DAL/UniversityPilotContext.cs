@@ -59,6 +59,7 @@ namespace UniversityPilot.DAL
 
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseDetails> CoursesDetails { get; set; }
+        public DbSet<FieldOfStudy> FieldsOfStudy { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
         public DbSet<StudyProgram> StudyPrograms { get; set; }
 
@@ -233,28 +234,6 @@ namespace UniversityPilot.DAL
 
             #region Study Organization Configuration
 
-            modelBuilder.Entity<StudyProgram>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.EnrollmentYear).IsRequired().HasMaxLength(16);
-                entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(64);
-                entity.Property(e => e.FieldOfStudy).IsRequired().HasMaxLength(128);
-                entity.Property(e => e.StudyForm).IsRequired();
-                entity.Property(e => e.SummerRecruitment).IsRequired();
-
-                entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.StudyPrograms)
-                      .UsingEntity(j => j.ToTable("StudyProgramCourse"));
-
-                entity.HasMany(e => e.ScheduleClassDays)
-                      .WithMany(scd => scd.StudyPrograms)
-                      .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
-
-                entity.HasMany(e => e.Semesters)
-                      .WithMany(s => s.StudyPrograms)
-                      .UsingEntity(j => j.ToTable("StudyProgramSemester"));
-            });
-
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -308,6 +287,17 @@ namespace UniversityPilot.DAL
                       .UsingEntity(j => j.ToTable("CourseDetailsInstructor"));
             });
 
+            modelBuilder.Entity<FieldOfStudy>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(128);
+
+                entity.HasMany(e => e.Programs)
+                      .WithOne(p => p.FieldOfStudy)
+                      .HasForeignKey(p => p.FieldOfStudyId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<Specialization>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -316,6 +306,32 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.Courses)
                       .WithOne(c => c.Specialization)
                       .HasForeignKey(c => c.SpecializationId);
+            });
+
+            modelBuilder.Entity<StudyProgram>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EnrollmentYear).IsRequired().HasMaxLength(16);
+                entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(64);
+                entity.Property(e => e.StudyForm).IsRequired();
+                entity.Property(e => e.SummerRecruitment).IsRequired();
+
+                entity.HasOne(e => e.FieldOfStudy)
+                      .WithMany(f => f.Programs)
+                      .HasForeignKey(e => e.FieldOfStudyId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(e => e.Courses)
+                      .WithMany(c => c.StudyPrograms)
+                      .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+
+                entity.HasMany(e => e.ScheduleClassDays)
+                      .WithMany(scd => scd.StudyPrograms)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
+
+                entity.HasMany(e => e.Semesters)
+                      .WithMany(s => s.StudyPrograms)
+                      .UsingEntity(j => j.ToTable("StudyProgramSemester"));
             });
 
             #endregion Study Organization Configuration
