@@ -143,54 +143,49 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
 
         private void CreateUniqueSemesters(StudyProgram studyProgram, List<StudyProgramCsv> studyProgramCsvs)
         {
-            var existingSemesters = _semesterRepository.GetAll().ToDictionary(s => s.Name);
+            var existingSemesterNames = _semesterRepository.GetAll().Select(s => s.Name).ToHashSet();
             int maxSemester = studyProgramCsvs.Max(x => x.SemesterNumber);
 
             for (int i = 1; i <= maxSemester; i++)
             {
-                var semestrNameToAdd = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, i);
+                var semesterName = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, i);
 
-                if (!existingSemesters.ContainsKey(semestrNameToAdd))
+                if (existingSemesterNames.Contains(semesterName))
+                    continue;
+
+                bool isWinterSemester = (studyProgram.SummerRecruitment && i % 2 == 0) ||
+                                        (!studyProgram.SummerRecruitment && i % 2 == 1);
+
+                var (startYear, endYear) = ParseSemesterYears(semesterName);
+
+                var newSemester = new Semester
                 {
-                    bool isWinterSemester = (studyProgram.SummerRecruitment && i % 2 == 0) || (!studyProgram.SummerRecruitment && i % 2 == 1);
+                    AcademicYear = $"{startYear}/{endYear}",
+                    Name = semesterName,
+                    StartDate = GenerateSemestrStartDate(startYear, isWinterSemester),
+                    EndDate = GenerateSemestrEndDate(isWinterSemester ? endYear : startYear, isWinterSemester)
+                };
 
-                    var years = semestrNameToAdd.Substring(0, 9).Split('/');
-                    int startYear = int.Parse(years[0]);
-                    int endYear = int.Parse(years[1]);
-
-                    var newSemester = new Semester()
-                    {
-                        AcademicYear = $"{years[0]}/{years[1]}",
-                        Name = semestrNameToAdd,
-                        StartDate = GenerateSemestrStartDate(startYear, isWinterSemester),
-                        EndDate = GenerateSemestrEndDate(isWinterSemester ? endYear : startYear, isWinterSemester)
-                    };
-
-                    _semesterRepository.Add(newSemester);
-                    existingSemesters[semestrNameToAdd] = newSemester;
-
-                    if (!studyProgram.Semesters.Any(s => s.Name == semestrNameToAdd))
-                        studyProgram.Semesters.Add(newSemester);
-                }
-                else
-                {
-                    var existingSemester = existingSemesters[semestrNameToAdd];
-                    if (!studyProgram.Semesters.Any(s => s.Name == semestrNameToAdd))
-                        studyProgram.Semesters.Add(existingSemester);
-                }
+                _semesterRepository.Add(newSemester);
+                existingSemesterNames.Add(semesterName);
             }
-            _studyProgramRepository.Update(studyProgram);
+        }
+
+        private (int startYear, int endYear) ParseSemesterYears(string semesterName)
+        {
+            var years = semesterName[..9].Split('/');
+            return (int.Parse(years[0]), int.Parse(years[1]));
         }
 
         public DateTime GenerateSemestrStartDate(int year, bool isWinterSemester)
             => isWinterSemester ?
-            new DateTime(year, 10, 1) :
-            new DateTime(year, 3, 1);
+            new DateTime(year, 10, 1, 0, 0, 1, DateTimeKind.Utc) :
+            new DateTime(year, 3, 1, 0, 0, 1, DateTimeKind.Utc);
 
         public DateTime GenerateSemestrEndDate(int year, bool isWinterSemester)
             => isWinterSemester ?
-            new DateTime(year, 2, DateTime.DaysInMonth(year, 2)) :
-            new DateTime(year, 9, DateTime.DaysInMonth(year, 9));
+            new DateTime(year, 2, DateTime.DaysInMonth(year, 2), 23, 59, 59, DateTimeKind.Utc) :
+            new DateTime(year, 9, DateTime.DaysInMonth(year, 9), 23, 59, 59, DateTimeKind.Utc);
 
         private void CreateUniqueCoursesInStudyProgram(StudyProgram dbStudyProgram, List<StudyProgramCsv> studyProgramWithCoursesCsv)
         {
@@ -210,7 +205,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 if (!coursesDictionary.ContainsKey(courseKey))
                 {
                     int courseCountInProgram = studyProgramWithCoursesCsv.Count(c =>
-                        c.CourseName == courseCsv.CourseName && c.SemesterNumber == courseCsv.SemesterNumber);
+                        c.CourseName == courseCsv.CourseName &&
+                        c.SemesterNumber == courseCsv.SemesterNumber);
 
                     if (numberOfSpecialization <= 1)
                     {
