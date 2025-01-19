@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
+using UniversityPilot.DAL.Areas.AcademicCalendar.Repositories;
 using UniversityPilot.DAL.Areas.Identity.Interfaces;
 using UniversityPilot.DAL.Areas.Identity.Repositories;
 using UniversityPilot.DAL.Areas.Shared;
@@ -11,6 +13,13 @@ namespace UniversityPilot.DAL
     {
         public static void AddRepositories(this IServiceCollection services)
         {
+            #region AcademicCalendar
+
+            services.AddScoped<ISemesterRepository, SemesterRepository>();
+            services.AddScoped<IHolidayRepository, HolidayRepository>();
+
+            #endregion AcademicCalendar
+
             #region Identity
 
             services.AddScoped<IAccountRepostiory, AccountRepostiory>();
