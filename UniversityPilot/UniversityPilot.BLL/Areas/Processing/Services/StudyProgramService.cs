@@ -112,7 +112,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             newStudyProgram.StudyForm = EnumHelper.ParseEnumFromDescriptionOrDefault(studyProgram.StudyForm, StudyForms.Unknown);
             newStudyProgram.FieldOfStudyId = fieldsOfStudy.First(f => f.Name == studyProgram.FieldOfStudy).Id;
 
-            var existingStudyProgram = _studyProgramRepository.GetExistingStudyProgramWithCourses(newStudyProgram);
+            var existingStudyProgram = _studyProgramRepository.GetExistingStudyProgramWithIncludes(newStudyProgram);
 
             if (existingStudyProgram != null)
             {
@@ -143,14 +143,14 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
 
         private void CreateUniqueSemesters(StudyProgram studyProgram, List<StudyProgramCsv> studyProgramCsvs)
         {
-            var existingSemesters = new HashSet<string>(_semesterRepository.GetAll().Select(s => s.Name));
+            var existingSemesters = _semesterRepository.GetAll().ToDictionary(s => s.Name);
             int maxSemester = studyProgramCsvs.Max(x => x.SemesterNumber);
 
             for (int i = 1; i <= maxSemester; i++)
             {
                 var semestrNameToAdd = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, i);
 
-                if (!existingSemesters.Contains(semestrNameToAdd))
+                if (!existingSemesters.ContainsKey(semestrNameToAdd))
                 {
                     bool isWinterSemester = (studyProgram.SummerRecruitment && i % 2 == 0) || (!studyProgram.SummerRecruitment && i % 2 == 1);
 
@@ -160,16 +160,26 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
 
                     var newSemester = new Semester()
                     {
-                        AcademicYear = years[0] + "/" + years[1],
+                        AcademicYear = $"{years[0]}/{years[1]}",
                         Name = semestrNameToAdd,
                         StartDate = GenerateSemestrStartDate(startYear, isWinterSemester),
                         EndDate = GenerateSemestrEndDate(isWinterSemester ? endYear : startYear, isWinterSemester)
                     };
 
                     _semesterRepository.Add(newSemester);
-                    existingSemesters.Add(semestrNameToAdd);
+                    existingSemesters[semestrNameToAdd] = newSemester;
+
+                    if (!studyProgram.Semesters.Any(s => s.Name == semestrNameToAdd))
+                        studyProgram.Semesters.Add(newSemester);
+                }
+                else
+                {
+                    var existingSemester = existingSemesters[semestrNameToAdd];
+                    if (!studyProgram.Semesters.Any(s => s.Name == semestrNameToAdd))
+                        studyProgram.Semesters.Add(existingSemester);
                 }
             }
+            _studyProgramRepository.Update(studyProgram);
         }
 
         public DateTime GenerateSemestrStartDate(int year, bool isWinterSemester)
@@ -177,16 +187,13 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             new DateTime(year, 10, 1) :
             new DateTime(year, 3, 1);
 
-
         public DateTime GenerateSemestrEndDate(int year, bool isWinterSemester)
             => isWinterSemester ?
             new DateTime(year, 2, DateTime.DaysInMonth(year, 2)) :
             new DateTime(year, 9, DateTime.DaysInMonth(year, 9));
 
-
         private void CreateUniqueCoursesInStudyProgram(StudyProgram dbStudyProgram, List<StudyProgramCsv> studyProgramWithCoursesCsv)
         {
-
             var specializations = _specializationRepository.GetAll();
             var semesters = _semesterRepository.GetAll();
 

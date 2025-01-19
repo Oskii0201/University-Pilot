@@ -5,6 +5,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Interfaces
 {
     public interface IStudyProgramRepository : IRepository<StudyProgram>
     {
-        StudyProgram? GetExistingStudyProgramWithCourses(StudyProgram studyProgram);
+        StudyProgram? GetExistingStudyProgramWithIncludes(StudyProgram studyProgram);
     }
 }

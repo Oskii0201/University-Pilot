@@ -11,13 +11,14 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
         {
         }
 
-        public StudyProgram? GetExistingStudyProgramWithCourses(StudyProgram studyProgram)
+        public StudyProgram? GetExistingStudyProgramWithIncludes(StudyProgram studyProgram)
         {
             return _context.Set<StudyProgram>()
                 .Include(s => s.Courses)
                     .ThenInclude(c => c.Specialization)
                 .Include(s => s.Courses)
                     .ThenInclude(c => c.CoursesDetails)
+                .Include(s => s.Semesters)
                 .FirstOrDefault(sp =>
                            sp.EnrollmentYear == studyProgram.EnrollmentYear &&
                            sp.StudyDegree == studyProgram.StudyDegree &&
