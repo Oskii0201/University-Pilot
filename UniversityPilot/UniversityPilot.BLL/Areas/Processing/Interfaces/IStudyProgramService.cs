@@ -5,6 +5,6 @@ namespace UniversityPilot.BLL.Areas.Processing.Interfaces
 {
     public interface IStudyProgramService
     {
-        Result SaveFromCsv(List<StudyProgramCsv> studyPrograms);
+        Result SaveFromCsv(List<StudyProgramCsv> studyProgramsCsv);
     }
 }

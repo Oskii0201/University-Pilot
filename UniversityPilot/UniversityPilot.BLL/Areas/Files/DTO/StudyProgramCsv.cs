@@ -4,19 +4,17 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
 {
     public class StudyProgramCsv
     {
-        // ==StudyProgram==
-        [CsvColumn(0, "Rok immatrykulacji")]
-        public string EnrollmentYear { get; set; }
+        // ==FieldOfStudy==
 
         [CsvColumn(1, "Kierunek")]
         public string FieldOfStudy { get; set; }
 
+        // ==StudyProgram==
+        [CsvColumn(0, "Rok immatrykulacji")]
+        public string EnrollmentYear { get; set; }
+
         [CsvColumn(2, "Forma")]
         public string StudyForm { get; set; }
-
-        // ==Specialization==
-        [CsvColumn(3, "Specjalność")]
-        public string Specialization { get; set; }
 
         // ==Course==
         [CsvColumn(4, "Nazwa przedmiotu")]
@@ -24,6 +22,10 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
 
         [CsvColumn(5, "Semestr")]
         public int SemesterNumber { get; set; }
+
+        // ==Specialization==
+        [CsvColumn(3, "Specjalność")]
+        public string Specialization { get; set; }
 
         // ==CourseDetails==
         [CsvColumn(6, "Rodzaj zajęć")]
