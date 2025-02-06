@@ -26,14 +26,14 @@ interface NavigationProps {
 const navItems: NavItem[] = [
   { icon: <FaHome />, label: "Dashboard", href: "/dashboard" },
   {
-    icon: <FaCalendarAlt />,
+    icon: <FaChalkboard />,
     label: "Harmonogram",
     href: "/dashboard/schedule-builder",
   },
-  { icon: <FaChalkboard />, label: "Sale", href: "/dashboard/rooms" },
-  { icon: <FaUsers />, label: "Grupy", href: "/dashboard/groups" },
+  { icon: <FaCalendarAlt />, label: "Kalendarz", href: "/dashboard/calendar" },
+  /*{ icon: <FaCalendarAlt />, label: "Grupy", href: "/dashboard/groups" },
   { icon: <FaBook />, label: "Przedmioty", href: "/dashboard/subjects" },
-  { icon: <FaUserTie />, label: "Wykładowcy", href: "/dashboard/lecturers" },
+  { icon: <FaUserTie />, label: "Wykładowcy", href: "/dashboard/lecturers" },*/
   {
     icon: <BsDatabaseFillAdd />,
     label: "Wgraj dane",
