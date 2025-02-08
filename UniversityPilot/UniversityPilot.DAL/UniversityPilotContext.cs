@@ -230,9 +230,10 @@ namespace UniversityPilot.DAL
                       .HasForeignKey(e => e.SpecializationId)
                       .OnDelete(DeleteBehavior.SetNull);
 
-                entity.HasMany(e => e.StudyPrograms)
+                entity.HasOne(e => e.StudyProgram)
                       .WithMany(sp => sp.Courses)
-                      .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+                      .HasForeignKey(e => e.StudyProgramId)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(e => e.CoursesDetails)
                       .WithOne(cd => cd.Course)
@@ -302,8 +303,8 @@ namespace UniversityPilot.DAL
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(e => e.Courses)
-                      .WithMany(c => c.StudyPrograms)
-                      .UsingEntity(j => j.ToTable("StudyProgramCourse"));
+                      .WithOne(c => c.StudyProgram)
+                      .HasForeignKey(c => c.StudyProgramId);
 
                 entity.HasMany(e => e.ScheduleClassDays)
                       .WithMany(scd => scd.StudyPrograms)
