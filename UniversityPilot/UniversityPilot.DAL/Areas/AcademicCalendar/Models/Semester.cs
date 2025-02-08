@@ -10,7 +10,6 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
         {
             Courses = new HashSet<Course>();
             ScheduleClassDays = new HashSet<ScheduleClassDay>();
-            StudyPrograms = new HashSet<StudyProgram>();
         }
 
         public int Id { get; set; }
@@ -20,7 +19,6 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public virtual ICollection<StudyProgram> StudyPrograms { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
         public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }

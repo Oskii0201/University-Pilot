@@ -87,10 +87,6 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.ScheduleClassDays)
                       .WithOne(scd => scd.Semester)
                       .HasForeignKey(scd => scd.SemesterId);
-
-                entity.HasMany(e => e.StudyPrograms)
-                      .WithMany(sp => sp.Semesters)
-                      .UsingEntity(j => j.ToTable("StudyProgramSemester"));
             });
 
             #endregion AcademicCalendar Configuration
@@ -312,10 +308,6 @@ namespace UniversityPilot.DAL
                 entity.HasMany(e => e.ScheduleClassDays)
                       .WithMany(scd => scd.StudyPrograms)
                       .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
-
-                entity.HasMany(e => e.Semesters)
-                      .WithMany(s => s.StudyPrograms)
-                      .UsingEntity(j => j.ToTable("StudyProgramSemester"));
             });
 
             #endregion Study Organization Configuration

@@ -18,7 +18,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
                     .ThenInclude(c => c.Specialization)
                 .Include(s => s.Courses)
                     .ThenInclude(c => c.CoursesDetails)
-                .Include(s => s.Semesters)
                 .FirstOrDefault(sp =>
                            sp.EnrollmentYear == studyProgram.EnrollmentYear &&
                            sp.StudyDegree == studyProgram.StudyDegree &&
