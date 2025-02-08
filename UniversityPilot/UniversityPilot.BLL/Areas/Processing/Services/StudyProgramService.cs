@@ -15,17 +15,20 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
         private readonly IFieldOfStudyRepository _fieldOfStudyRepository;
         private readonly IStudyProgramRepository _studyProgramRepository;
         private readonly ISpecializationRepository _specializationRepository;
+        private readonly ICourseRepository _courseRepository;
         private readonly ISemesterRepository _semesterRepository;
 
         public StudyProgramService(
             IFieldOfStudyRepository fieldOfStudyRepository,
             IStudyProgramRepository studyProgramRepository,
             ISpecializationRepository specializationRepository,
+            ICourseRepository courseRepository,
             ISemesterRepository semesterRepository)
         {
             _fieldOfStudyRepository = fieldOfStudyRepository;
             _studyProgramRepository = studyProgramRepository;
             _specializationRepository = specializationRepository;
+            _courseRepository = courseRepository;
             _semesterRepository = semesterRepository;
         }
 
@@ -49,16 +52,16 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             var fieldOfStudies = _fieldOfStudyRepository.GetAll();
             var existingFieldOfStudies = new HashSet<string>(fieldOfStudies.Select(f => f.Name));
 
-            foreach (var studyProgram in studyProgramsCsv)
+            foreach (var fieldOfStudy in studyProgramsCsv.Select(x => x.FieldOfStudy).Distinct())
             {
-                if (!existingFieldOfStudies.Contains(studyProgram.FieldOfStudy))
+                if (!existingFieldOfStudies.Contains(fieldOfStudy))
                 {
                     var newFieldOfStudy = new FieldOfStudy()
                     {
-                        Name = studyProgram.FieldOfStudy
+                        Name = fieldOfStudy
                     };
                     _fieldOfStudyRepository.Add(newFieldOfStudy);
-                    existingFieldOfStudies.Add(studyProgram.FieldOfStudy);
+                    existingFieldOfStudies.Add(fieldOfStudy);
                 }
             }
         }
@@ -86,17 +89,17 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
         {
             var fieldsOfStudy = _fieldOfStudyRepository.GetAll().ToList();
             var groupedStudyPrograms = studyProgramsCsv
-                .GroupBy(sp => new { sp.EnrollmentYear, sp.StudyForm })
+                .GroupBy(sp => new { sp.EnrollmentYear, sp.StudyForm, sp.FieldOfStudy })
                 .ToList();
 
-            var tempStudyProgramsCsv = new HashSet<(string EnrollmentYear, string StudyForm)>();
+            var tempStudyProgramsCsv = new HashSet<(string EnrollmentYear, string StudyForm, string FieldOfStudy)>();
 
             foreach (var group in groupedStudyPrograms)
             {
                 var studyProgram = group.First();
-                if (!tempStudyProgramsCsv.Contains((studyProgram.EnrollmentYear, studyProgram.StudyForm)))
+                if (!tempStudyProgramsCsv.Contains((studyProgram.EnrollmentYear, studyProgram.StudyForm, studyProgram.FieldOfStudy)))
                 {
-                    tempStudyProgramsCsv.Add((studyProgram.EnrollmentYear, studyProgram.StudyForm));
+                    tempStudyProgramsCsv.Add((studyProgram.EnrollmentYear, studyProgram.StudyForm, studyProgram.FieldOfStudy));
 
                     var dbStudyProgram = GetDbStudyProgram(fieldsOfStudy, studyProgram);
 
@@ -187,7 +190,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             new DateTime(year, 2, DateTime.DaysInMonth(year, 2), 23, 59, 59, DateTimeKind.Utc) :
             new DateTime(year, 9, DateTime.DaysInMonth(year, 9), 23, 59, 59, DateTimeKind.Utc);
 
-        private void CreateUniqueCoursesInStudyProgram(StudyProgram dbStudyProgram, List<StudyProgramCsv> studyProgramWithCoursesCsv)
+        private void CreateUniqueCoursesInStudyProgram(StudyProgram studyProgram, List<StudyProgramCsv> studyProgramWithCoursesCsv)
         {
             var specializations = _specializationRepository.GetAll();
             var semesters = _semesterRepository.GetAll();
@@ -204,26 +207,85 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 string courseKey = $"{courseCsv.CourseName}_{courseCsv.SemesterNumber}";
                 if (!coursesDictionary.ContainsKey(courseKey))
                 {
-                    int courseCountInProgram = studyProgramWithCoursesCsv.Count(c =>
-                        c.CourseName == courseCsv.CourseName &&
-                        c.SemesterNumber == courseCsv.SemesterNumber);
+                    int courseCountInProgram = studyProgramWithCoursesCsv.Where(c =>
+                            c.CourseName == courseCsv.CourseName &&
+                            c.SemesterNumber == courseCsv.SemesterNumber)
+                        .Select(c => (c.CourseName, c.Specialization))
+                        .Distinct()
+                        .Count();
+
+                    var semesterName = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, courseCsv.SemesterNumber);
+                    var semesterId = semesters.First(s => s.Name == semesterName).Id;
+                    var courses = studyProgramWithCoursesCsv.Where(c =>
+                            c.CourseName == courseCsv.CourseName &&
+                            c.SemesterNumber == courseCsv.SemesterNumber &&
+                            c.Specialization == courseCsv.Specialization);
 
                     if (numberOfSpecialization <= 1)
                     {
-                        // TODO
+                        var newCourse = new Course()
+                        {
+                            Name = courseCsv.CourseName,
+                            SpecializationId = string.IsNullOrEmpty(courseCsv.Specialization) ? null : specializations.First(s => s.Name == courseCsv.Specialization).Id,
+                            SemesterNumber = courseCsv.SemesterNumber,
+                            SemesterId = semesterId,
+                            CoursesDetails = GenerateCoursesDetails(studyProgram, courses),
+                            StudyProgramId = studyProgram.Id
+                        };
+                        _courseRepository.Add(newCourse);
                     }
                     else if (courseCountInProgram == numberOfSpecialization)
                     {
-                        // TODO
+                        var newCourse = new Course()
+                        {
+                            Name = courseCsv.CourseName,
+                            SpecializationId = null,
+                            SemesterNumber = courseCsv.SemesterNumber,
+                            SemesterId = semesterId,
+                            CoursesDetails = GenerateCoursesDetails(studyProgram, courses),
+                            StudyProgramId = studyProgram.Id
+                        };
+                        _courseRepository.Add(newCourse);
                     }
                     else
                     {
-                        // TODO
+                        foreach (var courseGroup in courses.GroupBy(c => c.Specialization))
+                        {
+                            var firstCourse = courseGroup.First();
+                            var newCourse = new Course
+                            {
+                                Name = firstCourse.CourseName,
+                                SpecializationId = specializations.First(s => s.Name == firstCourse.Specialization).Id,
+                                SemesterNumber = firstCourse.SemesterNumber,
+                                SemesterId = semesterId,
+                                CoursesDetails = GenerateCoursesDetails(studyProgram, courseGroup.ToList()),
+                                StudyProgramId = studyProgram.Id
+                            };
+                            _courseRepository.Add(newCourse);
+                        }
                     }
 
                     coursesDictionary[courseKey] = courseCsv;
                 }
             }
+        }
+
+        private ICollection<CourseDetails> GenerateCoursesDetails(StudyProgram dbStudyProgram, IEnumerable<StudyProgramCsv> courses)
+        {
+            var coresesDetails = new List<CourseDetails>();
+
+            foreach (var course in courses)
+            {
+                coresesDetails.Add(new CourseDetails()
+                {
+                    CourseType = EnumHelper.ParseEnumFromDescriptionOrDefault(course.CourseType, CourseTypes.Unknown),
+                    Hours = course.Hours,
+                    AssessmentType = course.AssessmentType,
+                    ECTS = course.ECTS
+                });
+            }
+
+            return coresesDetails;
         }
 
         private string CreateSemesterName(string enrollmentYear, bool summerRecruitment, int semesterNumber)
