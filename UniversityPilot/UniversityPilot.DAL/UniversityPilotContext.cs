@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.Identity.Models;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
@@ -15,20 +13,6 @@ namespace UniversityPilot.DAL
         {
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             ChangeTracker.AutoDetectChangesEnabled = false;
-
-            try
-            {
-                var databaseCreator = Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
-                if (databaseCreator != null)
-                {
-                    if (!databaseCreator.CanConnect()) databaseCreator.Create();
-                    if (!databaseCreator.HasTables()) databaseCreator.CreateTables();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
         }
 
         #region DbSet Academic Calendar

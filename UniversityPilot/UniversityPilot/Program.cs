@@ -91,6 +91,7 @@ app.MapControllers();
 using (var serviceScope = app.Services.CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<UniversityPilotContext>();
+    context.Database.Migrate();
     var passwordHasher = serviceScope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
     var seeder = new DataSeeder(context, passwordHasher);
     seeder.SeedDatabase();
