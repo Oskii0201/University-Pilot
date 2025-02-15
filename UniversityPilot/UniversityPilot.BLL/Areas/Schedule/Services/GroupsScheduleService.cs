@@ -37,12 +37,25 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         {
             var scheduleClassDays = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
 
+            foreach (var scd in scheduleClassDays)
+            {
+                scd.StudyPrograms = scd.StudyPrograms
+                    .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend
+                              || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                    .ToList();
+            }
+
             var assignedPrograms = scheduleClassDays
                 .SelectMany(scd => scd.StudyPrograms)
                 .DistinctBy(sp => sp.Id)
                 .ToList();
 
-            var relevantPrograms = await _courseRepository.GetStudyProgramsBySemesterIdAsync(semesterId);
+            var allProgramsFromCourses = await _courseRepository.GetStudyProgramsBySemesterIdAsync(semesterId);
+
+            var relevantPrograms = allProgramsFromCourses
+                .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend
+                          || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                .ToList();
 
             var unassignedPrograms = relevantPrograms
                 .Where(sp => !assignedPrograms.Any(ap => ap.Id == sp.Id))
