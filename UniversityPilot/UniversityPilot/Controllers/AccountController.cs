@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using UniversityPilot.BLL.Areas.Identity.DTO;
 using UniversityPilot.BLL.Areas.Identity.Interfaces;
 
@@ -53,10 +55,37 @@ namespace UniversityPilot.Controllers
         [HttpGet]
         [Route("Details")]
         [Authorize]
-        public IActionResult Details(int id)
+        public IActionResult LoggedUserDetails()
         {
-            var userDetails = _accountService.GetUserDetails(id);
-            return Ok(userDetails);
+            try
+            {
+                if (!Request.Cookies.TryGetValue("session_token", out string jwtToken) || string.IsNullOrEmpty(jwtToken))
+                {
+                    return Unauthorized(new { message = "JWT token is missing" });
+                }
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.ReadJwtToken(jwtToken);
+
+                if (token == null)
+                {
+                    return Unauthorized(new { message = "Invalid JWT token" });
+                }
+
+                var userIdClaim = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized(new { message = "Invalid user ID in token" });
+                }
+
+                var userDetails = _accountService.GetUserDetails(userId);
+                return Ok(userDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred", error = ex.Message });
+            }
         }
 
         [HttpPost]
