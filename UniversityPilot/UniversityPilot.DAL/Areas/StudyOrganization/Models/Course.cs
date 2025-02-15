@@ -8,12 +8,14 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public Course()
         {
             CoursesDetails = new HashSet<CourseDetails>();
-            StudyPrograms = new HashSet<StudyProgram>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
         public int SemesterNumber { get; set; }
+
+        public int StudyProgramId { get; set; }
+        public virtual StudyProgram StudyProgram { get; set; }
 
         public int? SemesterId { get; set; }
         public virtual Semester? Semester { get; set; }
@@ -22,6 +24,5 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public virtual Specialization? Specialization { get; set; }
 
         public virtual ICollection<CourseDetails> CoursesDetails { get; set; }
-        public virtual ICollection<StudyProgram> StudyPrograms { get; set; }
     }
 }

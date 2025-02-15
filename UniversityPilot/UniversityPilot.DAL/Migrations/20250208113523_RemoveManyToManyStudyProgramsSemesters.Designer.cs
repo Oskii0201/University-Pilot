@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniversityPilot.DAL;
@@ -11,9 +12,11 @@ using UniversityPilot.DAL;
 namespace UniversityPilot.DAL.Migrations
 {
     [DbContext(typeof(UniversityPilotContext))]
-    partial class UniversityPilotContextModelSnapshot : ModelSnapshot
+    [Migration("20250208113523_RemoveManyToManyStudyProgramsSemesters")]
+    partial class RemoveManyToManyStudyProgramsSemesters
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,6 +83,21 @@ namespace UniversityPilot.DAL.Migrations
                     b.HasIndex("StudentsId");
 
                     b.ToTable("StudentCourseGroup", (string)null);
+                });
+
+            modelBuilder.Entity("CourseStudyProgram", b =>
+                {
+                    b.Property<int>("CoursesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StudyProgramsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CoursesId", "StudyProgramsId");
+
+                    b.HasIndex("StudyProgramsId");
+
+                    b.ToTable("StudyProgramCourse", (string)null);
                 });
 
             modelBuilder.Entity("ScheduleClassDayStudyProgram", b =>
@@ -366,16 +384,11 @@ namespace UniversityPilot.DAL.Migrations
                     b.Property<int?>("SpecializationId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("StudyProgramId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("SemesterId");
 
                     b.HasIndex("SpecializationId");
-
-                    b.HasIndex("StudyProgramId");
 
                     b.ToTable("Courses");
                 });
@@ -593,6 +606,21 @@ namespace UniversityPilot.DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CourseStudyProgram", b =>
+                {
+                    b.HasOne("UniversityPilot.DAL.Areas.StudyOrganization.Models.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UniversityPilot.DAL.Areas.StudyOrganization.Models.StudyProgram", null)
+                        .WithMany()
+                        .HasForeignKey("StudyProgramsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ScheduleClassDayStudyProgram", b =>
                 {
                     b.HasOne("UniversityPilot.DAL.Areas.SemesterPlanning.Models.ScheduleClassDay", null)
@@ -668,17 +696,9 @@ namespace UniversityPilot.DAL.Migrations
                         .HasForeignKey("SpecializationId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("UniversityPilot.DAL.Areas.StudyOrganization.Models.StudyProgram", "StudyProgram")
-                        .WithMany("Courses")
-                        .HasForeignKey("StudyProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Semester");
 
                     b.Navigation("Specialization");
-
-                    b.Navigation("StudyProgram");
                 });
 
             modelBuilder.Entity("UniversityPilot.DAL.Areas.StudyOrganization.Models.CourseDetails", b =>
@@ -743,11 +763,6 @@ namespace UniversityPilot.DAL.Migrations
                 });
 
             modelBuilder.Entity("UniversityPilot.DAL.Areas.StudyOrganization.Models.Specialization", b =>
-                {
-                    b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("UniversityPilot.DAL.Areas.StudyOrganization.Models.StudyProgram", b =>
                 {
                     b.Navigation("Courses");
                 });
