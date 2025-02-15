@@ -12,7 +12,7 @@ import { LoadingCircle } from "@/components/LoadingCircle";
 
 const ScheduleBuilderGroups: React.FC = () => {
   const [groupSets, setGroupSets] = useState<GroupSet[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -21,10 +21,9 @@ const ScheduleBuilderGroups: React.FC = () => {
       try {
         const response = await axios.get("/api/schedule-builder/groups");
         setGroupSets(response.data);
+        setIsLoading(false);
       } catch (error) {
         console.error("Błąd podczas pobierania zestawów grup:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
