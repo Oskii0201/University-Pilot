@@ -24,3 +24,9 @@ export interface Semester {
 export type FetchResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
+export interface GroupSet {
+  id: string;
+  name: string;
+  createdAt: string;
+  groups: Group[];
+}

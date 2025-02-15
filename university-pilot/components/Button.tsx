@@ -3,13 +3,15 @@ import Link from "next/link";
 
 type ButtonProps = {
   children: string;
-  color?: "green" | "red" | "blue";
+  color?: "green" | "red" | "blue" | "grey";
   onClick?: () => void;
   href?: string;
   width?: string;
   additionalClasses?: string;
   type?: "submit" | "reset" | "button" | undefined;
   disabled?: boolean;
+  bold?: boolean;
+  uniqueId?: string;
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -21,12 +23,14 @@ export const Button: React.FC<ButtonProps> = ({
   additionalClasses = "",
   type,
   disabled = false,
+  bold = true,
 }) => {
-  const baseStyles = `rounded-md px-4 py-2 font-semibold text-offWhite transition-colors text-center ${width} ${additionalClasses}`;
+  const baseStyles = `rounded-md px-4 py-2 transition-colors text-center ${width} ${bold ? `font-semibold` : ``} ${additionalClasses}`;
   const colorStyles = {
-    green: "bg-mutedGreen hover:bg-softGreen",
-    red: "bg-mutedRed hover:bg-softRed",
-    blue: "bg-darkBlue hover:bg-softBlue",
+    green: "text-offWhite bg-mutedGreen hover:bg-softGreen",
+    red: "text-offWhite bg-mutedRed hover:bg-softRed",
+    blue: "text-offWhite bg-darkBlue hover:bg-softBlue",
+    grey: "bg-gray-200 text-gray-600 hover:bg-blue-500 hover:text-offWhite",
   };
   const disabledStyles = "opacity-50 cursor-not-allowed";
 

@@ -3,14 +3,18 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { Button } from "@/components/Button";
-import GroupList from "@/components/ScheduleGroupManagementForm/GroupList";
-import UnassignedCourses from "@/components/ScheduleGroupManagementForm/UnassignedCoursesList";
+import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
+import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
 import { v4 as uuidv4 } from "uuid";
 import { Course, Group, Semester } from "@/app/types";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
-const ScheduleGroupManagementForm: React.FC = () => {
+const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
+  groupID,
+}) => {
+  const router = useRouter();
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
   const [patternTitle, setPatternTitle] = useState<string>("Grupy");
@@ -19,10 +23,18 @@ const ScheduleGroupManagementForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (groupID) {
+      console.log("Editing group set with ID:", groupID);
+    }
+  }, [groupID]);
+
+  useEffect(() => {
     const loadSemesters = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get<Semester[]>("/api/semesters");
+        const response = await axios.get<Semester[]>(
+          "/api/schedule-builder/groups/semesters",
+        );
         setSemesters(response.data);
       } catch (error) {
         toast.error("Nie udało się załadować semestrów.");
@@ -75,7 +87,7 @@ const ScheduleGroupManagementForm: React.FC = () => {
 
     try {
       const response = await axios.get<Course[]>(
-        `/api/courses?semesterId=${selectedOption.value}`,
+        `/api/schedule-builder/groups/courses?semesterId=${selectedOption.value}`,
       );
       setUnassignedCourses(response.data);
     } catch (error) {
@@ -149,8 +161,9 @@ const ScheduleGroupManagementForm: React.FC = () => {
     };
 
     try {
-      await axios.post("/api/groups", data);
+      await axios.post("/api/schedule-builder/groups", data);
       toast.success("Formularz wysłany pomyślnie!");
+      router.push("/dashboard/schedule-builder/groups");
     } catch (error) {
       toast.error("Wystąpił błąd podczas wysyłania formularza.");
       console.error(error);
@@ -161,7 +174,7 @@ const ScheduleGroupManagementForm: React.FC = () => {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div className="col-span-1 md:col-span-2">
         <h1 className="text-2xl font-bold">
-          Zarządzanie grupami harmonogramowymi
+          {groupID ? "Edytuj zestaw grup" : "Stwórz nowy zestaw grup"}
         </h1>
       </div>
 
