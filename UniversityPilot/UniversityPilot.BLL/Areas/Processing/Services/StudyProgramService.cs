@@ -165,7 +165,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                     AcademicYear = $"{startYear}/{endYear}",
                     Name = semesterName,
                     StartDate = GenerateSemestrStartDate(isWinterSemester ? startYear : endYear, isWinterSemester),
-                    EndDate = GenerateSemestrEndDate(endYear, isWinterSemester)
+                    EndDate = GenerateSemestrEndDate(endYear, isWinterSemester),
+                    CreationStage = ScheduleCreationStage.New
                 };
 
                 _semesterRepository.Add(newSemester);
