@@ -10,6 +10,7 @@ import { Course, Group, Semester } from "@/app/types";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { handleApiError } from "@/utils/handleApiError";
 
 const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
   groupID,
@@ -37,8 +38,7 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
         );
         setSemesters(response.data);
       } catch (error) {
-        toast.error("Nie udało się załadować semestrów.");
-        console.error(error);
+        toast.error(handleApiError(error));
       } finally {
         setIsLoading(false);
       }
@@ -186,7 +186,7 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
           instanceId="semester-select"
           options={semesters.map((semester) => ({
             value: semester.id,
-            label: `${semester.name} ${semester.academicYear}`,
+            label: semester.name,
           }))}
           onChange={(newValue) => handleSemesterChange(newValue)}
           isSearchable

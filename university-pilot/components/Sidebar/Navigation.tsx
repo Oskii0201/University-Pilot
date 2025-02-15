@@ -1,12 +1,5 @@
 "use client";
-import {
-  FaHome,
-  FaCalendarAlt,
-  FaChalkboard,
-  FaUsers,
-  FaBook,
-  FaUserTie,
-} from "react-icons/fa";
+import { FaHome, FaCalendarAlt, FaChalkboard } from "react-icons/fa";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
@@ -31,9 +24,6 @@ const navItems: NavItem[] = [
     href: "/dashboard/schedule-builder",
   },
   { icon: <FaCalendarAlt />, label: "Kalendarz", href: "/dashboard/calendar" },
-  /*{ icon: <FaCalendarAlt />, label: "Grupy", href: "/dashboard/groups" },
-  { icon: <FaBook />, label: "Przedmioty", href: "/dashboard/subjects" },
-  { icon: <FaUserTie />, label: "Wykładowcy", href: "/dashboard/lecturers" },*/
   {
     icon: <BsDatabaseFillAdd />,
     label: "Wgraj dane",
