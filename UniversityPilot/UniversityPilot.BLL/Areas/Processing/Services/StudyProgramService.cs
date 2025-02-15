@@ -104,7 +104,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                     var dbStudyProgram = GetDbStudyProgram(fieldsOfStudy, studyProgram);
 
                     CreateUniqueSemesters(dbStudyProgram, group.ToList());
-                    CreateUniqueCoursesInStudyProgram(dbStudyProgram, group.ToList());
+                    //CreateUniqueCoursesInStudyProgram(dbStudyProgram, group.ToList()); TODO: do poprawienia wydajność
                 }
             }
         }
@@ -156,8 +156,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 if (existingSemesterNames.Contains(semesterName))
                     continue;
 
-                bool isWinterSemester = (studyProgram.SummerRecruitment && i % 2 == 0) ||
-                                        (!studyProgram.SummerRecruitment && i % 2 == 1);
+                bool isWinterSemester = semesterName.Contains("Semestr zimowy");
 
                 var (startYear, endYear) = ParseSemesterYears(semesterName);
 
@@ -165,8 +164,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 {
                     AcademicYear = $"{startYear}/{endYear}",
                     Name = semesterName,
-                    StartDate = GenerateSemestrStartDate(startYear, isWinterSemester),
-                    EndDate = GenerateSemestrEndDate(isWinterSemester ? endYear : startYear, isWinterSemester)
+                    StartDate = GenerateSemestrStartDate(isWinterSemester ? startYear : endYear, isWinterSemester),
+                    EndDate = GenerateSemestrEndDate(endYear, isWinterSemester)
                 };
 
                 _semesterRepository.Add(newSemester);
@@ -290,17 +289,16 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
 
         private string CreateSemesterName(string enrollmentYear, bool summerRecruitment, int semesterNumber)
         {
-            var years = enrollmentYear.Split('/');
-            int startYear = int.Parse(years[0]);
+            int startYear = int.Parse(enrollmentYear.Split('/')[0]);
 
-            int yearAdjustment = summerRecruitment ? 0 : 1;
-            int semesterShift = (semesterNumber - 1) / 2;
+            int yearShift = (semesterNumber + (summerRecruitment ? 1 : 0) - 1) / 2;
+            bool isWinterSemester = (semesterNumber % 2 == (summerRecruitment ? 0 : 1));
+            string semesterName = isWinterSemester ? "Semestr zimowy" : "Semestr letni";
 
-            int resultYear = startYear + semesterShift + yearAdjustment;
+            int academicYearStart = startYear + yearShift;
+            int academicYearEnd = academicYearStart + 1;
 
-            string semesterName = semesterNumber % 2 == 1 ? "Semestr zimowy" : "Semestr letni";
-
-            return $"{resultYear}/{resultYear + 1} - {semesterName}";
+            return $"{academicYearStart}/{academicYearEnd} - {semesterName}";
         }
     }
 }
