@@ -26,5 +26,12 @@ namespace UniversityPilot.Controllers
 
             return Ok(await _groupsScheduleService.GetUpcomingSemestersAsync(count));
         }
+
+        [HttpGet]
+        [Route("GetFieldsOfStudyAssignmentsToGroup")]
+        public async Task<IActionResult> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
+        {
+            return Ok(await _groupsScheduleService.GetFieldsOfStudyAssignmentsToGroupAsync(semesterId));
+        }
     }
 }

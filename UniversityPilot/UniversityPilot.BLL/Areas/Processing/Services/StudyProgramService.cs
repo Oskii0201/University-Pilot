@@ -207,6 +207,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             foreach (var courseCsv in studyProgramWithCoursesCsv)
             {
                 string courseKey = $"{courseCsv.CourseName}_{courseCsv.SemesterNumber}";
+                // TODO: sprawdzenie czy course już istnieje w bazie jeżeli tak to nie dodawaj
                 if (!coursesDictionary.ContainsKey(courseKey))
                 {
                     int courseCountInProgram = studyProgramWithCoursesCsv.Where(c =>

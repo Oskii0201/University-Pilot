@@ -3,6 +3,8 @@ using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Repositories;
 using UniversityPilot.DAL.Areas.Identity.Interfaces;
 using UniversityPilot.DAL.Areas.Identity.Repositories;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Repositories;
 using UniversityPilot.DAL.Areas.Shared;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
 using UniversityPilot.DAL.Areas.StudyOrganization.Repositories;
@@ -25,6 +27,12 @@ namespace UniversityPilot.DAL
             services.AddScoped<IAccountRepostiory, AccountRepostiory>();
 
             #endregion Identity
+
+            #region SemesterPlanning
+
+            services.AddScoped<IScheduleClassDayRepository, ScheduleClassDayRepository>();
+
+            #endregion SemesterPlanning
 
             #region Shared
 
