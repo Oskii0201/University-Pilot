@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+using UniversityPilot.BLL.Areas.Schedule.Models;
 
 namespace UniversityPilot.Controllers
 {
@@ -32,6 +33,13 @@ namespace UniversityPilot.Controllers
         public async Task<IActionResult> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
         {
             return Ok(await _groupsScheduleService.GetFieldsOfStudyAssignmentsToGroupAsync(semesterId));
+        }
+
+        [HttpPut("UpdateFieldsOfStudyAssignmentsToGroup")]
+        public IActionResult UpdateFieldsOfStudyAssignmentsToGroup([FromBody] FieldsOfStudyAssignmentDto model)
+        {
+            // TODO: Do implementacji w serwisie (zapis zmian w bazie, walidacja itp.)
+            return Ok("Fields of study assignments updated successfully.");
         }
     }
 }
