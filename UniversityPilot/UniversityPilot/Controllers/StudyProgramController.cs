@@ -16,8 +16,8 @@ namespace UniversityPilot.Controllers
         }
 
         [HttpGet]
-        [Route("GetUpocomingSemesters")]
-        public async Task<IActionResult> GetUpocomingSemesters([FromQuery] int count = 3)
+        [Route("GetUpcomingSemesters")]
+        public async Task<IActionResult> GetUpcomingSemesters([FromQuery] int count = 3)
         {
             if (count <= 0)
             {
