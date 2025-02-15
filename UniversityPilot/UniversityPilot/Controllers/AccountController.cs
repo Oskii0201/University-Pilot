@@ -53,7 +53,7 @@ namespace UniversityPilot.Controllers
         }
 
         [HttpGet]
-        [Route("Details")]
+        [Route("LoggedUserDetails")]
         [Authorize]
         public IActionResult LoggedUserDetails()
         {
