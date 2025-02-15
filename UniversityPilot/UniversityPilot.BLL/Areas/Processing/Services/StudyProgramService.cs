@@ -104,7 +104,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                     var dbStudyProgram = GetDbStudyProgram(fieldsOfStudy, studyProgram);
 
                     CreateUniqueSemesters(dbStudyProgram, group.ToList());
-                    //CreateUniqueCoursesInStudyProgram(dbStudyProgram, group.ToList()); TODO: do poprawienia wydajność
+                    CreateUniqueCoursesInStudyProgram(dbStudyProgram, group.ToList());
                 }
             }
         }
@@ -202,6 +202,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 .Count();
 
             var coursesDictionary = new Dictionary<string, StudyProgramCsv>();
+            var newCourses = new List<Course>();
 
             foreach (var courseCsv in studyProgramWithCoursesCsv)
             {
@@ -215,7 +216,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                         .Distinct()
                         .Count();
 
-                    var semesterName = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, courseCsv.SemesterNumber);
+                    var semesterName = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, courseCsv.SemesterNumber == 0 ? 1 : courseCsv.SemesterNumber);
+                    // TODO: do poprawienia dane wejściowe, dane z przecinkami do cudzysłowia
                     var semesterId = semesters.First(s => s.Name == semesterName).Id;
                     var courses = studyProgramWithCoursesCsv.Where(c =>
                             c.CourseName == courseCsv.CourseName &&
@@ -233,7 +235,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                             CoursesDetails = GenerateCoursesDetails(studyProgram, courses),
                             StudyProgramId = studyProgram.Id
                         };
-                        _courseRepository.Add(newCourse);
+                        newCourses.Add(newCourse);
                     }
                     else if (courseCountInProgram == numberOfSpecialization)
                     {
@@ -246,7 +248,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                             CoursesDetails = GenerateCoursesDetails(studyProgram, courses),
                             StudyProgramId = studyProgram.Id
                         };
-                        _courseRepository.Add(newCourse);
+                        newCourses.Add(newCourse);
                     }
                     else
                     {
@@ -262,13 +264,13 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                                 CoursesDetails = GenerateCoursesDetails(studyProgram, courseGroup.ToList()),
                                 StudyProgramId = studyProgram.Id
                             };
-                            _courseRepository.Add(newCourse);
+                            newCourses.Add(newCourse);
                         }
                     }
-
                     coursesDictionary[courseKey] = courseCsv;
                 }
             }
+            _courseRepository.AddRange(newCourses);
         }
 
         private ICollection<CourseDetails> GenerateCoursesDetails(StudyProgram dbStudyProgram, IEnumerable<StudyProgramCsv> courses)
