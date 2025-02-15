@@ -9,6 +9,8 @@ using UniversityPilot.BLL.Areas.Identity.Services;
 using UniversityPilot.BLL.Areas.Identity.Validators;
 using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
+using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+using UniversityPilot.BLL.Areas.Schedule.Services;
 using UniversityPilot.DAL.Areas.Identity.Models;
 
 namespace UniversityPilot.BLL
@@ -41,6 +43,12 @@ namespace UniversityPilot.BLL
             services.AddScoped<IHistoricalScheduleService, HistoricalScheduleService>();
 
             #endregion Processing
+
+            #region Schedule
+
+            services.AddScoped<IGroupsScheduleService, GroupsScheduleService>();
+
+            #endregion Schedule
         }
     }
 }
