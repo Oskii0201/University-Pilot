@@ -134,12 +134,13 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                                     .Replace(enrollmentYear, "")
                                     .Replace("- Studia", "")
                                     .Replace("n. l.", "")
+                                    .Replace("  ", " ")
                                     .Trim();
 
             return new StudyProgram()
             {
                 EnrollmentYear = enrollmentYear,
-                StudyDegree = studyDegreePart,
+                StudyDegree = EnumHelper.ParseEnumFromDescriptionOrDefault(studyDegreePart, StudyDegree.Unknown),
                 SummerRecruitment = summerRecruitment
             };
         }

@@ -294,7 +294,7 @@ namespace UniversityPilot.DAL
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.EnrollmentYear).IsRequired().HasMaxLength(16);
-                entity.Property(e => e.StudyDegree).IsRequired().HasMaxLength(64);
+                entity.Property(e => e.StudyDegree).IsRequired();
                 entity.Property(e => e.StudyForm).IsRequired();
                 entity.Property(e => e.SummerRecruitment).IsRequired();
 
