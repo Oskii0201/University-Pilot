@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Select from "react-select";
 import { Button } from "@/components/Button";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
@@ -12,22 +12,21 @@ import { useRouter } from "next/navigation";
 import { handleApiError } from "@/utils/handleApiError";
 import apiClient from "@/app/lib/apiClient";
 
-const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
-  groupID,
+const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
+  semesterID,
 }) => {
   const router = useRouter();
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
     null,
   );
-  const [patternTitle, setPatternTitle] = useState<string>("Grupy");
+  const [patternTitle, setPatternTitle] = useState("Grupy");
   const [groups, setGroups] = useState<Group[]>([]);
   const [unassignedCourses, setUnassignedCourses] = useState<Course[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadSemesters = async () => {
-      setIsLoading(true);
+    const fetchSemesters = async () => {
       try {
         const response = await axios.get<Semester[]>(
           "/api/schedule-builder/groups/semesters",
@@ -39,15 +38,14 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
         setIsLoading(false);
       }
     };
-
-    loadSemesters();
+    fetchSemesters();
   }, []);
 
   useEffect(() => {
-    if (groupID && semesters.length > 0) {
-      handleSemesterChange({ value: Number(groupID) });
+    if (semesterID && semesters.length > 0) {
+      handleSemesterChange({ value: Number(semesterID) });
     }
-  }, [groupID, semesters]);
+  }, [semesterID, semesters]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -57,64 +55,55 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [groups, unassignedCourses]);
 
-  const fetchGetFieldsOfStudyAssignmentsToGroup = async (
-    semesterID: number,
-  ) => {
+  const fetchGroupAssignments = useCallback(async (semesterID: number) => {
+    if (!semesterID) return;
     try {
       setIsLoading(true);
-
-      if (!semesterID) return;
-
       const response = await apiClient.get(
         `/StudyProgram/GetFieldsOfStudyAssignmentsToGroup?semesterId=${semesterID}`,
       );
-      setUnassignedCourses(response.data.unassignedFieldsOfStudy);
-
-      if (response.data.assignedFieldOfStudyGroups.length > 0) {
-        setGroups(response.data.assignedFieldOfStudyGroups);
-      }
+      setUnassignedCourses(response.data.unassignedFieldsOfStudy || []);
+      setGroups(response.data.assignedFieldOfStudyGroups || []);
     } catch (error) {
       toast.error("Nie udało się załadować kierunków.");
       console.error(error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleSemesterChange = async (
-    selectedOption: { value: number } | null,
-  ) => {
-    if (!selectedOption) return;
-    setIsLoading(true);
+  const handleSemesterChange = useCallback(
+    async (selectedOption: { value: number } | null) => {
+      if (!selectedOption) return;
+      setIsLoading(true);
 
-    if (
-      groups.length > 0 ||
-      groups.some((group) => group.assignedFieldsOfStudy.length > 0)
-    ) {
-      const confirmChange = window.confirm(
-        "Zmiana semestru spowoduje utratę wszystkich danych. Czy chcesz kontynuować?",
-      );
-      if (!confirmChange) return;
-    }
+      if (
+        groups.length > 0 ||
+        groups.some((g) => g.assignedFieldsOfStudy.length > 0)
+      ) {
+        if (
+          !window.confirm(
+            "Zmiana semestru spowoduje utratę wszystkich danych. Kontynuować?",
+          )
+        ) {
+          setIsLoading(false);
+          return;
+        }
+      }
 
-    const selectedSemester = semesters.find(
-      (semester) => semester.id === selectedOption.value,
-    );
+      const semester =
+        semesters.find((s) => s.id === selectedOption.value) || null;
+      setSelectedSemester(semester);
+      setPatternTitle(`Grupy ${semester?.name || ""}`);
 
-    setSelectedSemester(selectedSemester || null);
-
-    setPatternTitle(`Grupy ${selectedSemester?.name}`);
-
-    await fetchGetFieldsOfStudyAssignmentsToGroup(selectedOption.value);
-
-    setIsLoading(false);
-  };
-
+      await fetchGroupAssignments(selectedOption.value);
+      setIsLoading(false);
+    },
+    [groups, semesters, fetchGroupAssignments],
+  );
   const handleEditGroupName = (groupId: number, newName: string) => {
     setGroups((prevGroups) =>
       prevGroups.map((g) =>
@@ -122,7 +111,6 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
       ),
     );
   };
-
   const handleAddCourseToGroup = (groupId: number, courseName: string) => {
     const course = unassignedCourses.find((c) => c === courseName);
     if (!course) return;
@@ -140,7 +128,17 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
 
     setUnassignedCourses((prev) => prev.filter((c) => c !== courseName));
   };
-
+  const handleAddGroup = () => {
+    setGroups((prev) => [
+      ...prev,
+      {
+        groupId:
+          prev.length > 0 ? Math.max(...prev.map((g) => g.groupId)) + 1 : 1,
+        groupName: `Grupa ${prev.length + 1}`,
+        assignedFieldsOfStudy: [],
+      },
+    ]);
+  };
   const handleRemoveCourseFromGroup = (groupId: number, courseName: string) => {
     const group = groups.find((g) => g.groupId === groupId);
     if (!group) return;
@@ -163,7 +161,6 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
 
     setUnassignedCourses((prev) => [...prev, course]);
   };
-
   const handleRemoveGroup = (groupId: number, courses: Course[]) => {
     setGroups((prev) => prev.filter((g) => g.groupId !== groupId));
     setUnassignedCourses((prev) => [...prev, ...courses]);
@@ -187,12 +184,12 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
       console.error(error);
     }
   };
-  console.log(selectedSemester);
+
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div className="col-span-1 md:col-span-2">
         <h1 className="text-2xl font-bold">
-          {groupID ? "Edytuj zestaw grup" : "Stwórz nowy zestaw grup"}
+          {semesterID ? "Edytuj zestaw grup" : "Stwórz nowy zestaw grup"}
         </h1>
       </div>
 
@@ -203,15 +200,11 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
         <Select
           instanceId="semester-select"
           value={
-            selectedSemester && {
-              value: selectedSemester.id,
-              label: selectedSemester.name,
-            }
+            selectedSemester
+              ? { value: selectedSemester.id, label: selectedSemester.name }
+              : null
           }
-          options={semesters.map((semester) => ({
-            value: semester.id,
-            label: semester.name,
-          }))}
+          options={semesters.map((s) => ({ value: s.id, label: s.name }))}
           onChange={handleSemesterChange}
           isSearchable
           placeholder="Wybierz semestr..."
@@ -257,22 +250,7 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
             handleRemoveGroup={handleRemoveGroup}
           />
 
-          <Button
-            onClick={() =>
-              setGroups([
-                ...groups,
-                {
-                  groupId:
-                    groups.length > 0
-                      ? Math.max(...groups.map((g) => g.groupId)) + 1
-                      : 1,
-                  groupName: `Grupa ${groups.length + 1}`,
-                  assignedFieldsOfStudy: [],
-                },
-              ])
-            }
-            color="blue"
-          >
+          <Button onClick={handleAddGroup} color="blue">
             Dodaj grupę
           </Button>
 

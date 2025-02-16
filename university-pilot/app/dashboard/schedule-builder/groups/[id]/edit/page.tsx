@@ -8,5 +8,5 @@ export default async function EditGroupSetPage({
 }) {
   const id = (await params).id;
 
-  return <ScheduleGroupManagementForm groupID={id} />;
+  return <ScheduleGroupManagementForm semesterID={id} />;
 }
