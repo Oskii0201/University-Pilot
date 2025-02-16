@@ -26,3 +26,12 @@ export interface GroupSet {
   createdAt: string;
   groups: Group[];
 }
+export interface User {
+  id: number;
+  roleId: number;
+  roleName: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string | null;
+}

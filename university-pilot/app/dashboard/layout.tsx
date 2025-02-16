@@ -1,8 +1,9 @@
 "use client";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Header from "@/components/Header";
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import Loading from "@/app/dashboard/loading";
+import { useUserStore } from "@/app/store/useUserStore";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,11 @@ interface LayoutProps {
 
 function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const fetchUser = useUserStore((state) => state.fetchUser);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <div className="flex min-h-screen w-full">

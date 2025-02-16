@@ -4,6 +4,7 @@ import { FaBars } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { logout } from "@/app/lib/auth";
+import { useUserStore } from "@/app/store/useUserStore";
 
 interface HeaderProps {
   onHamburgerClick: () => void;
@@ -11,7 +12,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onHamburgerClick }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-
+  const user = useUserStore((state) => state.user);
   const closeDropdown = () => setDropdownOpen(false);
 
   const dropdownRef = useClickOutside(closeDropdown);
@@ -36,7 +37,11 @@ const Header: React.FC<HeaderProps> = ({ onHamburgerClick }) => {
           onClick={() => setDropdownOpen((prev) => !prev)}
           className="flex items-center gap-2 rounded px-4 py-2 text-sm font-semibold text-darkGray hover:bg-gray-200"
         >
-          Administrator
+          {user ? (
+            `${user.firstName} ${user.lastName}`
+          ) : (
+            <p>Ładowanie danych użytkownika...</p>
+          )}
           <IoMdArrowDropdown size={20} />
         </button>
 
