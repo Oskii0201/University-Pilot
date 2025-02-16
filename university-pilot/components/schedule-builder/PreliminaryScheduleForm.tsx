@@ -42,10 +42,10 @@ const PreliminaryScheduleForm: React.FC<{
 
   const handleSemesterChange = useCallback(
     async (selectedOption: { value: number } | null) => {
-      if (!selectedOption) return;
+      if (!selectedOption || (semesterID && selectedSemester)) return;
       setIsLoading(true);
 
-      if (!readOnlyMode && hasTrueValues(schedule)) {
+      if (!readOnlyMode && !semesterID && hasTrueValues(schedule)) {
         const confirmChange = window.confirm(
           "Zmiana semestru spowoduje utratę wszystkich danych. Kontynuować?",
         );
@@ -65,11 +65,11 @@ const PreliminaryScheduleForm: React.FC<{
 
       setIsLoading(false);
     },
-    [semesters, schedule, readOnlyMode],
+    [semesters, schedule, readOnlyMode, semesterID, selectedSemester],
   );
 
   useEffect(() => {
-    if (readOnlyMode && semesterID) {
+    if ((readOnlyMode || semesterID) && semesterID) {
       handleSemesterChange({ value: semesterID });
     }
   }, [semesterID, readOnlyMode, handleSemesterChange]);
@@ -100,21 +100,27 @@ const PreliminaryScheduleForm: React.FC<{
       weekends: schedule,
     });
   };
-
+  /*TODO
+   *  poprawić błąd wynikający z center: true*/
   const columns = [
     {
       name: "Data",
       selector: (row: Weekend) => row.date,
+      center: true,
     },
     ...groups.map((group) => ({
       name: group.groupName,
+      center: true,
       cell: (row: Weekend) => (
-        <input
-          type="checkbox"
-          checked={row.availability[group.groupId]}
-          onChange={() => toggleAvailability(row.date, group.groupId)}
-          disabled={readOnlyMode}
-        />
+        <div className="mx-auto">
+          <input
+            type="checkbox"
+            checked={row.availability[group.groupId]}
+            onChange={() => toggleAvailability(row.date, group.groupId)}
+            disabled={readOnlyMode}
+            className={`peer h-4 w-4 appearance-none rounded-md border border-gray-300 checked:border-blue-500 checked:bg-blue-500 peer-disabled:border-blue-500/50 peer-disabled:bg-blue-500/50 focus:ring-2 focus:ring-blue-500 sm:h-5 sm:w-5 md:h-6 md:w-6 ${!readOnlyMode && "cursor-pointer"}`}
+          />
+        </div>
       ),
     })),
   ];
@@ -145,7 +151,7 @@ const PreliminaryScheduleForm: React.FC<{
           isSearchable
           placeholder="Wybierz semestr..."
           isLoading={isLoading}
-          isDisabled={readOnlyMode}
+          isDisabled={readOnlyMode || !!semesterID}
         />
       </div>
 
