@@ -6,7 +6,5 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces
     public interface IScheduleClassDayRepository : IRepository<ScheduleClassDay>
     {
         Task<List<ScheduleClassDay>> GetBySemesterIdAsync(int semesterId);
-
-        Task SaveChangesAsync();
     }
 }

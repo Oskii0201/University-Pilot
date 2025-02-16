@@ -19,10 +19,5 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                 .Where(scd => scd.SemesterId == semesterId)
                 .ToListAsync();
         }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
     }
 }

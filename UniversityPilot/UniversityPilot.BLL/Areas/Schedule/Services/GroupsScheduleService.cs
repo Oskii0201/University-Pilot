@@ -177,9 +177,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                         scd.StudyPrograms.Add(program);
                     }
                 }
+                await _scheduleClassDayRepository.UpdateAsync(scd);
             }
-
-            await _scheduleClassDayRepository.SaveChangesAsync();
         }
 
         private static string FormatFieldOfStudy(StudyProgram sp)
