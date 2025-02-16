@@ -5,29 +5,25 @@ import Select from "react-select";
 import { Button } from "@/components/Button";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
-import { v4 as uuidv4 } from "uuid";
 import { Course, Group, Semester } from "@/app/types";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { handleApiError } from "@/utils/handleApiError";
+import apiClient from "@/app/lib/apiClient";
 
-const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
+const ScheduleGroupManagementForm: React.FC<{ groupID?: number }> = ({
   groupID,
 }) => {
   const router = useRouter();
   const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
+    null,
+  );
   const [patternTitle, setPatternTitle] = useState<string>("Grupy");
   const [groups, setGroups] = useState<Group[]>([]);
   const [unassignedCourses, setUnassignedCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (groupID) {
-      console.log("Editing group set with ID:", groupID);
-    }
-  }, [groupID]);
 
   useEffect(() => {
     const loadSemesters = async () => {
@@ -48,6 +44,12 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
   }, []);
 
   useEffect(() => {
+    if (groupID && semesters.length > 0) {
+      handleSemesterChange({ value: Number(groupID) });
+    }
+  }, [groupID, semesters]);
+
+  useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (groups.length > 0 || unassignedCourses.length > 0) {
         event.preventDefault();
@@ -60,36 +62,22 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
     };
   }, [groups, unassignedCourses]);
 
-  const handleSemesterChange = async (
-    selectedOption: { value: string } | null,
+  const fetchGetFieldsOfStudyAssignmentsToGroup = async (
+    semesterID: number,
   ) => {
-    if (!selectedOption) return;
-
-    if (groups.length > 0 || groups.some((group) => group.courses.length > 0)) {
-      const confirmChange = window.confirm(
-        "Zmiana semestru spowoduje utratę wszystkich danych. Czy chcesz kontynuować?",
-      );
-      if (!confirmChange) return;
-    }
-
-    setSelectedSemester(selectedOption.value);
-
-    const selectedSemester = semesters.find(
-      (semester) => semester.id === selectedOption.value,
-    );
-    setPatternTitle(
-      `Grupy ${selectedSemester?.name || ""} ${selectedSemester?.academicYear || ""}`,
-    );
-
-    setGroups([]);
-    setUnassignedCourses([]);
-    setIsLoading(true);
-
     try {
-      const response = await axios.get<Course[]>(
-        `/api/schedule-builder/groups/courses?semesterId=${selectedOption.value}`,
+      setIsLoading(true);
+
+      if (!semesterID) return;
+
+      const response = await apiClient.get(
+        `/StudyProgram/GetFieldsOfStudyAssignmentsToGroup?semesterId=${semesterID}`,
       );
-      setUnassignedCourses(response.data);
+      setUnassignedCourses(response.data.unassignedFieldsOfStudy);
+
+      if (response.data.assignedFieldOfStudyGroups.length > 0) {
+        setGroups(response.data.assignedFieldOfStudyGroups);
+      }
     } catch (error) {
       toast.error("Nie udało się załadować kierunków.");
       console.error(error);
@@ -98,38 +86,76 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
     }
   };
 
-  const handleEditGroupName = (groupId: string, newName: string) => {
+  const handleSemesterChange = async (
+    selectedOption: { value: number } | null,
+  ) => {
+    if (!selectedOption) return;
+    setIsLoading(true);
+
+    if (
+      groups.length > 0 ||
+      groups.some((group) => group.assignedFieldsOfStudy.length > 0)
+    ) {
+      const confirmChange = window.confirm(
+        "Zmiana semestru spowoduje utratę wszystkich danych. Czy chcesz kontynuować?",
+      );
+      if (!confirmChange) return;
+    }
+
+    const selectedSemester = semesters.find(
+      (semester) => semester.id === selectedOption.value,
+    );
+
+    setSelectedSemester(selectedSemester || null);
+
+    setPatternTitle(`Grupy ${selectedSemester?.name}`);
+
+    await fetchGetFieldsOfStudyAssignmentsToGroup(selectedOption.value);
+
+    setIsLoading(false);
+  };
+
+  const handleEditGroupName = (groupId: number, newName: string) => {
     setGroups((prevGroups) =>
-      prevGroups.map((g) => (g.id === groupId ? { ...g, name: newName } : g)),
+      prevGroups.map((g) =>
+        g.groupId === groupId ? { ...g, groupName: newName } : g,
+      ),
     );
   };
 
-  const handleAddCourseToGroup = (groupId: string, courseId: number) => {
-    const course = unassignedCourses.find((c) => c.id === courseId);
+  const handleAddCourseToGroup = (groupId: number, courseName: string) => {
+    const course = unassignedCourses.find((c) => c === courseName);
     if (!course) return;
 
     setGroups((prev) =>
       prev.map((g) =>
-        g.id === groupId ? { ...g, courses: [...g.courses, course] } : g,
+        g.groupId === groupId
+          ? {
+              ...g,
+              assignedFieldsOfStudy: [...g.assignedFieldsOfStudy, course],
+            }
+          : g,
       ),
     );
 
-    setUnassignedCourses((prev) => prev.filter((c) => c.id !== courseId));
+    setUnassignedCourses((prev) => prev.filter((c) => c !== courseName));
   };
 
-  const handleRemoveCourseFromGroup = (groupId: string, courseId: number) => {
-    const group = groups.find((g) => g.id === groupId);
+  const handleRemoveCourseFromGroup = (groupId: number, courseName: string) => {
+    const group = groups.find((g) => g.groupId === groupId);
     if (!group) return;
 
-    const course = group.courses.find((c) => c.id === courseId);
+    const course = group.assignedFieldsOfStudy.find((c) => c === courseName);
     if (!course) return;
 
     setGroups((prev) =>
       prev.map((g) =>
-        g.id === groupId
+        g.groupId === groupId
           ? {
               ...g,
-              courses: g.courses.filter((c) => c.id !== courseId),
+              assignedFieldsOfStudy: g.assignedFieldsOfStudy.filter(
+                (c) => c !== courseName,
+              ),
             }
           : g,
       ),
@@ -138,30 +164,22 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
     setUnassignedCourses((prev) => [...prev, course]);
   };
 
-  const handleRemoveGroup = (groupId: string, courses: Course[]) => {
-    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+  const handleRemoveGroup = (groupId: number, courses: Course[]) => {
+    setGroups((prev) => prev.filter((g) => g.groupId !== groupId));
     setUnassignedCourses((prev) => [...prev, ...courses]);
   };
-
   const handleSubmit = async () => {
-    if (unassignedCourses.length > 0) {
-      toast.error(
-        "Musisz przypisać wszystkie kierunki przed wysłaniem formularza.",
-      );
-      return;
+    if (groups.length === 0) {
+      return toast.error("Musisz stworzyć choć jedną grupę");
     }
-
-    const data = {
-      semesterId: selectedSemester,
-      patternTitle,
-      groups: groups.map((group) => ({
-        name: group.name,
-        courses: group.courses.map((course) => course.id),
-      })),
-    };
-
     try {
-      await axios.post("/api/schedule-builder/groups", data);
+      await apiClient.put(
+        "/StudyProgram/UpdateFieldsOfStudyAssignmentsToGroup",
+        {
+          unassignedFieldsOfStudy: unassignedCourses,
+          assignedFieldOfStudyGroups: groups,
+        },
+      );
       toast.success("Formularz wysłany pomyślnie!");
       router.push("/dashboard/schedule-builder/groups");
     } catch (error) {
@@ -169,7 +187,7 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
       console.error(error);
     }
   };
-
+  console.log(selectedSemester);
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div className="col-span-1 md:col-span-2">
@@ -184,11 +202,17 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
         </label>
         <Select
           instanceId="semester-select"
+          value={
+            selectedSemester && {
+              value: selectedSemester.id,
+              label: selectedSemester.name,
+            }
+          }
           options={semesters.map((semester) => ({
             value: semester.id,
             label: semester.name,
           }))}
-          onChange={(newValue) => handleSemesterChange(newValue)}
+          onChange={handleSemesterChange}
           isSearchable
           placeholder="Wybierz semestr..."
           isLoading={isLoading}
@@ -199,7 +223,7 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
         <>
           <div className="flex flex-col gap-4">
             <label className="font-semibold" htmlFor="pattern-title">
-              Tytuł patternu:
+              Nazwa zestawu:
             </label>
             <input
               id="pattern-title"
@@ -214,8 +238,11 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
           <div className="flex gap-4">
             Przypisane kierunki:{" "}
             <span className="font-bold">
-              {groups.reduce((sum, group) => sum + group.courses.length, 0)} /{" "}
-              {unassignedCourses.length}
+              {groups.reduce(
+                (sum, group) => sum + group.assignedFieldsOfStudy.length,
+                0,
+              )}{" "}
+              / {unassignedCourses.length}
             </span>
           </div>
 
@@ -235,9 +262,12 @@ const ScheduleGroupManagementForm: React.FC<{ groupID?: string }> = ({
               setGroups([
                 ...groups,
                 {
-                  id: uuidv4(),
-                  name: `Grupa ${groups.length + 1}`,
-                  courses: [],
+                  groupId:
+                    groups.length > 0
+                      ? Math.max(...groups.map((g) => g.groupId)) + 1
+                      : 1,
+                  groupName: `Grupa ${groups.length + 1}`,
+                  assignedFieldsOfStudy: [],
                 },
               ])
             }
