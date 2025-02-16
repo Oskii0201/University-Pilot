@@ -6,7 +6,7 @@ import messages from "@/app/data/loadingMessages.json";
  * @returns Losowy komunikat
  */
 export const getRandomLoadingMessage = (
-  type: "upload" | "form" | "error" | "success",
+  type: "upload" | "form" | "error" | "success" = "error",
 ): string => {
   const messageList = messages[type] || messages["error"];
   return messageList[Math.floor(Math.random() * messageList.length)];

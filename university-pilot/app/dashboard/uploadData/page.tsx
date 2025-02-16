@@ -56,7 +56,10 @@ export default function CsvUploadForm() {
   return (
     <div className="relative mx-auto max-w-lg rounded-lg p-6 shadow-lg">
       {isUploading && (
-        <LoadingCircle isOverlay={true} message={getRandomLoadingMessage()} />
+        <LoadingCircle
+          isOverlay={true}
+          message={getRandomLoadingMessage("upload")}
+        />
       )}
 
       <h2 className="mb-4 text-2xl font-bold">Wgraj CSV</h2>
