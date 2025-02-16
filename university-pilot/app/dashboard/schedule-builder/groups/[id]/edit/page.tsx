@@ -4,7 +4,7 @@ import ScheduleGroupManagementForm from "@/components/schedule-builder/ScheduleG
 export default async function EditGroupSetPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }) {
   const id = (await params).id;
 

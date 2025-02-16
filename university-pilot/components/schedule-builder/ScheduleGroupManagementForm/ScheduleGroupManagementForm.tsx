@@ -6,11 +6,11 @@ import { Button } from "@/components/Button";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
 import { Course, Group, Semester } from "@/app/types";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { handleApiError } from "@/utils/handleApiError";
 import apiClient from "@/app/lib/apiClient";
+import { fetchGroups } from "@/app/lib/api/fetchGroups";
 
 const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   semesterID,
@@ -28,9 +28,10 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   useEffect(() => {
     const fetchSemesters = async () => {
       try {
-        const response = await axios.get<Semester[]>(
-          "/api/schedule-builder/groups/semesters",
+        const response = await apiClient.get(
+          "/StudyProgram/GetUpcomingSemesters",
         );
+
         setSemesters(response.data);
       } catch (error) {
         toast.error(handleApiError(error));
@@ -59,20 +60,11 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   }, [groups, unassignedCourses]);
 
   const fetchGroupAssignments = useCallback(async (semesterID: number) => {
-    if (!semesterID) return;
-    try {
-      setIsLoading(true);
-      const response = await apiClient.get(
-        `/StudyProgram/GetFieldsOfStudyAssignmentsToGroup?semesterId=${semesterID}`,
-      );
-      setUnassignedCourses(response.data.unassignedFieldsOfStudy || []);
-      setGroups(response.data.assignedFieldOfStudyGroups || []);
-    } catch (error) {
-      toast.error("Nie udało się załadować kierunków.");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(true);
+    const { groups, unassignedCourses } = await fetchGroups(semesterID);
+
+    setUnassignedCourses(unassignedCourses);
+    setGroups(groups);
   }, []);
 
   const handleSemesterChange = useCallback(
