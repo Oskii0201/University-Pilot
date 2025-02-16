@@ -12,6 +12,7 @@ export interface Group {
   groupId: number;
   groupName: string;
   assignedFieldsOfStudy: Course[];
+  key: string;
 }
 export interface Semester {
   id: number;

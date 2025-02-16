@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { handleApiError } from "@/app/utils/handleApiError";
 import apiClient from "@/app/lib/apiClient";
 import { fetchGroups } from "@/app/lib/api/fetchGroups";
+import { v4 as uuidv4 } from "uuid";
 
 const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   semesterID,
@@ -63,8 +64,13 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
     setIsLoading(true);
     const { groups, unassignedCourses } = await fetchGroups(semesterID);
 
+    const updatedGroups = groups.map((group) => ({
+      ...group,
+      key: uuidv4(),
+    }));
+
     setUnassignedCourses(unassignedCourses);
-    setGroups(groups);
+    setGroups(updatedGroups);
   }, []);
 
   const handleSemesterChange = useCallback(
@@ -96,20 +102,18 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
     },
     [groups, semesters, fetchGroupAssignments],
   );
-  const handleEditGroupName = (groupId: number, newName: string) => {
+  const handleEditGroupName = (key: string, newName: string) => {
     setGroups((prevGroups) =>
-      prevGroups.map((g) =>
-        g.groupId === groupId ? { ...g, groupName: newName } : g,
-      ),
+      prevGroups.map((g) => (g.key === key ? { ...g, groupName: newName } : g)),
     );
   };
-  const handleAddCourseToGroup = (groupId: number, courseName: string) => {
+  const handleAddCourseToGroup = (key: string, courseName: string) => {
     const course = unassignedCourses.find((c) => c === courseName);
     if (!course) return;
 
     setGroups((prev) =>
       prev.map((g) =>
-        g.groupId === groupId
+        g.key === key
           ? {
               ...g,
               assignedFieldsOfStudy: [...g.assignedFieldsOfStudy, course],
@@ -124,15 +128,15 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
     setGroups((prev) => [
       ...prev,
       {
-        groupId:
-          prev.length > 0 ? Math.max(...prev.map((g) => g.groupId)) + 1 : 1,
+        key: uuidv4(),
+        groupId: 0,
         groupName: `Grupa ${prev.length + 1}`,
         assignedFieldsOfStudy: [],
       },
     ]);
   };
-  const handleRemoveCourseFromGroup = (groupId: number, courseName: string) => {
-    const group = groups.find((g) => g.groupId === groupId);
+  const handleRemoveCourseFromGroup = (key: string, courseName: string) => {
+    const group = groups.find((g) => g.key === key);
     if (!group) return;
 
     const course = group.assignedFieldsOfStudy.find((c) => c === courseName);
@@ -140,7 +144,7 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
 
     setGroups((prev) =>
       prev.map((g) =>
-        g.groupId === groupId
+        g.key === key
           ? {
               ...g,
               assignedFieldsOfStudy: g.assignedFieldsOfStudy.filter(
@@ -153,24 +157,29 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
 
     setUnassignedCourses((prev) => [...prev, course]);
   };
-  const handleRemoveGroup = (groupId: number, courses: Course[]) => {
-    setGroups((prev) => prev.filter((g) => g.groupId !== groupId));
+  const handleRemoveGroup = (key: string, courses: Course[]) => {
+    setGroups((prev) => prev.filter((g) => g.key !== key));
     setUnassignedCourses((prev) => [...prev, ...courses]);
   };
   const handleSubmit = async () => {
     if (groups.length === 0) {
       return toast.error("Musisz stworzyć choć jedną grupę");
     }
+    console.log({
+      unassignedFieldsOfStudy: unassignedCourses,
+      assignedFieldOfStudyGroups: groups,
+    });
     try {
       await apiClient.put(
         "/StudyProgram/UpdateFieldsOfStudyAssignmentsToGroup",
         {
+          semesterId: selectedSemester.id,
           unassignedFieldsOfStudy: unassignedCourses,
           assignedFieldOfStudyGroups: groups,
         },
       );
       toast.success("Formularz wysłany pomyślnie!");
-      router.push("/dashboard/schedule-builder/groups");
+      /*router.push("/dashboard/schedule-builder/groups");*/
     } catch (error) {
       toast.error("Wystąpił błąd podczas wysyłania formularza.");
       console.error(error);

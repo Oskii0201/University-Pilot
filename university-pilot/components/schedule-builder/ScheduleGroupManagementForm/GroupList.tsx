@@ -12,10 +12,10 @@ import { v4 as uuidv4 } from "uuid";
 interface GroupListProps {
   groups: Group[];
   unassignedCourses: Course[];
-  handleEditGroupName: (groupId: number, newName: string) => void;
-  handleRemoveCourseFromGroup: (groupId: number, courseName: string) => void;
-  handleAddCourseToGroup: (groupId: number, courseName: string) => void;
-  handleRemoveGroup: (groupId: number, courses: Course[]) => void;
+  handleEditGroupName: (key: string, newName: string) => void;
+  handleRemoveCourseFromGroup: (key: string, courseName: string) => void;
+  handleAddCourseToGroup: (key: string, courseName: string) => void;
+  handleRemoveGroup: (key: string, courses: Course[]) => void;
 }
 
 const GroupList: React.FC<GroupListProps> = ({
@@ -26,13 +26,13 @@ const GroupList: React.FC<GroupListProps> = ({
   handleAddCourseToGroup,
   handleRemoveGroup,
 }) => {
-  const [openGroupId, setOpenGroupId] = useState<number | null>(null);
+  const [openGroupId, setOpenGroupId] = useState<string | null>(null);
 
-  const toggleGroup = (groupId: number) =>
-    setOpenGroupId((prev) => (prev === groupId ? null : groupId));
+  const toggleGroup = (key: string) =>
+    setOpenGroupId((prev) => (prev === key ? null : key));
 
   const confirmRemoveGroup = (
-    groupId: number,
+    key: string,
     groupName: string,
     courses: Course[],
   ) => {
@@ -40,7 +40,7 @@ const GroupList: React.FC<GroupListProps> = ({
       `Czy na pewno chcesz usunąć grupę "${groupName}"?\nWszystkie kursy zostaną przeniesione do listy nieprzypisanych kierunków.`,
     );
     if (confirmed) {
-      handleRemoveGroup(groupId, courses);
+      handleRemoveGroup(key, courses);
     }
   };
 
@@ -50,18 +50,16 @@ const GroupList: React.FC<GroupListProps> = ({
       <ul className="flex flex-col gap-4">
         {groups.map((group) => (
           <li
-            key={group.groupId}
+            key={group.key}
             className="cursor-pointer rounded border bg-gray-100 p-4 transition hover:shadow"
-            onClick={() => toggleGroup(group.groupId)}
+            onClick={() => toggleGroup(group.key)}
           >
             <div className="flex items-center justify-between">
               <input
                 type="text"
                 value={group.groupName}
-                onClick={(e) => e.stopPropagation()} // Zatrzymanie propagacji kliknięcia
-                onChange={(e) =>
-                  handleEditGroupName(group.groupId, e.target.value)
-                }
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => handleEditGroupName(group.key, e.target.value)}
                 className="border-b border-dashed border-gray-400 bg-transparent font-semibold focus:outline-none"
               />
               <div className="flex items-center gap-2">
@@ -69,7 +67,7 @@ const GroupList: React.FC<GroupListProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     confirmRemoveGroup(
-                      group.groupId,
+                      group.key,
                       group.groupName,
                       group.assignedFieldsOfStudy,
                     );
@@ -80,7 +78,7 @@ const GroupList: React.FC<GroupListProps> = ({
                   <CiCircleRemove />
                 </button>
                 <span className="text-3xl">
-                  {openGroupId === group.groupId ? (
+                  {openGroupId === group.key ? (
                     <IoIosArrowDropdownCircle />
                   ) : (
                     <IoIosArrowDroprightCircle />
@@ -88,7 +86,7 @@ const GroupList: React.FC<GroupListProps> = ({
                 </span>
               </div>
             </div>
-            <Collapse isOpened={openGroupId === group.groupId}>
+            <Collapse isOpened={openGroupId === group.key}>
               <ul className="my-2">
                 {group.assignedFieldsOfStudy.map((course) => (
                   <li
@@ -99,7 +97,7 @@ const GroupList: React.FC<GroupListProps> = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleRemoveCourseFromGroup(group.groupId, course);
+                        handleRemoveCourseFromGroup(group.key, course);
                       }}
                       className="text-xl font-semibold text-red-500 hover:underline"
                     >
@@ -115,8 +113,7 @@ const GroupList: React.FC<GroupListProps> = ({
                     label: course,
                   }))}
                   onChange={(option) =>
-                    option &&
-                    handleAddCourseToGroup(group.groupId, option.value)
+                    option && handleAddCourseToGroup(group.key, option.value)
                   }
                   isSearchable
                   placeholder="Dodaj kierunek..."
