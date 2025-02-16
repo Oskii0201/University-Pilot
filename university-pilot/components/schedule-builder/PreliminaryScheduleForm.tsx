@@ -13,17 +13,15 @@ import { fetchUpcomingSemesters } from "@/app/lib/api/fetchUpcomingSemesters";
  * @param schedule - Tablica obiektów z datami i dostępnościami
  * @returns `true`, jeśli co najmniej jedna wartość `true` jest w obiekcie `availability`, w przeciwnym razie `false`.
  */
-const hasTrueValues = (
-  schedule: { availability: Record<string, boolean> }[],
-) => {
-  return schedule.some((entry) =>
-    Object.values(entry.availability).includes(true),
+const hasTrueValues = (schedule: Weekend[]) =>
+  schedule.some(({ availability }) =>
+    Object.values(availability).some(Boolean),
   );
-};
 
-const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
-  semesterID,
-) => {
+const PreliminaryScheduleForm: React.FC<{
+  semesterID?: number;
+  readOnlyMode?: boolean;
+}> = ({ semesterID, readOnlyMode = false }) => {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
     null,
@@ -47,12 +45,11 @@ const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
       if (!selectedOption) return;
       setIsLoading(true);
 
-      if (hasTrueValues(schedule)) {
-        if (
-          !window.confirm(
-            "Zmiana semestru spowoduje utratę wszystkich danych. Kontynuować?",
-          )
-        ) {
+      if (!readOnlyMode && hasTrueValues(schedule)) {
+        const confirmChange = window.confirm(
+          "Zmiana semestru spowoduje utratę wszystkich danych. Kontynuować?",
+        );
+        if (!confirmChange) {
           setIsLoading(false);
           return;
         }
@@ -68,10 +65,18 @@ const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
 
       setIsLoading(false);
     },
-    [semesters, schedule],
+    [semesters, schedule, readOnlyMode],
   );
 
+  useEffect(() => {
+    if (readOnlyMode && semesterID) {
+      handleSemesterChange({ value: semesterID });
+    }
+  }, [semesterID, readOnlyMode, handleSemesterChange]);
+
   const toggleAvailability = (date: string, groupId: number) => {
+    if (readOnlyMode) return;
+
     setSchedule((prev) =>
       prev.map((weekend) =>
         weekend.date === date
@@ -108,6 +113,7 @@ const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
           type="checkbox"
           checked={row.availability[group.groupId]}
           onChange={() => toggleAvailability(row.date, group.groupId)}
+          disabled={readOnlyMode}
         />
       ),
     })),
@@ -116,9 +122,11 @@ const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
   return (
     <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6">
       <h1 className="text-2xl font-bold">
-        {semesterID
-          ? "Edytuj wstępny harmonogram"
-          : "Stwórz wstępny harmonogram"}
+        {readOnlyMode
+          ? "Podgląd wstępnego harmonogramu"
+          : semesterID
+            ? "Edytuj wstępny harmonogram"
+            : "Stwórz wstępny harmonogram"}
       </h1>
 
       <div>
@@ -137,6 +145,7 @@ const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
           isSearchable
           placeholder="Wybierz semestr..."
           isLoading={isLoading}
+          isDisabled={readOnlyMode}
         />
       </div>
 
@@ -150,13 +159,15 @@ const PreliminaryScheduleForm: React.FC<{ semesterID?: number }> = (
         />
       )}
 
-      <Button
-        width="w-fit"
-        onClick={handleSubmit}
-        disabled={!hasTrueValues(schedule)}
-      >
-        Zapisz harmonogram
-      </Button>
+      {!readOnlyMode && (
+        <Button
+          width="w-fit"
+          onClick={handleSubmit}
+          disabled={!hasTrueValues(schedule)}
+        >
+          Zapisz harmonogram
+        </Button>
+      )}
     </div>
   );
 };
