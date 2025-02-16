@@ -5,9 +5,9 @@ import { Group } from "@/app/types";
 export default async function GroupSetDetails({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   const { groups, unassignedCourses } = await fetchGroups(Number(id));
 
