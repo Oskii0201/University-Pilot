@@ -7,19 +7,15 @@ export interface Event {
   room?: string;
   lecturer?: string;
 }
-export interface Course {
-  id: number;
-  name: string;
-}
+export type Course = string;
 export interface Group {
-  id: string;
-  name: string;
-  courses: Course[];
+  groupId: number;
+  groupName: string;
+  assignedFieldsOfStudy: Course[];
 }
 export interface Semester {
-  id: string;
+  id: number;
   name: string;
-  academicYear: string;
 }
 export type FetchResult<T> =
   | { success: true; data: T }
