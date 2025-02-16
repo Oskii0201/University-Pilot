@@ -7,5 +7,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
         Task<IEnumerable<SemesterDTO>> GetUpcomingSemestersAsync(int count = 3);
 
         Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId);
+
+        Task UpdateFieldsOfStudyAssignmentsToGroupAsync(FieldsOfStudyAssignmentDto model);
     }
 }

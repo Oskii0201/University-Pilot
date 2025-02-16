@@ -36,9 +36,9 @@ namespace UniversityPilot.Controllers
         }
 
         [HttpPut("UpdateFieldsOfStudyAssignmentsToGroup")]
-        public IActionResult UpdateFieldsOfStudyAssignmentsToGroup([FromBody] FieldsOfStudyAssignmentDto model)
+        public async Task<IActionResult> UpdateFieldsOfStudyAssignmentsToGroup([FromBody] FieldsOfStudyAssignmentDto model)
         {
-            // TODO: Do implementacji w serwisie (zapis zmian w bazie, walidacja itp.)
+            await _groupsScheduleService.UpdateFieldsOfStudyAssignmentsToGroupAsync(model);
             return Ok("Fields of study assignments updated successfully.");
         }
     }
