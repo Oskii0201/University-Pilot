@@ -14,6 +14,7 @@ export interface Group {
   assignedFieldsOfStudy: Course[];
   key: string;
 }
+export type BasicGroup = Omit<Group, "assignedFieldsOfStudy" | "key">;
 export interface Semester {
   id: number;
   name: string;
@@ -35,4 +36,8 @@ export interface User {
   firstName: string;
   lastName: string;
   phoneNumber: string | null;
+}
+export interface Weekend {
+  date: string;
+  availability: Record<string, boolean>;
 }
