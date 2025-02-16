@@ -12,6 +12,7 @@ import apiClient from "@/app/lib/apiClient";
 import { fetchGroups } from "@/app/lib/api/fetchGroups";
 import { v4 as uuidv4 } from "uuid";
 import { fetchUpcomingSemesters } from "@/app/lib/api/fetchUpcomingSemesters";
+import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
 
 const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   semesterID,
@@ -169,10 +170,10 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
           assignedFieldOfStudyGroups: groups,
         },
       );
-      toast.success("Formularz wysłany pomyślnie!");
+      toast.success(getRandomLoadingMessage("success"));
       router.push(`/dashboard/schedule-builder/groups/${selectedSemester.id}`);
     } catch (error) {
-      toast.error("Wystąpił błąd podczas wysyłania formularza.");
+      toast.error(getRandomLoadingMessage("error"));
       console.error(error);
     }
   };

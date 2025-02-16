@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import React, { useState } from "react";
 import { FaLock, FaUser } from "react-icons/fa";
 import { Button } from "@/components/Button";
+import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -17,14 +18,8 @@ const LoginForm = () => {
       await login(email, password);
       router.push("/dashboard");
     } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : "Wystąpił nieznany błąd.";
-      toast.error(
-        <div>
-          <h2 className="font-semibold">Oops!</h2>
-          <p>{errorMessage}</p>
-        </div>,
-      );
+      toast.error(getRandomLoadingMessage("error"));
+      console.error(e);
     }
   };
 

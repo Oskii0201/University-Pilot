@@ -43,15 +43,10 @@ export default function CsvUploadForm() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      toast.success(<p>Zakończono pomyślnie dodawanie pliku.</p>);
+      toast.success(getRandomLoadingMessage("success"));
     } catch (error) {
-      toast.error(
-        <div>
-          <h2 className="font-semibold">Oops!</h2>
-          <p>Nie udało się dodać pliku. Proszę spróbować ponownie</p>
-          <p>{String(error)}</p>
-        </div>,
-      );
+      toast.error(getRandomLoadingMessage("error"));
+      console.error(error);
     } finally {
       setIsUploading(false);
       setSelectedDataset("");

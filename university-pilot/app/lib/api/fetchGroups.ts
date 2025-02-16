@@ -1,6 +1,7 @@
 import apiClient from "@/app/lib/apiClient";
 import { toast } from "react-toastify";
 import { Group, Course } from "@/app/types";
+import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
 
 /**
  * Pobiera przypisane i nieprzypisane kierunki dla podanego semestru
@@ -25,7 +26,7 @@ export const fetchGroups = async (
       unassignedCourses: response.data.unassignedFieldsOfStudy || [],
     };
   } catch (error) {
-    toast.error("Nie udało się załadować kierunków.");
+    toast.error(getRandomLoadingMessage("error"));
     console.error(error);
     return { groups: [], unassignedCourses: [] };
   }
