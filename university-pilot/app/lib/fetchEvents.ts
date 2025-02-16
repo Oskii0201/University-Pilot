@@ -1,4 +1,4 @@
-import events from "@/data/events.json";
+import events from "@/app/data/events.json";
 import { Event } from "@/app/types";
 
 /**

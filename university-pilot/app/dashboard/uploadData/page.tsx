@@ -1,21 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import apiClient from "@/app/lib/apiClient";
 import { Button } from "@/components/Button";
 import { toast } from "react-toastify";
+import { LoadingCircle } from "@/components/LoadingCircle";
+import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
 
 export default function CsvUploadForm() {
   const [selectedDataset, setSelectedDataset] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const router = useRouter();
+  const [isUploading, setIsUploading] = useState(false);
 
   const datasets = [
-    { value: "studyProgram", label: "Program studiów" },
-    { value: "historicalSchedule", label: "Harmonogram historyczny" },
-    { value: "lecturers", label: "Wykładowcy" },
-    { value: "students", label: "Studenci" },
+    { value: "StudyProgram", label: "Program studiów" },
+    { value: "HistoricalSchedule", label: "Harmonogram historyczny" },
+    { value: "Instructors", label: "Wykładowcy" },
+    { value: "Group", label: "Grupy" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,20 +32,18 @@ export default function CsvUploadForm() {
       return;
     }
 
+    setIsUploading(true);
+
     const formData = new FormData();
     formData.append("dataset", selectedDataset);
-
     formData.append("file", file);
 
     try {
       await apiClient.post("/file/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success(<p>Zakończono pomyślnie dodawanie pliku.</p>);
-      router.push("/dashboard");
     } catch (error) {
       toast.error(
         <div>
@@ -53,14 +52,24 @@ export default function CsvUploadForm() {
           <p>{String(error)}</p>
         </div>,
       );
+    } finally {
+      setIsUploading(false);
+      setSelectedDataset("");
     }
   };
 
   return (
-    <div className="mx-auto max-w-lg rounded-lg p-6 shadow-lg">
+    <div className="relative mx-auto max-w-lg rounded-lg p-6 shadow-lg">
+      {isUploading && (
+        <LoadingCircle isOverlay={true} message={getRandomLoadingMessage()} />
+      )}
+
       <h2 className="mb-4 text-2xl font-bold">Wgraj CSV</h2>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        className={`${isUploading ? "pointer-events-none opacity-50" : ""}`}
+      >
         <div className="mb-4">
           <label htmlFor="dataset" className="mb-2 block font-medium">
             Wybierz zbiór danych
@@ -71,6 +80,7 @@ export default function CsvUploadForm() {
             onChange={(e) => setSelectedDataset(e.target.value)}
             className="w-full rounded border bg-offWhite p-2"
             required
+            disabled={isUploading}
           >
             <option value="">-- Zbiór danych --</option>
             {datasets.map((dataset) => (
@@ -81,7 +91,6 @@ export default function CsvUploadForm() {
           </select>
         </div>
 
-        {/* File Upload */}
         <div className="mb-4">
           <label htmlFor="file" className="mb-2 block font-medium">
             Dodaj plik csv
@@ -93,13 +102,14 @@ export default function CsvUploadForm() {
             onChange={(e) => setFile(e.target?.files?.[0] || null)}
             className="w-full rounded border bg-offWhite p-2"
             required
+            disabled={isUploading}
           />
         </div>
 
         <Button
           color="blue"
           width="w-full"
-          disabled={!file || !selectedDataset}
+          disabled={!file || !selectedDataset || isUploading}
         >
           Wyślij
         </Button>

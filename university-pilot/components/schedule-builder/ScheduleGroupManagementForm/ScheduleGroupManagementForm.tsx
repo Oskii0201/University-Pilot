@@ -8,7 +8,7 @@ import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManage
 import { Course, Group, Semester } from "@/app/types";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { handleApiError } from "@/utils/handleApiError";
+import { handleApiError } from "@/app/utils/handleApiError";
 import apiClient from "@/app/lib/apiClient";
 import { fetchGroups } from "@/app/lib/api/fetchGroups";
 
