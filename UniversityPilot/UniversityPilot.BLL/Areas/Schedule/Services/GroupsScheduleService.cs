@@ -78,7 +78,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             var assignedFieldOfStudyGroups = scheduleClassDays
                 .Select(scd => new FieldOfStudyGroupDto
                 {
-                    IdGroup = scd.Id,
+                    GroupId = scd.Id,
                     GroupName = scd.Title,
                     AssignedFieldsOfStudy = scd.StudyPrograms
                         .Select(sp => new
@@ -98,6 +98,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             return new FieldsOfStudyAssignmentDto
             {
+                SemesterId = semesterId,
                 UnassignedFieldsOfStudy = unassignedFieldsOfStudy,
                 AssignedFieldOfStudyGroups = assignedFieldOfStudyGroups
             };

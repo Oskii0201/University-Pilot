@@ -2,7 +2,7 @@
 {
     public class FieldOfStudyGroupDto
     {
-        public int IdGroup { get; set; }
+        public int GroupId { get; set; }
         public string GroupName { get; set; }
         public List<string> AssignedFieldsOfStudy { get; set; } = new();
     }
