@@ -8,10 +8,10 @@ import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManage
 import { Course, Group, Semester } from "@/app/types";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { handleApiError } from "@/app/utils/handleApiError";
 import apiClient from "@/app/lib/apiClient";
 import { fetchGroups } from "@/app/lib/api/fetchGroups";
 import { v4 as uuidv4 } from "uuid";
+import { fetchUpcomingSemesters } from "@/app/lib/api/fetchUpcomingSemesters";
 
 const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   semesterID,
@@ -27,20 +27,13 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSemesters = async () => {
-      try {
-        const response = await apiClient.get(
-          "/StudyProgram/GetUpcomingSemesters",
-        );
-
-        setSemesters(response.data);
-      } catch (error) {
-        toast.error(handleApiError(error));
-      } finally {
-        setIsLoading(false);
-      }
+    const loadSemesters = async () => {
+      setIsLoading(true);
+      const data = await fetchUpcomingSemesters();
+      setSemesters(data);
+      setIsLoading(false);
     };
-    fetchSemesters();
+    loadSemesters();
   }, []);
 
   useEffect(() => {
