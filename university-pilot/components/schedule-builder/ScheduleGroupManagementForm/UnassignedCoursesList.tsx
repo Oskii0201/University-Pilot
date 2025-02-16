@@ -1,5 +1,6 @@
 import React from "react";
 import { Course } from "@/app/types";
+import { v4 as uuidv4 } from "uuid";
 
 interface UnassignedCoursesProps {
   unassignedCourses: Course[];
@@ -14,10 +15,10 @@ const UnassignedCourses: React.FC<UnassignedCoursesProps> = ({
       {unassignedCourses.length > 0 ? (
         unassignedCourses.map((course) => (
           <li
-            key={course.id}
+            key={uuidv4()}
             className="rounded border bg-gray-50 p-2 transition hover:bg-gray-100"
           >
-            {course.name}
+            {course}
           </li>
         ))
       ) : (
