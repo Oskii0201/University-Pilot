@@ -165,11 +165,9 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
     if (groups.length === 0) {
       return toast.error("Musisz stworzyć choć jedną grupę");
     }
-    console.log({
-      unassignedFieldsOfStudy: unassignedCourses,
-      assignedFieldOfStudyGroups: groups,
-    });
+
     try {
+      if (!selectedSemester) return;
       await apiClient.put(
         "/StudyProgram/UpdateFieldsOfStudyAssignmentsToGroup",
         {
@@ -179,7 +177,7 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
         },
       );
       toast.success("Formularz wysłany pomyślnie!");
-      /*router.push("/dashboard/schedule-builder/groups");*/
+      router.push(`/dashboard/schedule-builder/groups/${selectedSemester.id}`);
     } catch (error) {
       toast.error("Wystąpił błąd podczas wysyłania formularza.");
       console.error(error);

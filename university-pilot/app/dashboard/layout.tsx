@@ -15,7 +15,7 @@ function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   return (
     <div className="flex min-h-screen w-full">

@@ -5,10 +5,9 @@ import ScheduleBuilderNavigation from "@/components/schedule-builder/ScheduleBui
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { PiFolderSimplePlusFill } from "react-icons/pi";
-import { CiSquareRemove } from "react-icons/ci";
-import { RiFileEditLine } from "react-icons/ri";
 import { GroupSet } from "@/app/types";
 import { LoadingCircle } from "@/components/LoadingCircle";
+import GroupSetActions from "@/components/GroupSetActions";
 
 const ScheduleBuilderGroups: React.FC = () => {
   const [groupSets, setGroupSets] = useState<GroupSet[]>([]);
@@ -29,24 +28,6 @@ const ScheduleBuilderGroups: React.FC = () => {
 
     fetchGroupSets();
   }, []);
-
-  const handleDeleteGroupSet = async (id: string) => {
-    const confirmDelete = window.confirm(
-      "Czy na pewno chcesz usunąć ten zestaw grup?",
-    );
-    if (!confirmDelete) return;
-
-    try {
-      await axios.delete(`/api/schedule-builder/groups?id=${id}`);
-      setGroupSets((prev) => prev.filter((set) => set.id !== id));
-    } catch (error) {
-      console.error("Błąd podczas usuwania zestawu grup:", error);
-    }
-  };
-
-  const handleEditGroupSet = (id: string) => {
-    router.push(`/dashboard/schedule-builder/groups/${id}/edit`);
-  };
 
   const handleAddGroupSet = () => {
     router.push("/dashboard/schedule-builder/groups/new");
@@ -84,26 +65,7 @@ const ScheduleBuilderGroups: React.FC = () => {
                     Utworzono: {new Date(set.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditGroupSet(set.id);
-                    }}
-                    title="Edytuj"
-                  >
-                    <RiFileEditLine className="cursor-pointer text-3xl text-mutedGold transition hover:scale-110 hover:text-yellow-500" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteGroupSet(set.id);
-                    }}
-                    title="Usuń"
-                  >
-                    <CiSquareRemove className="cursor-pointer text-3xl text-softRed transition hover:scale-110 hover:text-mutedRed" />
-                  </button>
-                </div>
+                <GroupSetActions groupId={set.id} />
               </div>
             </li>
           ))}
