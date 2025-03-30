@@ -8,5 +8,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces
         Task<ClassDay?> GetByDateAsync(DateTime date);
 
         Task AssignToScheduleClassDayAsync(int classDayId, int scheduleClassDayId);
+
+        Task<List<ClassDay>> GetBySemesterDatesAsync(DateTime start, DateTime end);
     }
 }

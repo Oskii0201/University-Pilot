@@ -188,6 +188,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         {
             var semester = await _semesterRepository.GetAsync(semesterId);
             var groups = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
+            var classDays = await _classDayRepository.GetBySemesterDatesAsync(semester.StartDate, semester.EndDate);
 
             var weekends = new List<WeekendDto>();
 
@@ -200,13 +201,20 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     date.DayOfWeek == DayOfWeek.Saturday ||
                     date.DayOfWeek == DayOfWeek.Sunday)
                 {
+                    var classDay = classDays.FirstOrDefault(cd => cd.StartDateTime.Date == date);
+
+                    Dictionary<int, bool> availability = new();
+
+                    foreach (var group in groups)
+                    {
+                        var isAvailable = classDay != null && classDay.ScheduleClassDays.Any(scd => scd.Id == group.Id);
+                        availability[group.Id] = isAvailable;
+                    }
+
                     weekends.Add(new WeekendDto
                     {
                         Date = date,
-                        Availability = groups.ToDictionary(
-                            g => g.Id,
-                            g => false
-                        )
+                        Availability = availability
                     });
                 }
             }

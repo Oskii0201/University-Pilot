@@ -37,5 +37,13 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                    VALUES ({scheduleClassDayId}, {classDayId})");
             }
         }
+
+        public async Task<List<ClassDay>> GetBySemesterDatesAsync(DateTime start, DateTime end)
+        {
+            return await _context.ClassDays
+                .Where(cd => cd.StartDateTime.Date >= start.Date && cd.StartDateTime.Date <= end.Date)
+                .Include(cd => cd.ScheduleClassDays)
+                .ToListAsync();
+        }
     }
 }
