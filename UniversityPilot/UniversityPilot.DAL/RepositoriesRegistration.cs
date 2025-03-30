@@ -30,6 +30,7 @@ namespace UniversityPilot.DAL
 
             #region SemesterPlanning
 
+            services.AddScoped<IClassDayRepository, ClassDayRepository>();
             services.AddScoped<IScheduleClassDayRepository, ScheduleClassDayRepository>();
             services.AddScoped<IScheduleClassDayStudyProgramRepository, ScheduleClassDayStudyProgramRepository>();
 

@@ -17,19 +17,22 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IScheduleClassDayStudyProgramRepository _scdStudyProgramRepository;
+        private readonly IClassDayRepository _classDayRepository;
 
         public GroupsScheduleService(
             IMapper mapper,
             ISemesterRepository semesterRepository,
             IScheduleClassDayRepository scheduleClassDayRepository,
             ICourseRepository courseRepository,
-            IScheduleClassDayStudyProgramRepository scdStudyProgramRepository)
+            IScheduleClassDayStudyProgramRepository scdStudyProgramRepository,
+            IClassDayRepository classDayRepository)
         {
             _mapper = mapper;
             _semesterRepository = semesterRepository;
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseRepository = courseRepository;
             _scdStudyProgramRepository = scdStudyProgramRepository;
+            _classDayRepository = classDayRepository;
         }
 
         public async Task<IEnumerable<SemesterDto>> GetUpcomingSemestersAsync(int count = 3)
@@ -181,7 +184,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             }
         }
 
-        public async Task<WeekendAvailabilityResponseDto> GetWeekendAvailabilityAsync(int semesterId)
+        public async Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId)
         {
             var semester = await _semesterRepository.GetAsync(semesterId);
             var groups = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
@@ -208,7 +211,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 }
             }
 
-            return new WeekendAvailabilityResponseDto
+            return new WeekendAvailabilityDto
             {
                 SemesterId = semesterId,
                 Groups = groups.Select(g => new GroupDto
@@ -218,6 +221,33 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 }).ToList(),
                 Weekends = weekends
             };
+        }
+
+        public async Task SaveWeekendAvailabilityAsync(WeekendAvailabilityDto model)
+        {
+            foreach (var weekend in model.Weekends)
+            {
+                var start = weekend.Date.Date.AddHours(7);
+                var end = weekend.Date.Date.AddHours(22);
+
+                var classDay = await _classDayRepository.GetByDateAsync(start);
+
+                if (classDay == null)
+                {
+                    classDay = new ClassDay
+                    {
+                        StartDateTime = start,
+                        EndDateTime = end
+                    };
+
+                    await _classDayRepository.AddAsync(classDay);
+                }
+
+                foreach (var entry in weekend.Availability.Where(e => e.Value))
+                {
+                    await _classDayRepository.AssignToScheduleClassDayAsync(classDay.Id, entry.Key);
+                }
+            }
         }
 
         private static string FormatFieldOfStudy(StudyProgram sp)

@@ -48,5 +48,12 @@ namespace UniversityPilot.Controllers
             var result = await _groupsScheduleService.GetWeekendAvailabilityAsync(semesterId);
             return Ok(result);
         }
+
+        [HttpPost("SaveWeekendAvailability")]
+        public async Task<IActionResult> SaveWeekendAvailability([FromBody] WeekendAvailabilityDto model)
+        {
+            await _groupsScheduleService.SaveWeekendAvailabilityAsync(model);
+            return Ok();
+        }
     }
 }

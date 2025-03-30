@@ -10,6 +10,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
 
         Task UpdateFieldsOfStudyAssignmentsToGroupAsync(FieldsOfStudyAssignmentDto model);
 
-        Task<WeekendAvailabilityResponseDto> GetWeekendAvailabilityAsync(int semesterId);
+        Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId);
+
+        Task SaveWeekendAvailabilityAsync(WeekendAvailabilityDto model);
     }
 }

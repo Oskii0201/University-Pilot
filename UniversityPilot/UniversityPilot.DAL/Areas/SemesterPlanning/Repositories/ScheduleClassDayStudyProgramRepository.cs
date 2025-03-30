@@ -4,7 +4,7 @@ using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 
 namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
 {
-    public class ScheduleClassDayStudyProgramRepository : IScheduleClassDayStudyProgramRepository
+    internal class ScheduleClassDayStudyProgramRepository : IScheduleClassDayStudyProgramRepository
     {
         private readonly UniversityPilotContext _context;
 
