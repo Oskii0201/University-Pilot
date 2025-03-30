@@ -233,12 +233,15 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
         public async Task SaveWeekendAvailabilityAsync(WeekendAvailabilityDto model)
         {
+            var semester = await _semesterRepository.GetAsync(model.SemesterId);
+            var existingClassDays = await _classDayRepository.GetBySemesterDatesAsync(semester.StartDate, semester.EndDate);
+
             foreach (var weekend in model.Weekends)
             {
                 var start = weekend.Date.Date.AddHours(7);
                 var end = weekend.Date.Date.AddHours(22);
 
-                var classDay = await _classDayRepository.GetByDateAsync(start);
+                var classDay = existingClassDays.FirstOrDefault(cd => cd.StartDateTime.Date == weekend.Date.Date);
 
                 if (classDay == null)
                 {
@@ -249,11 +252,19 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     };
 
                     await _classDayRepository.AddAsync(classDay);
+                    existingClassDays.Add(classDay);
                 }
 
-                foreach (var entry in weekend.Availability.Where(e => e.Value))
+                foreach (var entry in weekend.Availability)
                 {
-                    await _classDayRepository.AssignToScheduleClassDayAsync(classDay.Id, entry.Key);
+                    if (entry.Value)
+                    {
+                        await _classDayRepository.AssignToScheduleClassDayAsync(classDay.Id, entry.Key);
+                    }
+                    else
+                    {
+                        await _classDayRepository.UnassignFromScheduleClassDayAsync(classDay.Id, entry.Key);
+                    }
                 }
             }
         }

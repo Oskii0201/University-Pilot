@@ -30,11 +30,9 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
 
             if (!exists)
             {
-                await _context
-                    .Database
-                    .ExecuteSqlInterpolatedAsync(
-                        $@"INSERT INTO ""ScheduleClassDayClassDay"" (""ScheduleClassDaysId"", ""ClassDaysId"")
-                   VALUES ({scheduleClassDayId}, {classDayId})");
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                         $@"INSERT INTO ""ScheduleClassDayClassDay"" (""ScheduleClassDaysId"", ""ClassDaysId"")
+                            VALUES ({scheduleClassDayId}, {classDayId})");
             }
         }
 
@@ -44,6 +42,14 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                 .Where(cd => cd.StartDateTime.Date >= start.Date && cd.StartDateTime.Date <= end.Date)
                 .Include(cd => cd.ScheduleClassDays)
                 .ToListAsync();
+        }
+
+        public async Task UnassignFromScheduleClassDayAsync(int classDayId, int scheduleClassDayId)
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $@"DELETE FROM ""ScheduleClassDayClassDay""
+                       WHERE ""ClassDaysId"" = {classDayId}
+                       AND ""ScheduleClassDaysId"" = {scheduleClassDayId}");
         }
     }
 }
