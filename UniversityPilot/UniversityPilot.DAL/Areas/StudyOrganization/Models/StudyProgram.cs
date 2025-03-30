@@ -9,7 +9,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public StudyProgram()
         {
             Courses = new HashSet<Course>();
-            ScheduleClassDayStudyProgram = new HashSet<ScheduleClassDayStudyProgram>();
+            ScheduleClassDays = new HashSet<ScheduleClassDay>();
         }
 
         public int Id { get; set; }
@@ -24,6 +24,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public virtual FieldOfStudy FieldOfStudy { get; set; }
 
         public virtual ICollection<Course> Courses { get; set; }
-        public virtual ICollection<ScheduleClassDayStudyProgram> ScheduleClassDayStudyProgram { get; set; }
+        public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }
 }

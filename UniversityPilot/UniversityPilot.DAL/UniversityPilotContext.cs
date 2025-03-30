@@ -35,7 +35,6 @@ namespace UniversityPilot.DAL
         public DbSet<CourseSchedule> CourseSchedules { get; set; }
         public DbSet<ClassDay> ClassDays { get; set; }
         public DbSet<ScheduleClassDay> ScheduleClassDays { get; set; }
-        public DbSet<ScheduleClassDayStudyProgram> ScheduleClassDayStudyProgram { get; set; }
         public DbSet<SharedCourseGroup> SharedCourseGroups { get; set; }
 
         #endregion DbSet Semester Planning
@@ -190,9 +189,9 @@ namespace UniversityPilot.DAL
                       .HasForeignKey(e => e.SemesterId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasMany(e => e.ScheduleClassDayStudyProgram)
-                      .WithOne(x => x.ScheduleClassDay)
-                      .HasForeignKey(x => x.ScheduleClassDayId);
+                entity.HasMany(e => e.StudyPrograms)
+                      .WithMany(sp => sp.ScheduleClassDays)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
 
                 entity.HasMany(e => e.ClassDays)
                       .WithMany(cd => cd.ScheduleClassDays)
@@ -210,19 +209,6 @@ namespace UniversityPilot.DAL
                       .WithOne(cd => cd.SharedCourseGroup)
                       .HasForeignKey(cd => cd.SharedCourseGroupId)
                       .OnDelete(DeleteBehavior.SetNull);
-            });
-
-            modelBuilder.Entity<ScheduleClassDayStudyProgram>(entity =>
-            {
-                entity.HasKey(x => new { x.ScheduleClassDayId, x.StudyProgramId });
-
-                entity.HasOne(x => x.ScheduleClassDay)
-                      .WithMany(x => x.ScheduleClassDayStudyProgram)
-                      .HasForeignKey(x => x.ScheduleClassDayId);
-
-                entity.HasOne(x => x.StudyProgram)
-                      .WithMany(x => x.ScheduleClassDayStudyProgram)
-                      .HasForeignKey(x => x.StudyProgramId);
             });
 
             #endregion Semester Planning Configuration
@@ -321,9 +307,9 @@ namespace UniversityPilot.DAL
                       .WithOne(c => c.StudyProgram)
                       .HasForeignKey(c => c.StudyProgramId);
 
-                entity.HasMany(e => e.ScheduleClassDayStudyProgram)
-                      .WithOne(x => x.StudyProgram)
-                      .HasForeignKey(x => x.StudyProgramId);
+                entity.HasMany(e => e.ScheduleClassDays)
+                      .WithMany(scd => scd.StudyPrograms)
+                      .UsingEntity(j => j.ToTable("ScheduleClassDayStudyProgram"));
             });
 
             #endregion Study Organization Configuration

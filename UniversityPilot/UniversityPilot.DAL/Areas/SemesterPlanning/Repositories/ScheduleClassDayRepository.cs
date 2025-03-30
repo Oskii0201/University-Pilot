@@ -14,11 +14,36 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
         public async Task<List<ScheduleClassDay>> GetBySemesterIdAsync(int semesterId)
         {
             return await _context.ScheduleClassDays
-                .Include(scd => scd.ScheduleClassDayStudyProgram)
-                    .ThenInclude(scdsp => scdsp.StudyProgram)
-                        .ThenInclude(sp => sp.FieldOfStudy)
+                .Include(scd => scd.StudyPrograms)
+                    .ThenInclude(sp => sp.FieldOfStudy)
                 .Where(scd => scd.SemesterId == semesterId)
                 .ToListAsync();
+        }
+
+        public override async Task DeleteAsync(ScheduleClassDay entity)
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $@"DELETE FROM ""ScheduleClassDayStudyProgram""
+                    WHERE ""ScheduleClassDaysId"" = {entity.Id}");
+
+            _context.Entry(entity).Collection(e => e.StudyPrograms).CurrentValue = null;
+
+            _context.Set<ScheduleClassDay>().Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAssignmentsAsync(int scheduleClassDayId, List<int> newStudyProgramIds)
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $@"DELETE FROM ""ScheduleClassDayStudyProgram""
+                    WHERE ""ScheduleClassDaysId"" = {scheduleClassDayId}");
+
+            foreach (var programId in newStudyProgramIds.Distinct())
+            {
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $@"INSERT INTO ""ScheduleClassDayStudyProgram"" (""ScheduleClassDaysId"", ""StudyProgramsId"")
+                    VALUES ({scheduleClassDayId}, {programId})");
+            }
         }
     }
 }
