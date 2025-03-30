@@ -201,13 +201,13 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     date.DayOfWeek == DayOfWeek.Saturday ||
                     date.DayOfWeek == DayOfWeek.Sunday)
                 {
-                    var classDay = classDays.FirstOrDefault(cd => cd.StartDateTime.Date == date);
+                    var dateClassDays = classDays.Where(cd => cd.StartDateTime.Date == date).ToList();
 
                     Dictionary<int, bool> availability = new();
 
                     foreach (var group in groups)
                     {
-                        var isAvailable = classDay != null && classDay.ScheduleClassDays.Any(scd => scd.Id == group.Id);
+                        var isAvailable = dateClassDays.Any(cd => cd.ScheduleClassDays.Any(scd => scd.Id == group.Id));
                         availability[group.Id] = isAvailable;
                     }
 
@@ -238,17 +238,20 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             foreach (var weekend in model.Weekends)
             {
-                var start = weekend.Date.Date.AddHours(7);
-                var end = weekend.Date.Date.AddHours(22);
+                DateTime classStart = weekend.Date.Date;
+                classStart = weekend.Date.DayOfWeek == DayOfWeek.Friday ?
+                    classStart.AddHours(17) : classStart.AddHours(7);
 
-                var classDay = existingClassDays.FirstOrDefault(cd => cd.StartDateTime.Date == weekend.Date.Date);
+                var classEnd = weekend.Date.Date.AddHours(22);
+
+                var classDay = existingClassDays.FirstOrDefault(cd => cd.StartDateTime == classStart);
 
                 if (classDay == null)
                 {
                     classDay = new ClassDay
                     {
-                        StartDateTime = start,
-                        EndDateTime = end
+                        StartDateTime = classStart,
+                        EndDateTime = classEnd
                     };
 
                     await _classDayRepository.AddAsync(classDay);
