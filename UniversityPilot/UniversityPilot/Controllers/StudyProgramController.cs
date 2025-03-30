@@ -41,5 +41,12 @@ namespace UniversityPilot.Controllers
             await _groupsScheduleService.UpdateFieldsOfStudyAssignmentsToGroupAsync(model);
             return Ok("Fields of study assignments updated successfully.");
         }
+
+        [HttpGet("GetWeekendAvailability")]
+        public async Task<IActionResult> GetWeekendAvailability([FromQuery] int semesterId)
+        {
+            var result = await _groupsScheduleService.GetWeekendAvailabilityAsync(semesterId);
+            return Ok(result);
+        }
     }
 }

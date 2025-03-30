@@ -8,7 +8,7 @@ namespace UniversityPilot.BLL.Profiles
     {
         public ScheduleProfile()
         {
-            CreateMap<Semester, SemesterDTO>();
+            CreateMap<Semester, SemesterDto>();
         }
     }
 }

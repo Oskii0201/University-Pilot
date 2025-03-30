@@ -32,9 +32,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _scdStudyProgramRepository = scdStudyProgramRepository;
         }
 
-        public async Task<IEnumerable<SemesterDTO>> GetUpcomingSemestersAsync(int count = 3)
+        public async Task<IEnumerable<SemesterDto>> GetUpcomingSemestersAsync(int count = 3)
         {
-            return _mapper.Map<List<SemesterDTO>>(await _semesterRepository.GetUpcomingSemestersAsync(count));
+            return _mapper.Map<List<SemesterDto>>(await _semesterRepository.GetUpcomingSemestersAsync(count));
         }
 
         public async Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
@@ -179,6 +179,45 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                 await _scdStudyProgramRepository.UpdateAssignmentsAsync(scd.Id, studyProgramIds);
             }
+        }
+
+        public async Task<WeekendAvailabilityResponseDto> GetWeekendAvailabilityAsync(int semesterId)
+        {
+            var semester = await _semesterRepository.GetAsync(semesterId);
+            var groups = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
+
+            var weekends = new List<WeekendDto>();
+
+            var start = semester.StartDate.Date;
+            var end = semester.EndDate.Date;
+
+            for (var date = start; date <= end; date = date.AddDays(1))
+            {
+                if (date.DayOfWeek == DayOfWeek.Friday ||
+                    date.DayOfWeek == DayOfWeek.Saturday ||
+                    date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    weekends.Add(new WeekendDto
+                    {
+                        Date = date,
+                        Availability = groups.ToDictionary(
+                            g => g.Id,
+                            g => false
+                        )
+                    });
+                }
+            }
+
+            return new WeekendAvailabilityResponseDto
+            {
+                SemesterId = semesterId,
+                Groups = groups.Select(g => new GroupDto
+                {
+                    GroupId = g.Id,
+                    GroupName = g.Title
+                }).ToList(),
+                Weekends = weekends
+            };
         }
 
         private static string FormatFieldOfStudy(StudyProgram sp)
