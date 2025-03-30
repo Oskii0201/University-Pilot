@@ -14,8 +14,9 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
         public async Task<List<ScheduleClassDay>> GetBySemesterIdAsync(int semesterId)
         {
             return await _context.ScheduleClassDays
-                .Include(scd => scd.StudyPrograms)
-                    .ThenInclude(sp => sp.FieldOfStudy)
+                .Include(scd => scd.ScheduleClassDayStudyProgram)
+                    .ThenInclude(scdsp => scdsp.StudyProgram)
+                        .ThenInclude(sp => sp.FieldOfStudy)
                 .Where(scd => scd.SemesterId == semesterId)
                 .ToListAsync();
         }

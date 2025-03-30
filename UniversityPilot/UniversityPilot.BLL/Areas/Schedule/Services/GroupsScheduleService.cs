@@ -16,17 +16,20 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly ISemesterRepository _semesterRepository;
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly IScheduleClassDayStudyProgramRepository _scdStudyProgramRepository;
 
         public GroupsScheduleService(
             IMapper mapper,
             ISemesterRepository semesterRepository,
             IScheduleClassDayRepository scheduleClassDayRepository,
-            ICourseRepository courseRepository)
+            ICourseRepository courseRepository,
+            IScheduleClassDayStudyProgramRepository scdStudyProgramRepository)
         {
             _mapper = mapper;
             _semesterRepository = semesterRepository;
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseRepository = courseRepository;
+            _scdStudyProgramRepository = scdStudyProgramRepository;
         }
 
         public async Task<IEnumerable<SemesterDTO>> GetUpcomingSemestersAsync(int count = 3)
@@ -37,25 +40,18 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         public async Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
         {
             var scheduleClassDays = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
+            var allAssignments = await _scdStudyProgramRepository.GetAllBySemesterIdAsync(semesterId);
 
-            foreach (var scd in scheduleClassDays)
-            {
-                scd.StudyPrograms = scd.StudyPrograms
-                    .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend
-                              || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
-                    .ToList();
-            }
-
-            var assignedPrograms = scheduleClassDays
-                .SelectMany(scd => scd.StudyPrograms)
+            var assignedPrograms = allAssignments
+                .Where(x => x.StudyProgram.StudyForm == StudyForms.PartTimeWeekend || x.StudyProgram.StudyForm == StudyForms.PartTimeWeekendOnline)
+                .Select(x => x.StudyProgram)
                 .DistinctBy(sp => sp.Id)
                 .ToList();
 
             var allProgramsFromCourses = await _courseRepository.GetStudyProgramsBySemesterIdAsync(semesterId);
 
             var relevantPrograms = allProgramsFromCourses
-                .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend
-                          || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
                 .ToList();
 
             var unassignedPrograms = relevantPrograms
@@ -77,23 +73,32 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 .ToList();
 
             var assignedFieldOfStudyGroups = scheduleClassDays
-                .Select(scd => new FieldOfStudyGroupDto
+                .Select(scd =>
                 {
-                    GroupId = scd.Id,
-                    GroupName = scd.Title,
-                    AssignedFieldsOfStudy = scd.StudyPrograms
-                        .Select(sp => new
-                        {
-                            Program = sp,
-                            Formatted = FormatFieldOfStudy(sp),
-                            Rank = GetStudyDegreeRank(sp.StudyDegree),
-                            NameOnly = sp.FieldOfStudy.Name
-                        })
-                        .DistinctBy(x => x.Formatted)
-                        .OrderBy(x => x.Rank)
-                        .ThenBy(x => x.NameOnly)
-                        .Select(x => x.Formatted)
-                        .ToList()
+                    var programs = allAssignments
+                        .Where(x => x.ScheduleClassDayId == scd.Id)
+                        .Select(x => x.StudyProgram)
+                        .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                        .ToList();
+
+                    return new FieldOfStudyGroupDto
+                    {
+                        GroupId = scd.Id,
+                        GroupName = scd.Title,
+                        AssignedFieldsOfStudy = programs
+                            .Select(sp => new
+                            {
+                                Program = sp,
+                                Formatted = FormatFieldOfStudy(sp),
+                                Rank = GetStudyDegreeRank(sp.StudyDegree),
+                                NameOnly = sp.FieldOfStudy.Name
+                            })
+                            .DistinctBy(x => x.Formatted)
+                            .OrderBy(x => x.Rank)
+                            .ThenBy(x => x.NameOnly)
+                            .Select(x => x.Formatted)
+                            .ToList()
+                    };
                 })
                 .ToList();
 
@@ -115,22 +120,19 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                           || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
                 .ToList();
 
-            var stringToProgram = relevantProgramsFiltered
-                .Select(sp => new
-                {
-                    Program = sp,
-                    Formatted = FormatFieldOfStudy(sp)
-                })
-                .DistinctBy(x => x.Formatted, StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(
-                    x => x.Formatted,
-                    x => x.Program,
-                    StringComparer.OrdinalIgnoreCase
-                );
+            var stringToPrograms = new Dictionary<string, List<StudyProgram>>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var scd in scheduleClassDaysInDb)
+            foreach (var sp in relevantProgramsFiltered)
             {
-                scd.StudyPrograms.Clear();
+                var formatted = FormatFieldOfStudy(sp);
+
+                if (!stringToPrograms.TryGetValue(formatted, out var programList))
+                {
+                    programList = new List<StudyProgram>();
+                    stringToPrograms[formatted] = programList;
+                }
+
+                programList.Add(sp);
             }
 
             var frontExistingGroupIds = model.AssignedFieldOfStudyGroups
@@ -169,15 +171,13 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     scd.Title = groupDto.GroupName;
                 }
 
-                foreach (var assignedName in groupDto.AssignedFieldsOfStudy)
-                {
-                    if (stringToProgram.TryGetValue(assignedName, out var program) &&
-                        !scd.StudyPrograms.Contains(program))
-                    {
-                        scd.StudyPrograms.Add(program);
-                    }
-                }
-                await _scheduleClassDayRepository.UpdateAsync(scd);
+                var studyProgramIds = groupDto.AssignedFieldsOfStudy
+                    .SelectMany(x => stringToPrograms[x])
+                    .Select(p => p.Id)
+                    .Distinct()
+                    .ToList();
+
+                await _scdStudyProgramRepository.UpdateAssignmentsAsync(scd.Id, studyProgramIds);
             }
         }
 

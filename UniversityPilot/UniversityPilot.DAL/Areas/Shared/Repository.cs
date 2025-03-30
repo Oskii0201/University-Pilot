@@ -99,5 +99,10 @@ namespace UniversityPilot.DAL.Areas.Shared
         {
             return _context.Set<T>().Any(x => x.Id == id);
         }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

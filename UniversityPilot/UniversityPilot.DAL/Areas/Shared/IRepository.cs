@@ -31,5 +31,7 @@
         public void Delete(Model model);
 
         public bool Exist(int id);
+
+        public Task SaveChangesAsync();
     }
 }
