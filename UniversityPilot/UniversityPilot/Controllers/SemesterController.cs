@@ -6,11 +6,11 @@ namespace UniversityPilot.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SemesterStatusController : ControllerBase
+    public class SemesterController : ControllerBase
     {
         private readonly ISemesterService _semesterStatusService;
 
-        public SemesterStatusController(ISemesterService semesterStatusService)
+        public SemesterController(ISemesterService semesterStatusService)
         {
             _semesterStatusService = semesterStatusService;
         }
