@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import apiClient from "@/app/lib/apiClient";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { toast } from "react-toastify";
-import { LoadingCircle } from "@/components/LoadingCircle";
+import { LoadingCircle } from "@/components/ui/LoadingCircle";
 import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
 
 export default function CsvUploadForm() {

@@ -1,9 +1,9 @@
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import React from "react";
 
 const ScheduleBuilderNavigation = () => {
   const tabs = [
-    { label: "Grupy", href: "/dashboard/schedule-builder/groups" },
+    { label: "Semestry", href: "/dashboard/schedule-builder/groups" },
     {
       label: "Wstępny harmonogram",
       href: "/dashboard/schedule-builder/preliminary",
