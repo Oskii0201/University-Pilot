@@ -5,7 +5,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
 {
     public interface ISemesterService
     {
-        Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3);
+        Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3, int status = 0);
 
         Task<List<Semester>> GetAllExceptNewAsync();
 

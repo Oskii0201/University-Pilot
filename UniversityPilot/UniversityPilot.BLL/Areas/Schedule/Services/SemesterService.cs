@@ -17,9 +17,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _semesterRepository = semesterRepository;
         }
 
-        public async Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3)
+        public async Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3, int status = 0)
         {
-            return await _semesterRepository.GetUpcomingSemestersAsync(count);
+            return await _semesterRepository.GetUpcomingSemestersAsync(count, status);
         }
 
         public async Task<List<Semester>> GetAllExceptNewAsync()

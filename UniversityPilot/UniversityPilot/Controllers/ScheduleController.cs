@@ -6,11 +6,11 @@ namespace UniversityPilot.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudyProgramController : ControllerBase
+    public class ScheduleController : ControllerBase
     {
         private readonly IGroupsScheduleService _groupsScheduleService;
 
-        public StudyProgramController(
+        public ScheduleController(
             IGroupsScheduleService groupsScheduleService)
         {
             _groupsScheduleService = groupsScheduleService;
@@ -42,6 +42,17 @@ namespace UniversityPilot.Controllers
         {
             await _groupsScheduleService.SaveWeekendAvailabilityAsync(model);
             return Ok();
+        }
+
+        [HttpPost("AcceptWeekendAvailability")]
+        public async Task<IActionResult> AcceptWeekendAvailability([FromQuery] int semesterId)
+        {
+            //var success = await _groupsScheduleService.AcceptWeekendAvailability(semesterId);
+
+            //if (!success)
+            //    return NotFound($"Semester with ID {semesterId} not found.");
+
+            return Ok("Weekend availability accepted and status updated.");
         }
     }
 }

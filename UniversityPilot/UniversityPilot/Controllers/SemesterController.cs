@@ -17,14 +17,14 @@ namespace UniversityPilot.Controllers
 
         [HttpGet]
         [Route("GetUpcomingSemesters")]
-        public async Task<IActionResult> GetUpcomingSemesters([FromQuery] int count = 3)
+        public async Task<IActionResult> GetUpcomingSemesters([FromQuery] int count = 3, [FromQuery] int status = 0)
         {
             if (count <= 0)
             {
                 return BadRequest("Count must be greater than 0.");
             }
 
-            return Ok(await _semesterStatusService.GetUpcomingSemestersAsync(count));
+            return Ok(await _semesterStatusService.GetUpcomingSemestersAsync(count, status));
         }
 
         [HttpGet("active")]

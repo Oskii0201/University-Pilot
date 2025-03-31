@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+﻿using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Models;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
@@ -12,20 +11,17 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 {
     public class GroupsScheduleService : IGroupsScheduleService
     {
-        private readonly IMapper _mapper;
         private readonly ISemesterRepository _semesterRepository;
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IClassDayRepository _classDayRepository;
 
         public GroupsScheduleService(
-            IMapper mapper,
             ISemesterRepository semesterRepository,
             IScheduleClassDayRepository scheduleClassDayRepository,
             ICourseRepository courseRepository,
             IClassDayRepository classDayRepository)
         {
-            _mapper = mapper;
             _semesterRepository = semesterRepository;
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseRepository = courseRepository;
@@ -165,6 +161,12 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                 await _scheduleClassDayRepository.UpdateAssignmentsAsync(scd.Id, studyProgramIds);
             }
+
+            var semester = await _semesterRepository.GetAsync(model.SemesterId);
+            semester.CreationStage = ScheduleCreationStage.GroupsScheduleCreating;
+            semester.CreateDate = DateTime.UtcNow;
+            semester.UpdateDate = DateTime.UtcNow;
+            _semesterRepository.UpdateAsync(semester);
         }
 
         public async Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId)
@@ -253,6 +255,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     }
                 }
             }
+
+            semester.CreationStage = ScheduleCreationStage.GroupsScheduleCreated;
+            semester.UpdateDate = DateTime.UtcNow;
+            _semesterRepository.UpdateAsync(semester);
         }
 
         private static string FormatFieldOfStudy(StudyProgram sp)
