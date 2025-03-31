@@ -17,18 +17,6 @@ namespace UniversityPilot.Controllers
         }
 
         [HttpGet]
-        [Route("GetUpcomingSemesters")]
-        public async Task<IActionResult> GetUpcomingSemesters([FromQuery] int count = 3)
-        {
-            if (count <= 0)
-            {
-                return BadRequest("Count must be greater than 0.");
-            }
-
-            return Ok(await _groupsScheduleService.GetUpcomingSemestersAsync(count));
-        }
-
-        [HttpGet]
         [Route("GetFieldsOfStudyAssignmentsToGroup")]
         public async Task<IActionResult> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
         {

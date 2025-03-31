@@ -80,6 +80,9 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.StartDate).IsRequired();
                 entity.Property(e => e.EndDate).IsRequired();
 
+                entity.Property(e => e.CreateDate).IsRequired();
+                entity.Property(e => e.UpdateDate).IsRequired();
+
                 entity.HasMany(e => e.Courses)
                       .WithOne(c => c.Semester)
                       .HasForeignKey(c => c.SemesterId)

@@ -32,11 +32,6 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _classDayRepository = classDayRepository;
         }
 
-        public async Task<IEnumerable<SemesterDto>> GetUpcomingSemestersAsync(int count = 3)
-        {
-            return _mapper.Map<List<SemesterDto>>(await _semesterRepository.GetUpcomingSemestersAsync(count));
-        }
-
         public async Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
         {
             var scheduleClassDays = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
