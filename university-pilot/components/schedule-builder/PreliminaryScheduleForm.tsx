@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Select from "react-select";
-import DataTable from "react-data-table-component";
-import { Button } from "@/components/Button";
+import DataTable, { TableColumn } from "react-data-table-component";
+import { Button } from "@/components/ui/Button";
 import { BasicGroup, Semester, Weekend } from "@/app/types";
 import { fetchPreliminarySchedule } from "@/app/lib/api/fetchPreliminarySchedule";
-import { fetchUpcomingSemesters } from "@/app/lib/api/fetchUpcomingSemesters";
+import { getUpcomingSemesters } from "@/app/lib/api/getUpcomingSemesters";
 
 /**
  * Sprawdza, czy w podanym harmonogramie (schedule) znajduje się jakakolwiek wartość `true` w `availability`.
@@ -33,7 +33,7 @@ const PreliminaryScheduleForm: React.FC<{
   useEffect(() => {
     const loadSemesters = async () => {
       setIsLoading(true);
-      const data = await fetchUpcomingSemesters();
+      const data = await getUpcomingSemesters();
       setSemesters(data);
       setIsLoading(false);
     };
@@ -102,7 +102,7 @@ const PreliminaryScheduleForm: React.FC<{
   };
   /*TODO
    *  poprawić błąd wynikający z center: true*/
-  const columns = [
+  const columns: TableColumn<Weekend>[] = [
     {
       name: "Data",
       selector: (row: Weekend) => row.date,

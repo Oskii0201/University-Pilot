@@ -8,7 +8,7 @@ import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
  * @param semesterID ID semestru
  * @returns Promise zawierający obiekt z grupami i kursami
  */
-export const fetchGroups = async (
+export const getFieldsOfStudyAssignmentsToGroup = async (
   semesterID: number,
 ): Promise<{
   groups: Group[];

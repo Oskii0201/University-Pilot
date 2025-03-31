@@ -6,7 +6,7 @@ import EventTableView from "./EventTableView";
 import EventModal from "./EventModal";
 import { calculateRange } from "@/components/Calendar/lib/calculateRange";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
-import { LoadingCircle } from "@/components/LoadingCircle";
+import { LoadingCircle } from "@/components/ui/LoadingCircle";
 import { Event } from "@/app/types";
 import { toast } from "react-toastify";
 

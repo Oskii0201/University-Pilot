@@ -7,7 +7,7 @@ import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
  * Pobiera nadchodzące semestry
  * @returns Promise zawierający tablicę semestrów
  */
-export const fetchUpcomingSemesters = async (): Promise<Semester[]> => {
+export const getUpcomingSemesters = async (): Promise<Semester[]> => {
   try {
     const response = await apiClient.get("/StudyProgram/GetUpcomingSemesters");
     return response.data;

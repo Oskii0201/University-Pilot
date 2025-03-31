@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
-import Footer from "@/components/Footer";
+import Footer from "@/components/shared/Footer";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import { GeistSans } from "geist/font/sans";

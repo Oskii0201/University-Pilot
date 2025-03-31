@@ -4,7 +4,7 @@ import { login } from "@/app/lib/auth";
 import { toast } from "react-toastify";
 import React, { useState } from "react";
 import { FaLock, FaUser } from "react-icons/fa";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
 
 const LoginForm = () => {

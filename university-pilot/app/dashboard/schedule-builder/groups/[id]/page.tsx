@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchGroups } from "@/app/lib/api/fetchGroups";
+import { getFieldsOfStudyAssignmentsToGroup } from "@/app/lib/api/getFieldsOfStudyAssignmentsToGroup";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
 import GroupSetActions from "@/components/GroupSetActions";
@@ -11,7 +11,8 @@ export default async function GroupSetDetails({
 }) {
   const { id } = await params;
 
-  const { groups, unassignedCourses } = await fetchGroups(Number(id));
+  const { groups, unassignedCourses } =
+    await getFieldsOfStudyAssignmentsToGroup(Number(id));
 
   return (
     <div className="p-4">

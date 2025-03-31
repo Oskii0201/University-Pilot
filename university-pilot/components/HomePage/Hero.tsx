@@ -1,6 +1,6 @@
 import Image from "next/image";
 import universityPilotDashboard from "@/public/imageplacehgolder.png";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 
 export const Hero = () => {
   return (

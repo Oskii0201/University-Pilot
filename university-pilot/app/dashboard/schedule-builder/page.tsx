@@ -4,7 +4,7 @@ import OverviewCard from "@/components/schedule-builder/OverviewCard";
 const ScheduleBuilderOverview = () => {
   const steps = [
     {
-      title: "Grupy harmonogramowe",
+      title: "Semestry",
       description: "Twórz i zarządzaj grupami harmonogramowymi.",
       link: "/dashboard/schedule-builder/groups",
     },
