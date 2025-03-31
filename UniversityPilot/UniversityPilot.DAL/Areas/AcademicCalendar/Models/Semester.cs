@@ -21,6 +21,9 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
+        public DateTime CreateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
+
         public virtual ICollection<Course> Courses { get; set; }
         public virtual ICollection<ScheduleClassDay> ScheduleClassDays { get; set; }
     }

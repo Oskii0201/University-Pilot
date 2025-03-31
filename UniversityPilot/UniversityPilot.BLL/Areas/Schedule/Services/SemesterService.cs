@@ -1,4 +1,5 @@
-﻿using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+﻿using AutoMapper;
+using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
@@ -9,9 +10,16 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
     {
         private readonly ISemesterRepository _semesterRepository;
 
-        public SemesterService(ISemesterRepository semesterRepository)
+        public SemesterService(
+            ISemesterRepository semesterRepository,
+            IMapper mapper)
         {
             _semesterRepository = semesterRepository;
+        }
+
+        public async Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3)
+        {
+            return await _semesterRepository.GetUpcomingSemestersAsync(count);
         }
 
         public async Task<List<Semester>> GetAllExceptNewAsync()

@@ -15,6 +15,18 @@ namespace UniversityPilot.Controllers
             _semesterStatusService = semesterStatusService;
         }
 
+        [HttpGet]
+        [Route("GetUpcomingSemesters")]
+        public async Task<IActionResult> GetUpcomingSemesters([FromQuery] int count = 3)
+        {
+            if (count <= 0)
+            {
+                return BadRequest("Count must be greater than 0.");
+            }
+
+            return Ok(await _semesterStatusService.GetUpcomingSemestersAsync(count));
+        }
+
         [HttpGet("active")]
         public async Task<IActionResult> GetSemestersWithStatusOtherThanNew()
         {
@@ -22,7 +34,7 @@ namespace UniversityPilot.Controllers
             return Ok(result);
         }
 
-        [HttpGet("by-status/{status}")]
+        [HttpGet("GetSemestersByStatus/{status}")]
         public async Task<IActionResult> GetSemestersByStatus(ScheduleCreationStage status)
         {
             var result = await _semesterStatusService.GetByStatusAsync(status);
