@@ -9,10 +9,21 @@ namespace UniversityPilot.Controllers
     public class FileController : ControllerBase
     {
         private readonly ICsvService _csvService;
+        private readonly IFileService _fileService;
 
-        public FileController(ICsvService csvService)
+        public FileController(
+            ICsvService csvService,
+            IFileService fileService)
         {
             _csvService = csvService;
+            _fileService = fileService;
+        }
+
+        [HttpGet("GetFileTypes")]
+        public IActionResult GetFileTypes()
+        {
+            var result = _fileService.GetFileTypeDictionary();
+            return Ok(result);
         }
 
         [HttpPost]

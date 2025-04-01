@@ -32,6 +32,7 @@ namespace UniversityPilot.BLL
             #region Files
 
             services.AddScoped<ICsvService, CsvService>();
+            services.AddScoped<IFileService, FileService>();
 
             #endregion Files
 
