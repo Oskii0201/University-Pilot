@@ -8,16 +8,22 @@ import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManage
 import { Course, Group, Semester } from "@/app/types";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import apiClient from "@/lib/apiClient";
 import { v4 as uuidv4 } from "uuid";
 import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
-import { getUpcomingSemesters } from "@/lib/api/getUpcomingSemesters";
-import { getFieldsOfStudyAssignmentsToGroup } from "@/lib/api/getFieldsOfStudyAssignmentsToGroup";
+import { getUpcomingSemesters } from "@/lib/api/schedule-builder/getUpcomingSemesters";
+import { getFieldsOfStudyAssignmentsToGroup } from "@/lib/api/schedule-builder/getFieldsOfStudyAssignmentsToGroup";
+import { updateFieldsOfStudyAssignmentsToGroup } from "@/lib/api/schedule-builder/updateFieldsOfStudyAssignmentsToGroup";
 
-const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
-  semesterID,
-}) => {
+interface ScheduleGroupManagementFormProps {
+  semesterID?: number;
+}
+
+const ScheduleGroupManagementForm: React.FC<
+  ScheduleGroupManagementFormProps
+> = ({ semesterID }) => {
   const router = useRouter();
+
+  // State
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
     null,
@@ -26,62 +32,71 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   const [unassignedCourses, setUnassignedCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadSemesters = async () => {
+  // Helpers
+  const hasUnsavedChanges = groups.length > 0 || unassignedCourses.length > 0;
+  const totalAssignedCourses = groups.reduce(
+    (sum, group) => sum + group.assignedFieldsOfStudy.length,
+    0,
+  );
+  const totalCourses = totalAssignedCourses + unassignedCourses.length;
+
+  // Data fetching
+  const fetchSemesters = useCallback(async () => {
+    try {
       setIsLoading(true);
-      const data = await getUpcomingSemesters();
-      setSemesters(data);
-      setIsLoading(false);
-    };
-    loadSemesters();
-  }, []);
-
-  useEffect(() => {
-    if (semesterID && semesters.length > 0) {
-      handleSemesterChange({ value: Number(semesterID) });
-    }
-  }, [semesterID, semesters]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (groups.length > 0 || unassignedCourses.length > 0) {
-        event.preventDefault();
+      const { data, error } = await getUpcomingSemesters(0);
+      if (error || !data) {
+        toast.error("Nie udało się pobrać semestrów");
+        return;
       }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [groups, unassignedCourses]);
+      setSemesters(data);
+    } catch (error) {
+      toast.error("Wystąpił błąd przy pobieraniu semestrów");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const fetchGroupAssignments = useCallback(async (semesterID: number) => {
-    setIsLoading(true);
-    const { groups, unassignedCourses } =
-      await getFieldsOfStudyAssignmentsToGroup(semesterID);
+    try {
+      setIsLoading(true);
+      const { data, error } =
+        await getFieldsOfStudyAssignmentsToGroup(semesterID);
 
-    const updatedGroups = groups.map((group) => ({
-      ...group,
-      key: uuidv4(),
-    }));
+      if (error || !data) {
+        toast.error("Nie udało się pobrać przypisań grup");
+        return;
+      }
 
-    setUnassignedCourses(unassignedCourses);
-    setGroups(updatedGroups);
+      const updatedGroups: Group[] = data.assignedFieldOfStudyGroups.map(
+        (group) => ({
+          ...group,
+          key: uuidv4(),
+        }),
+      );
+
+      setGroups(updatedGroups);
+      setUnassignedCourses(data.unassignedFieldsOfStudy);
+    } catch (error) {
+      toast.error("Wystąpił błąd przy pobieraniu przypisań grup");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  // Event handlers
   const handleSemesterChange = useCallback(
     async (selectedOption: { value: number } | null) => {
       if (!selectedOption) return;
-      setIsLoading(true);
 
-      if (
-        groups.length > 0 ||
-        groups.some((g) => g.assignedFieldsOfStudy.length > 0)
-      ) {
+      if (hasUnsavedChanges) {
         if (
           !window.confirm(
             "Zmiana semestru spowoduje utratę wszystkich danych. Kontynuować?",
           )
         ) {
-          setIsLoading(false);
           return;
         }
       }
@@ -89,35 +104,65 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
       const semester =
         semesters.find((s) => s.id === selectedOption.value) || null;
       setSelectedSemester(semester);
-
       await fetchGroupAssignments(selectedOption.value);
-      setIsLoading(false);
     },
-    [groups, semesters, fetchGroupAssignments],
+    [hasUnsavedChanges, semesters, fetchGroupAssignments],
   );
-  const handleEditGroupName = (key: string, newName: string) => {
+
+  const handleEditGroupName = useCallback((key: string, newName: string) => {
     setGroups((prevGroups) =>
       prevGroups.map((g) => (g.key === key ? { ...g, groupName: newName } : g)),
     );
-  };
-  const handleAddCourseToGroup = (key: string, courseName: string) => {
-    const course = unassignedCourses.find((c) => c === courseName);
-    if (!course) return;
+  }, []);
 
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.key === key
-          ? {
-              ...g,
-              assignedFieldsOfStudy: [...g.assignedFieldsOfStudy, course],
-            }
-          : g,
-      ),
-    );
+  const handleAddCourseToGroup = useCallback(
+    (key: string, courseName: string) => {
+      const course = unassignedCourses.find((c) => c === courseName);
+      if (!course) return;
 
-    setUnassignedCourses((prev) => prev.filter((c) => c !== courseName));
-  };
-  const handleAddGroup = () => {
+      setGroups((prev) =>
+        prev.map((g) =>
+          g.key === key
+            ? {
+                ...g,
+                assignedFieldsOfStudy: [...g.assignedFieldsOfStudy, course],
+              }
+            : g,
+        ),
+      );
+
+      setUnassignedCourses((prev) => prev.filter((c) => c !== courseName));
+    },
+    [unassignedCourses],
+  );
+
+  const handleRemoveCourseFromGroup = useCallback(
+    (key: string, courseName: string) => {
+      const group = groups.find((g) => g.key === key);
+      if (!group) return;
+
+      const course = group.assignedFieldsOfStudy.find((c) => c === courseName);
+      if (!course) return;
+
+      setGroups((prev) =>
+        prev.map((g) =>
+          g.key === key
+            ? {
+                ...g,
+                assignedFieldsOfStudy: g.assignedFieldsOfStudy.filter(
+                  (c) => c !== courseName,
+                ),
+              }
+            : g,
+        ),
+      );
+
+      setUnassignedCourses((prev) => [...prev, course]);
+    },
+    [groups],
+  );
+
+  const handleAddGroup = useCallback(() => {
     setGroups((prev) => [
       ...prev,
       {
@@ -127,56 +172,73 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
         assignedFieldsOfStudy: [],
       },
     ]);
-  };
-  const handleRemoveCourseFromGroup = (key: string, courseName: string) => {
-    const group = groups.find((g) => g.key === key);
-    if (!group) return;
+  }, []);
 
-    const course = group.assignedFieldsOfStudy.find((c) => c === courseName);
-    if (!course) return;
-
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.key === key
-          ? {
-              ...g,
-              assignedFieldsOfStudy: g.assignedFieldsOfStudy.filter(
-                (c) => c !== courseName,
-              ),
-            }
-          : g,
-      ),
-    );
-
-    setUnassignedCourses((prev) => [...prev, course]);
-  };
-  const handleRemoveGroup = (key: string, courses: Course[]) => {
+  const handleRemoveGroup = useCallback((key: string, courses: Course[]) => {
     setGroups((prev) => prev.filter((g) => g.key !== key));
     setUnassignedCourses((prev) => [...prev, ...courses]);
-  };
+  }, []);
+
   const handleSubmit = async () => {
+    if (!selectedSemester) {
+      return toast.error("Nie wybrano semestru");
+    }
+
     if (groups.length === 0) {
       return toast.error("Musisz stworzyć choć jedną grupę");
     }
 
     try {
-      if (!selectedSemester) return;
-      await apiClient.put(
-        "/StudyProgram/UpdateFieldsOfStudyAssignmentsToGroup",
-        {
-          semesterId: selectedSemester.id,
-          unassignedFieldsOfStudy: unassignedCourses,
-          assignedFieldOfStudyGroups: groups,
-        },
-      );
+      setIsLoading(true);
+
+      const payload = {
+        semesterId: selectedSemester.id,
+        unassignedFieldsOfStudy: unassignedCourses,
+        assignedFieldOfStudyGroups: groups,
+      };
+
+      const { success, error } =
+        await updateFieldsOfStudyAssignmentsToGroup(payload);
+
+      if (!success) {
+        toast.error(error ?? "Nie udało się zapisać danych.");
+        return;
+      }
+
       toast.success(getRandomLoadingMessage("success"));
       router.push(`/dashboard/schedule-builder/groups/${selectedSemester.id}`);
     } catch (error) {
       toast.error(getRandomLoadingMessage("error"));
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Effects
+  useEffect(() => {
+    fetchSemesters();
+  }, [fetchSemesters]);
+
+  useEffect(() => {
+    if (semesterID && semesters.length > 0) {
+      handleSemesterChange({ value: Number(semesterID) });
+    }
+  }, [semesterID, semesters, handleSemesterChange]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        return (event.returnValue = "");
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Render
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div className="col-span-1 md:col-span-2">
@@ -209,11 +271,7 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
           <div className="flex items-center justify-center gap-4">
             Przypisane kierunki:{" "}
             <span className="font-bold">
-              {groups.reduce(
-                (sum, group) => sum + group.assignedFieldsOfStudy.length,
-                0,
-              )}{" "}
-              / {unassignedCourses.length}
+              {totalAssignedCourses} / {totalCourses}
             </span>
           </div>
 
@@ -228,13 +286,21 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
             handleRemoveGroup={handleRemoveGroup}
           />
 
-          <Button onClick={handleAddGroup} color="blue">
-            Dodaj grupę
-          </Button>
+          <div className="col-span-1 flex flex-col gap-4 md:col-span-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Button
+                onClick={handleAddGroup}
+                color="blue"
+                disabled={isLoading}
+              >
+                Dodaj grupę
+              </Button>
 
-          <Button onClick={handleSubmit} color="green">
-            Wyślij formularz
-          </Button>
+              <Button onClick={handleSubmit} color="green" disabled={isLoading}>
+                {isLoading ? "Zapisywanie..." : "Wyślij formularz"}
+              </Button>
+            </div>
+          </div>
         </>
       )}
     </div>
