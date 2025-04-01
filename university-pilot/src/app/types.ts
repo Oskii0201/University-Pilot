@@ -8,13 +8,7 @@ export interface Event {
   lecturer?: string;
 }
 export type Course = string;
-export interface Group {
-  groupId: number;
-  groupName: string;
-  assignedFieldsOfStudy: Course[];
-  key: string;
-}
-export type BasicGroup = Omit<Group, "assignedFieldsOfStudy" | "key">;
+
 export interface Semester {
   id: number;
   creationStage: number;
@@ -27,12 +21,20 @@ export interface Semester {
   courses: Course[];
   scheduleClassDays: [];
 }
+export interface FieldOfStudyGroup {
+  groupId: number;
+  groupName: string;
+  assignedFieldsOfStudy: Course[];
+}
 
-export interface GroupSet {
-  id: string;
-  name: string;
-  createdAt: string;
-  groups: Group[];
+export interface FieldsOfStudyAssignmentsResponse {
+  semesterId: number;
+  unassignedFieldsOfStudy: Course[];
+  assignedFieldOfStudyGroups: FieldOfStudyGroup[];
+}
+
+export interface Group extends FieldOfStudyGroup {
+  key: string;
 }
 export interface User {
   id: number;

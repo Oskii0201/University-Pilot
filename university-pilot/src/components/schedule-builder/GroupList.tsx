@@ -1,5 +1,5 @@
 import Link from "next/link";
-import GroupSetActions from "@/components/GroupSetActions";
+import GroupSetActions from "@/components/schedule-builder/GroupSetActions";
 import { Semester } from "@/app/types";
 
 interface Props {

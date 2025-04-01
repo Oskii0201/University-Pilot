@@ -30,10 +30,9 @@ const GroupList: React.FC<GroupListProps> = ({
   handleRemoveGroup,
   readOnlyMode = false,
 }) => {
-  const [openGroupIndex, setOpenGroupIndex] = useState<number | null>(null); // 🔥 Przechowujemy otwartą grupę jako numer indeksu
-
+  const [openGroupIndex, setOpenGroupIndex] = useState<number | null>(null);
   const toggleGroup = (index: number) => {
-    setOpenGroupIndex((prev) => (prev === index ? null : index)); // 🔥 Jeśli kliknięto tę samą grupę, zamykamy; jeśli inną, otwieramy ją.
+    setOpenGroupIndex((prev) => (prev === index ? null : index));
   };
 
   const confirmRemoveGroup = (

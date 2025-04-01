@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Calendar from "@/components/Calendar/Calendar";
-import { fetchEvents } from "@/app/lib/fetchEvents";
+import { fetchEvents } from "@/lib/fetchEvents";
 import { Event } from "@/app/types";
 
 export default function CalendarPage() {

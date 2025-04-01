@@ -1,11 +1,11 @@
 import ScheduleBuilderNavigation from "@/components/schedule-builder/ScheduleBuilderNavigation";
 import GroupList from "@/components/schedule-builder/GroupList";
-import { getUpcomingSemesters } from "@/lib/api/getUpcomingSemesters";
+import { getUpcomingSemesters } from "@/lib/api/schedule-builder/getUpcomingSemesters";
 import Link from "next/link";
 import { PiFolderSimplePlusFill } from "react-icons/pi";
 
 const ScheduleBuilderGroupsPage = async () => {
-  const { data, error } = await getUpcomingSemesters(0);
+  const { data, error } = await getUpcomingSemesters(1);
 
   return (
     <div className="flex flex-col gap-4">
