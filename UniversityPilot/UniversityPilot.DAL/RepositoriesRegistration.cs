@@ -8,6 +8,8 @@ using UniversityPilot.DAL.Areas.SemesterPlanning.Repositories;
 using UniversityPilot.DAL.Areas.Shared;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
 using UniversityPilot.DAL.Areas.StudyOrganization.Repositories;
+using UniversityPilot.DAL.Areas.UniversityComponents.Interfaces;
+using UniversityPilot.DAL.Areas.UniversityComponents.Repositories;
 
 namespace UniversityPilot.DAL
 {
@@ -50,6 +52,12 @@ namespace UniversityPilot.DAL
             services.AddScoped<IStudyProgramRepository, StudyProgramRepository>();
 
             #endregion StudyOrganization
+
+            #region UniversityComponents
+
+            services.AddScoped<IClassroomRepository, ClassroomRepository>();
+
+            #endregion UniversityComponents
         }
     }
 }

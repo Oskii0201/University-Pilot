@@ -8,6 +8,6 @@ namespace UniversityPilot.DAL.Areas.Shared.Enumes
         StudyProgram = 0,
 
         [Description("Sale lekcyjne/wykładowe")]
-        Rooms = 1,
+        Classrooms = 1,
     }
 }

@@ -10,17 +10,20 @@ namespace UniversityPilot.BLL.Areas.Files.Services
 {
     internal class CsvService : ICsvService
     {
+        private readonly IClassroomService _classroomService;
         private readonly IGroupService _groupService;
         private readonly IHistoricalScheduleService _historicalScheduleService;
         private readonly IInstructorService _instructorService;
         private readonly IStudyProgramService _studyProgramService;
 
         public CsvService(
+            IClassroomService classroomService,
             IGroupService groupService,
             IHistoricalScheduleService historicalScheduleService,
             IInstructorService instructorService,
             IStudyProgramService studyProgramService)
         {
+            _classroomService = classroomService;
             _groupService = groupService;
             _historicalScheduleService = historicalScheduleService;
             _instructorService = instructorService;
@@ -53,6 +56,10 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                 case FileType.StudyProgram:
                     var studyProgramsCsv = ReadCsvFileToObject<StudyProgramCsv>(data.File);
                     return _studyProgramService.SaveFromCsv(studyProgramsCsv);
+
+                case FileType.Classrooms:
+                    var classroomsCsv = ReadCsvFileToObject<ClassroomCsv>(data.File);
+                    return await _classroomService.SaveFromCsv(classroomsCsv);
 
                 //case "Instructors":
                 //    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
