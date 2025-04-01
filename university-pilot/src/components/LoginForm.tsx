@@ -1,11 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { login } from "@/app/lib/auth";
+import { login } from "@/lib/auth";
 import { toast } from "react-toastify";
 import React, { useState } from "react";
 import { FaLock, FaUser } from "react-icons/fa";
 import { Button } from "@/components/ui/Button";
-import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
+import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");

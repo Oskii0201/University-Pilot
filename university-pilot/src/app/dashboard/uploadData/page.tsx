@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import apiClient from "@/app/lib/apiClient";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-toastify";
 import { LoadingCircle } from "@/components/ui/LoadingCircle";
-import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
+import apiClient from "@/lib/apiClient";
+import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 
 export default function CsvUploadForm() {
   const [selectedDataset, setSelectedDataset] = useState("");

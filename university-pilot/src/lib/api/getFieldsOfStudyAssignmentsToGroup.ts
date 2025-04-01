@@ -1,7 +1,7 @@
-import apiClient from "@/app/lib/apiClient";
 import { toast } from "react-toastify";
 import { Group, Course } from "@/app/types";
-import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
+import apiClient from "@/lib/apiClient";
+import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 
 /**
  * Pobiera przypisane i nieprzypisane kierunki dla podanego semestru

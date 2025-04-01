@@ -1,5 +1,5 @@
 import React from "react";
-import { getFieldsOfStudyAssignmentsToGroup } from "@/app/lib/api/getFieldsOfStudyAssignmentsToGroup";
+import { getFieldsOfStudyAssignmentsToGroup } from "@/lib/api/getFieldsOfStudyAssignmentsToGroup";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
 import GroupSetActions from "@/components/GroupSetActions";

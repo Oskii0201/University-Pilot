@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import { BasicGroup, Weekend } from "@/app/types";
-import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
+import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 
 /**
  * Pobiera wstępny harmonogram wraz z grupami i weekendami

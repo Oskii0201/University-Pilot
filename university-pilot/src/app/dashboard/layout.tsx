@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar/Sidebar";
 import Header from "@/components/shared/Header";
 import React, { useState, Suspense, useEffect } from "react";
 import Loading from "@/app/dashboard/loading";
-import { useUserStore } from "@/app/store/useUserStore";
+import { useUserStore } from "@/store/useUserStore";
 
 interface LayoutProps {
   children: React.ReactNode;

@@ -5,8 +5,8 @@ import Select from "react-select";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { Button } from "@/components/ui/Button";
 import { BasicGroup, Semester, Weekend } from "@/app/types";
-import { fetchPreliminarySchedule } from "@/app/lib/api/fetchPreliminarySchedule";
-import { getUpcomingSemesters } from "@/app/lib/api/getUpcomingSemesters";
+import { fetchPreliminarySchedule } from "@/lib/api/fetchPreliminarySchedule";
+import { getUpcomingSemesters } from "@/lib/api/getUpcomingSemesters";
 
 /**
  * Sprawdza, czy w podanym harmonogramie (schedule) znajduje się jakakolwiek wartość `true` w `availability`.

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { User } from "@/app/types";
-import apiClient from "@/app/lib/apiClient";
+import apiClient from "@/lib/apiClient";
 
 interface UserStore {
   user: User | null;

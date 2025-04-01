@@ -1,5 +1,5 @@
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
-import { calculateRange } from "@/components/Calendar/lib/calculateRange";
+import { calculateRange } from "@/src/components/Calendar/lib/calculateRange";
 
 describe("calculateRange", () => {
   it("returns today's date for null view", () => {

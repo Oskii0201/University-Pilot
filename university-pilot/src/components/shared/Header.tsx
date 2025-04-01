@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { FaBars } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { logout } from "@/app/lib/auth";
-import { useUserStore } from "@/app/store/useUserStore";
+import { logout } from "@/lib/auth";
+import { useUserStore } from "@/store/useUserStore";
 
 interface HeaderProps {
   onHamburgerClick: () => void;

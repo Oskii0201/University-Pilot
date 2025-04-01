@@ -1,7 +1,7 @@
-import apiClient from "@/app/lib/apiClient";
 import { toast } from "react-toastify";
+import apiClient from "@/lib/apiClient";
 import { Semester } from "@/app/types";
-import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
+import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 
 /**
  * Pobiera nadchodzące semestry

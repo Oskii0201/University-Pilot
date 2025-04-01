@@ -8,11 +8,11 @@ import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManage
 import { Course, Group, Semester } from "@/app/types";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import apiClient from "@/app/lib/apiClient";
+import apiClient from "@/lib/apiClient";
 import { v4 as uuidv4 } from "uuid";
-import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
-import { getUpcomingSemesters } from "@/app/lib/api/getUpcomingSemesters";
-import { getFieldsOfStudyAssignmentsToGroup } from "@/app/lib/api/getFieldsOfStudyAssignmentsToGroup";
+import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
+import { getUpcomingSemesters } from "@/lib/api/getUpcomingSemesters";
+import { getFieldsOfStudyAssignmentsToGroup } from "@/lib/api/getFieldsOfStudyAssignmentsToGroup";
 
 const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   semesterID,
