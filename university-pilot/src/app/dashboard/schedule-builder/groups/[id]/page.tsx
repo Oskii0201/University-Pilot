@@ -21,10 +21,13 @@ export default async function GroupSetDetails({
   return (
     <div className="p-4">
       <div className="flex flex-row justify-end pb-2">
-        <GroupSetActions groupId={id} />
+        <GroupSetActions
+          id={id}
+          basePath="/dashboard/schedule-builder/groups"
+        />
       </div>
 
-      <h1 className="text-2xl font-bold">Zestaw grup - ID: {id}</h1>
+      <h1 className="text-2xl font-bold">{data.name}</h1>
       <p className="text-gray-600">
         Liczba grup: {assignedFieldOfStudyGroups.length}
       </p>

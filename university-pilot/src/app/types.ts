@@ -29,6 +29,7 @@ export interface FieldOfStudyGroup {
 
 export interface FieldsOfStudyAssignmentsResponse {
   semesterId: number;
+  name: string;
   unassignedFieldsOfStudy: Course[];
   assignedFieldOfStudyGroups: FieldOfStudyGroup[];
 }
@@ -36,6 +37,24 @@ export interface FieldsOfStudyAssignmentsResponse {
 export interface Group extends FieldOfStudyGroup {
   key: string;
 }
+
+export interface BasicGroup {
+  groupId: number;
+  groupName: string;
+}
+
+export interface WeekendAvailabilityResponse {
+  semesterId: number;
+  name: string;
+  groups: BasicGroup[];
+  weekends: Weekend[];
+}
+
+export interface Weekend {
+  date: string;
+  availability: Record<string, boolean>;
+}
+
 export interface User {
   id: number;
   roleId: number;
@@ -44,8 +63,4 @@ export interface User {
   firstName: string;
   lastName: string;
   phoneNumber: string | null;
-}
-export interface Weekend {
-  date: string;
-  availability: Record<string, boolean>;
 }

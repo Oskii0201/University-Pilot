@@ -1,116 +1,71 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import Select from "react-select";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { Button } from "@/components/ui/Button";
-import { BasicGroup, Semester, Weekend } from "@/app/types";
-import { fetchPreliminarySchedule } from "@/lib/api/fetchPreliminarySchedule";
-import { getUpcomingSemesters } from "@/lib/api/schedule-builder/getUpcomingSemesters";
+import { Weekend } from "@/app/types";
+import { useSemesters } from "@/hooks/schedule-builder/useSemesters";
+import { useUnsavedChanges } from "@/hooks/schedule-builder/useUnsavedChanges";
+import { useWeekendAvailability } from "@/hooks/schedule-builder/PreliminaryScheduleForm/useWeekendAvailability";
 
-/**
- * Sprawdza, czy w podanym harmonogramie (schedule) znajduje się jakakolwiek wartość `true` w `availability`.
- * @param schedule - Tablica obiektów z datami i dostępnościami
- * @returns `true`, jeśli co najmniej jedna wartość `true` jest w obiekcie `availability`, w przeciwnym razie `false`.
- */
-const hasTrueValues = (schedule: Weekend[]) =>
-  schedule.some(({ availability }) =>
-    Object.values(availability).some(Boolean),
-  );
-
-const PreliminaryScheduleForm: React.FC<{
+interface PreliminaryScheduleFormProps {
   semesterID?: number;
   readOnlyMode?: boolean;
-}> = ({ semesterID, readOnlyMode = false }) => {
-  const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
-    null,
-  );
-  const [schedule, setSchedule] = useState<Weekend[]>([]);
-  const [groups, setGroups] = useState<BasicGroup[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+}
 
-  useEffect(() => {
-    const loadSemesters = async () => {
-      setIsLoading(true);
-      const data = await getUpcomingSemesters();
-      setSemesters(data);
-      setIsLoading(false);
-    };
-    loadSemesters();
-  }, []);
+const PreliminaryScheduleForm: React.FC<PreliminaryScheduleFormProps> = ({
+  semesterID,
+  readOnlyMode,
+}) => {
+  const parsedSemesterID = semesterID ? Number(semesterID) : undefined;
 
-  const handleSemesterChange = useCallback(
-    async (selectedOption: { value: number } | null) => {
-      if (!selectedOption || (semesterID && selectedSemester)) return;
-      setIsLoading(true);
+  const {
+    semesters,
+    selectedSemester,
+    isLoading: semestersLoading,
+    handleSemesterChange,
+  } = useSemesters(1, parsedSemesterID);
 
-      if (!readOnlyMode && !semesterID && hasTrueValues(schedule)) {
-        const confirmChange = window.confirm(
-          "Zmiana semestru spowoduje utratę wszystkich danych. Kontynuować?",
-        );
-        if (!confirmChange) {
-          setIsLoading(false);
-          return;
-        }
-      }
+  const {
+    schedule,
+    groups,
+    isLoading: weekendLoading,
+    hasUnsavedChanges,
+    fetchWeekendAvailability,
+    toggleAvailability,
+    hasTrueValues,
+    handleSubmit,
+  } = useWeekendAvailability(parsedSemesterID);
 
-      const semester =
-        semesters.find((s) => s.id === selectedOption.value) ?? null;
-      setSelectedSemester(semester);
+  useUnsavedChanges(hasUnsavedChanges);
 
-      const data = await fetchPreliminarySchedule(selectedOption.value);
-      setGroups(data.groups);
-      setSchedule(data.weekends);
+  const onSemesterChange = async (selectedOption: { value: number } | null) => {
+    if (!selectedOption) return;
 
-      setIsLoading(false);
-    },
-    [semesters, schedule, readOnlyMode, semesterID, selectedSemester],
-  );
-
-  useEffect(() => {
-    if ((readOnlyMode || semesterID) && semesterID) {
-      handleSemesterChange({ value: semesterID });
-    }
-  }, [semesterID, readOnlyMode, handleSemesterChange]);
-
-  const toggleAvailability = (date: string, groupId: number) => {
-    if (readOnlyMode) return;
-
-    setSchedule((prev) =>
-      prev.map((weekend) =>
-        weekend.date === date
-          ? {
-              ...weekend,
-              availability: {
-                ...weekend.availability,
-                [groupId]: !weekend.availability[groupId],
-              },
-            }
-          : weekend,
-      ),
+    const semester = await handleSemesterChange(
+      selectedOption,
+      hasUnsavedChanges,
     );
+
+    if (semester) {
+      await fetchWeekendAvailability(selectedOption.value);
+    }
   };
 
-  const handleSubmit = async () => {
-    if (!selectedSemester || !hasTrueValues(schedule)) return;
-    console.log({
-      semesterId: selectedSemester.id,
-      groups: groups,
-      weekends: schedule,
-    });
-  };
-  /*TODO
-   *  poprawić błąd wynikający z center: true*/
   const columns: TableColumn<Weekend>[] = [
     {
       name: "Data",
       selector: (row: Weekend) => row.date,
-      center: true,
+      cell: (row: Weekend) => {
+        const dateObj = new Date(row.date);
+        const formattedDate = dateObj.toLocaleDateString("pl-PL");
+
+        return <div className="w-full text-center">{formattedDate}</div>;
+      },
     },
     ...groups.map((group) => ({
       name: group.groupName,
-      center: true,
       cell: (row: Weekend) => (
         <div className="mx-auto">
           <input
@@ -124,6 +79,8 @@ const PreliminaryScheduleForm: React.FC<{
       ),
     })),
   ];
+
+  const isLoading = semestersLoading || weekendLoading;
 
   return (
     <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6">
@@ -147,7 +104,7 @@ const PreliminaryScheduleForm: React.FC<{
               : null
           }
           options={semesters.map((s) => ({ value: s.id, label: s.name }))}
-          onChange={handleSemesterChange}
+          onChange={onSemesterChange}
           isSearchable
           placeholder="Wybierz semestr..."
           isLoading={isLoading}
@@ -168,7 +125,7 @@ const PreliminaryScheduleForm: React.FC<{
       {!readOnlyMode && (
         <Button
           width="w-fit"
-          onClick={handleSubmit}
+          onClick={() => selectedSemester && handleSubmit(selectedSemester.id)}
           disabled={!hasTrueValues(schedule)}
         >
           Zapisz harmonogram

@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { Semester } from "@/app/types";
 import { getUpcomingSemesters } from "@/lib/api/schedule-builder/getUpcomingSemesters";
 
-export const useSemesters = (initialSemesterID?: number) => {
+export const useSemesters = (stageID: number, initialSemesterID?: number) => {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
     null,
@@ -15,7 +15,7 @@ export const useSemesters = (initialSemesterID?: number) => {
       setIsLoading(true);
 
       if (!initialSemesterID) {
-        const { data, error } = await getUpcomingSemesters(0);
+        const { data, error } = await getUpcomingSemesters(stageID);
         if (error || !data) {
           toast.error("Nie udało się pobrać semestrów");
           return;
@@ -24,7 +24,7 @@ export const useSemesters = (initialSemesterID?: number) => {
       }
 
       if (initialSemesterID) {
-        const { data, error } = await getUpcomingSemesters(1);
+        const { data, error } = await getUpcomingSemesters(stageID + 1);
         if (error || !data) {
           toast.error("Nie udało się pobrać semestrów");
           return;

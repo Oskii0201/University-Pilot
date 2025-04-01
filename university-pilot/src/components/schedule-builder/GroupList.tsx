@@ -4,9 +4,10 @@ import { Semester } from "@/app/types";
 
 interface Props {
   groupSets: Semester[];
+  basePath: string;
 }
 
-export default function GroupList({ groupSets }: Props) {
+export default function GroupList({ groupSets, basePath }: Props) {
   if (groupSets.length === 0) {
     return (
       <p className="text-gray-600">Brak zestawów grup harmonogramowych.</p>
@@ -22,7 +23,7 @@ export default function GroupList({ groupSets }: Props) {
         >
           <div className="flex items-center justify-between">
             <div>
-              <Link href={`/dashboard/schedule-builder/groups/${set.id}`}>
+              <Link href={`${basePath}/${set.id}`}>
                 <h2 className="text-lg font-semibold">{set.name}</h2>
               </Link>
               <p className="text-sm text-gray-600">
@@ -34,7 +35,7 @@ export default function GroupList({ groupSets }: Props) {
                 {new Date(set.updateDate).toLocaleDateString("pl-PL")}
               </p>
             </div>
-            <GroupSetActions groupId={set.id} />
+            <GroupSetActions id={set.id} basePath={basePath} />
           </div>
         </li>
       ))}

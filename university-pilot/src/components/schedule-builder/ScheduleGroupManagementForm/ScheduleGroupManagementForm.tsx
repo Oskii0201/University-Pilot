@@ -5,9 +5,9 @@ import Select from "react-select";
 import { Button } from "@/components/ui/Button";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
-import { useSemesters } from "@/hooks/ScheduleGroupManagementForm/useSemesters";
-import { useGroupAssignments } from "@/hooks/ScheduleGroupManagementForm/useGroupAssignment";
-import { useUnsavedChanges } from "@/hooks/ScheduleGroupManagementForm/useUnsavedChanges";
+import { useSemesters } from "@/hooks/schedule-builder/useSemesters";
+import { useGroupAssignments } from "@/hooks/schedule-builder/ScheduleGroupManagementForm/useGroupAssignment";
+import { useUnsavedChanges } from "@/hooks/schedule-builder/useUnsavedChanges";
 
 interface ScheduleGroupManagementFormProps {
   semesterID?: number;
@@ -23,7 +23,7 @@ const ScheduleGroupManagementForm: React.FC<
     selectedSemester,
     isLoading: semestersLoading,
     handleSemesterChange,
-  } = useSemesters(parsedSemesterID);
+  } = useSemesters(0, parsedSemesterID);
 
   const {
     groups,
@@ -89,7 +89,7 @@ const ScheduleGroupManagementForm: React.FC<
           isSearchable
           placeholder="Wybierz semestr..."
           isLoading={isLoading}
-          isDisabled={!!semesterID} // Blokujemy zmianę semestru w trybie edycji
+          isDisabled={!!semesterID}
         />
       </div>
 
