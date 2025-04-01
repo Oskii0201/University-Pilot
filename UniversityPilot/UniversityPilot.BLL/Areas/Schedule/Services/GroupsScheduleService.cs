@@ -31,6 +31,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         public async Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
         {
             var scheduleClassDays = await _scheduleClassDayRepository.GetBySemesterIdAsync(semesterId);
+            var semester = await _semesterRepository.GetAsync(semesterId);
 
             var assignedPrograms = scheduleClassDays
                 .SelectMany(scd => scd.StudyPrograms)
@@ -87,6 +88,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             return new FieldsOfStudyAssignmentDto
             {
                 SemesterId = semesterId,
+                Name = semester.Name,
                 UnassignedFieldsOfStudy = unassignedFieldsOfStudy,
                 AssignedFieldOfStudyGroups = assignedFieldOfStudyGroups
             };
@@ -207,6 +209,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             return new WeekendAvailabilityDto
             {
                 SemesterId = semesterId,
+                Name = semester.Name,
                 Groups = groups.Select(g => new GroupDto
                 {
                     GroupId = g.Id,
