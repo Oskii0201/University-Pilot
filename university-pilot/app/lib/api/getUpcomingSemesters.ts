@@ -9,7 +9,7 @@ import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
  */
 export const getUpcomingSemesters = async (): Promise<Semester[]> => {
   try {
-    const response = await apiClient.get("/StudyProgram/GetUpcomingSemesters");
+    const response = await apiClient.get("/Schedule/GetUpcomingSemesters");
     return response.data;
   } catch (error) {
     toast.error(getRandomLoadingMessage("error"));

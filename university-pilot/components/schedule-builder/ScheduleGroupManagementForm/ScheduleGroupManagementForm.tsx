@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Select from "react-select";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
 import { Course, Group, Semester } from "@/app/types";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import apiClient from "@/app/lib/apiClient";
-import { fetchGroups } from "@/app/lib/api/fetchGroups";
 import { v4 as uuidv4 } from "uuid";
-import { fetchUpcomingSemesters } from "@/app/lib/api/fetchUpcomingSemesters";
 import { getRandomLoadingMessage } from "@/app/utils/getRandomLoadingMessage";
+import { getUpcomingSemesters } from "@/app/lib/api/getUpcomingSemesters";
+import { getFieldsOfStudyAssignmentsToGroup } from "@/app/lib/api/getFieldsOfStudyAssignmentsToGroup";
 
 const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   semesterID,
@@ -22,7 +22,6 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
     null,
   );
-  const [patternTitle, setPatternTitle] = useState("Grupy");
   const [groups, setGroups] = useState<Group[]>([]);
   const [unassignedCourses, setUnassignedCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +29,7 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
   useEffect(() => {
     const loadSemesters = async () => {
       setIsLoading(true);
-      const data = await fetchUpcomingSemesters();
+      const data = await getUpcomingSemesters();
       setSemesters(data);
       setIsLoading(false);
     };
@@ -56,7 +55,8 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
 
   const fetchGroupAssignments = useCallback(async (semesterID: number) => {
     setIsLoading(true);
-    const { groups, unassignedCourses } = await fetchGroups(semesterID);
+    const { groups, unassignedCourses } =
+      await getFieldsOfStudyAssignmentsToGroup(semesterID);
 
     const updatedGroups = groups.map((group) => ({
       ...group,
@@ -89,7 +89,6 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
       const semester =
         semesters.find((s) => s.id === selectedOption.value) || null;
       setSelectedSemester(semester);
-      setPatternTitle(`Grupy ${semester?.name || ""}`);
 
       await fetchGroupAssignments(selectedOption.value);
       setIsLoading(false);
@@ -207,21 +206,7 @@ const ScheduleGroupManagementForm: React.FC<{ semesterID?: number }> = ({
 
       {selectedSemester && (
         <>
-          <div className="flex flex-col gap-4">
-            <label className="font-semibold" htmlFor="pattern-title">
-              Nazwa zestawu:
-            </label>
-            <input
-              id="pattern-title"
-              type="text"
-              value={patternTitle}
-              onChange={(e) => setPatternTitle(e.target.value)}
-              className="w-full rounded border p-2"
-              placeholder="Wprowadź tytuł patternu"
-            />
-          </div>
-
-          <div className="flex gap-4">
+          <div className="flex items-center justify-center gap-4">
             Przypisane kierunki:{" "}
             <span className="font-bold">
               {groups.reduce(

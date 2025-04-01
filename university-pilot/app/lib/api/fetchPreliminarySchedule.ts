@@ -61,7 +61,7 @@ export const fetchPreliminarySchedule = async (
   try {
     /*Kod finalny jak będzie endpoint*/
     /* const response = await apiClient.get(
-      `/StudyProgram/[endpoint]?semesterId=${semesterID}`,
+      `/Schedule/[endpoint]?semesterId=${semesterID}`,
     );
 
     return {

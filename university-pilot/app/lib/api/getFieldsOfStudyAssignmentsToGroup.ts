@@ -18,7 +18,7 @@ export const getFieldsOfStudyAssignmentsToGroup = async (
 
   try {
     const response = await apiClient.get(
-      `/StudyProgram/GetFieldsOfStudyAssignmentsToGroup?semesterId=${semesterID}`,
+      `/Schedule/GetFieldsOfStudyAssignmentsToGroup?semesterId=${semesterID}`,
     );
 
     return {
