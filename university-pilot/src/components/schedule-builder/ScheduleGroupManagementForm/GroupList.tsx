@@ -8,11 +8,11 @@ import {
 import { Collapse } from "react-collapse";
 import { CiCircleRemove } from "react-icons/ci";
 import Select from "react-select";
-import { Group, Course } from "@/app/types";
+import { Group, Course, FieldOfStudyGroup } from "@/app/types";
 import { v4 as uuidv4 } from "uuid";
 
 interface GroupListProps {
-  groups: Group[];
+  groups: Group[] | FieldOfStudyGroup[];
   unassignedCourses: Course[];
   handleEditGroupName?: (key: string, newName: string) => void;
   handleRemoveCourseFromGroup?: (key: string, courseName: string) => void;
