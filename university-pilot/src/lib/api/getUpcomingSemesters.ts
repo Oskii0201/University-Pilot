@@ -1,19 +1,29 @@
-import { toast } from "react-toastify";
 import apiClient from "@/lib/apiClient";
 import { Semester } from "@/app/types";
-import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
+import { handleApiError } from "@/utils/handleApiError";
 
 /**
  * Pobiera nadchodzące semestry
- * @returns Promise zawierający tablicę semestrów
+ * @param count Maksymalna liczba semestrów do pobrania (domyślnie: 50)
+ * @param status (opcjonalnie) status semestru
+ * @returns Promise z rezultatem zapytania (dane lub błąd)
  */
-export const getUpcomingSemesters = async (): Promise<Semester[]> => {
+export const getUpcomingSemesters = async (
+  status?: number,
+  count = 50,
+): Promise<{ data: Semester[] | null; error: string | null }> => {
+  const searchParams = new URLSearchParams({ count: count.toString() });
+  if (status !== undefined) {
+    searchParams.append("status", status.toString());
+  }
+
   try {
-    const response = await apiClient.get("/Schedule/GetUpcomingSemesters");
-    return response.data;
+    const response = await apiClient.get(
+      `/Semester/GetUpcomingSemesters?${searchParams.toString()}`,
+    );
+    return { data: response.data, error: null };
   } catch (error) {
-    toast.error(getRandomLoadingMessage("error"));
-    console.error(error);
-    return [];
+    console.error("Błąd podczas pobierania semestrów:", error);
+    return { data: null, error: handleApiError(error) };
   }
 };

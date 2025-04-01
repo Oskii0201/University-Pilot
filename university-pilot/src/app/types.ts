@@ -17,11 +17,17 @@ export interface Group {
 export type BasicGroup = Omit<Group, "assignedFieldsOfStudy" | "key">;
 export interface Semester {
   id: number;
+  creationStage: number;
+  academicYear: string;
   name: string;
+  startDate: string;
+  endDate: string;
+  createDate: string;
+  updateDate: string;
+  courses: Course[];
+  scheduleClassDays: [];
 }
-export type FetchResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+
 export interface GroupSet {
   id: string;
   name: string;
