@@ -29,6 +29,10 @@ export default function GroupList({ groupSets }: Props) {
                 Utworzono:{" "}
                 {new Date(set.createDate).toLocaleDateString("pl-PL")}
               </p>
+              <p className="text-sm text-gray-600">
+                Data modyfikacji:{" "}
+                {new Date(set.updateDate).toLocaleDateString("pl-PL")}
+              </p>
             </div>
             <GroupSetActions groupId={set.id} />
           </div>
