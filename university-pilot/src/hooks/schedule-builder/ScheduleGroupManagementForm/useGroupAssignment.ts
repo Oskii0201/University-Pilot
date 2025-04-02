@@ -12,6 +12,7 @@ export const useGroupAssignments = (initialSemesterID?: number) => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [unassignedCourses, setUnassignedCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [semesterName, setSemesterName] = useState<string>();
 
   const fetchGroupAssignments = useCallback(async (semesterID: number) => {
     try {
@@ -30,7 +31,7 @@ export const useGroupAssignments = (initialSemesterID?: number) => {
           key: uuidv4(),
         }),
       );
-
+      setSemesterName(data.name);
       setGroups(updatedGroups);
       setUnassignedCourses(data.unassignedFieldsOfStudy);
     } catch (error) {
@@ -135,6 +136,7 @@ export const useGroupAssignments = (initialSemesterID?: number) => {
 
       const payload = {
         semesterId: semesterID,
+        name: semesterName,
         unassignedFieldsOfStudy: unassignedCourses,
         assignedFieldOfStudyGroups: groups,
       };
