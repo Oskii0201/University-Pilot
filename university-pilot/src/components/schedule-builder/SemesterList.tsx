@@ -7,7 +7,7 @@ interface Props {
   basePath: string;
 }
 
-export default function GroupList({ groupSets, basePath }: Props) {
+export default function SemesterList({ groupSets, basePath }: Props) {
   if (groupSets.length === 0) {
     return (
       <p className="text-gray-600">Brak zestawów grup harmonogramowych.</p>
