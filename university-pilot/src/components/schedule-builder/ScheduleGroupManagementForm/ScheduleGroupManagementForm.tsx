@@ -3,7 +3,7 @@
 import React from "react";
 import Select from "react-select";
 import { Button } from "@/components/ui/Button";
-import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
+import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList/GroupList";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
 import { useSemesters } from "@/hooks/schedule-builder/useSemesters";
 import { useGroupAssignments } from "@/hooks/schedule-builder/ScheduleGroupManagementForm/useGroupAssignment";

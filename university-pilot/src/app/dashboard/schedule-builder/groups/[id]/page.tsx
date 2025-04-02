@@ -1,6 +1,6 @@
 import { getFieldsOfStudyAssignmentsToGroup } from "@/lib/api/schedule-builder/getFieldsOfStudyAssignmentsToGroup";
 import UnassignedCourses from "@/components/schedule-builder/ScheduleGroupManagementForm/UnassignedCoursesList";
-import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList";
+import GroupList from "@/components/schedule-builder/ScheduleGroupManagementForm/GroupList/GroupList";
 import GroupSetActions from "@/components/schedule-builder/GroupSetActions";
 import { notFound } from "next/navigation";
 

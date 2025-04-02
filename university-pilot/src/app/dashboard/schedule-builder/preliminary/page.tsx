@@ -1,5 +1,5 @@
 import ScheduleBuilderNavigation from "@/components/schedule-builder/ScheduleBuilderNavigation";
-import GroupList from "@/components/schedule-builder/GroupList";
+import SemesterList from "@/components/schedule-builder/SemesterList";
 import { getUpcomingSemesters } from "@/lib/api/schedule-builder/getUpcomingSemesters";
 import Link from "next/link";
 import { PiFolderSimplePlusFill } from "react-icons/pi";
@@ -31,7 +31,7 @@ const ScheduleBuilderPreliminaryPage = async () => {
           <p>{error}</p>
         </div>
       ) : (
-        <GroupList
+        <SemesterList
           groupSets={data ?? []}
           basePath="/dashboard/schedule-builder/preliminary"
         />
