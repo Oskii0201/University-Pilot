@@ -1,4 +1,5 @@
 ﻿using UniversityPilot.DAL.Areas.Shared;
+using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 using UniversityPilot.DAL.Areas.UniversityComponents.Models;
 
 namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
@@ -19,5 +20,8 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
 
         public int InstructorId { get; set; }
         public virtual Instructor Instructor { get; set; }
+
+        public int CourseDetailsId { get; set; }
+        public virtual CourseDetails CourseDetails { get; set; }
     }
 }

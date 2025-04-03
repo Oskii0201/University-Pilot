@@ -42,7 +42,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             var assignedPrograms = scheduleClassDays
                 .SelectMany(scd => scd.StudyPrograms)
-                .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                .Where(sp =>
+                    sp.StudyForm == StudyForms.PartTimeWeekend ||
+                    sp.StudyForm == StudyForms.PartTimeWeekendOnline)
                 .DistinctBy(sp => sp.Id)
                 .ToList();
 
@@ -76,7 +78,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     GroupId = scd.Id,
                     GroupName = scd.Title,
                     AssignedFieldsOfStudy = scd.StudyPrograms
-                        .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                        .Where(sp =>
+                            sp.StudyForm == StudyForms.PartTimeWeekend ||
+                            sp.StudyForm == StudyForms.PartTimeWeekendOnline)
                         .Select(sp => new
                         {
                             Program = sp,
