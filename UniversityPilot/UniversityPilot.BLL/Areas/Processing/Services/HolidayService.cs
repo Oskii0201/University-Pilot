@@ -15,18 +15,27 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             _holidayRepository = holidayRepository;
         }
 
-        public async Task<Result> SaveFromCsv(List<HolidaysCsv> csvHolidays)
+        public async Task<Result> SaveFromCsv(List<HolidaysCsv> csvRows)
         {
-            var holidays = csvHolidays.Select(h => new Holiday
-            {
-                Name = h.Name,
-                Date = h.Date,
-                Description = h.Description
-            }).ToList();
+            var existingHolidays = await _holidayRepository.GetAllAsync();
+            var newHolidays = csvRows
+                .Where(h => !existingHolidays.Any(e =>
+                    e.Date.Date == h.Date.Date &&
+                    string.Equals(e.Name.Trim(), h.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                .Select(h => new Holiday
+                {
+                    Name = h.Name.Trim(),
+                    Date = h.Date.Date,
+                    Description = string.IsNullOrWhiteSpace(h.Description) ? null : h.Description.Trim()
+                })
+                .ToList();
 
-            await _holidayRepository.AddRangeAsync(holidays);
+            if (!newHolidays.Any())
+                return Result.Success("No new holidays to import – all records already exist.");
 
-            return Result.Success($"{holidays.Count} holidays imported successfully.");
+            await _holidayRepository.AddRangeAsync(newHolidays);
+
+            return Result.Success($"{newHolidays.Count} holidays imported successfully.");
         }
     }
 }
