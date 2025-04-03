@@ -1,5 +1,6 @@
 ﻿using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Models;
+using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
@@ -15,17 +16,20 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IClassDayRepository _classDayRepository;
+        private readonly IScheduleGenerator _scheduleGenerator;
 
         public GroupsScheduleService(
             ISemesterRepository semesterRepository,
             IScheduleClassDayRepository scheduleClassDayRepository,
             ICourseRepository courseRepository,
-            IClassDayRepository classDayRepository)
+            IClassDayRepository classDayRepository,
+            IScheduleGenerator scheduleGenerator)
         {
             _semesterRepository = semesterRepository;
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseRepository = courseRepository;
             _classDayRepository = classDayRepository;
+            _scheduleGenerator = scheduleGenerator;
         }
 
         public async Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
@@ -168,7 +172,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             semester.CreationStage = ScheduleCreationStage.GroupsScheduleCreating;
             semester.CreateDate = DateTime.UtcNow;
             semester.UpdateDate = DateTime.UtcNow;
-            _semesterRepository.UpdateAsync(semester);
+            await _semesterRepository.UpdateAsync(semester);
         }
 
         public async Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId)
@@ -261,7 +265,36 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             semester.CreationStage = ScheduleCreationStage.GroupsScheduleCreated;
             semester.UpdateDate = DateTime.UtcNow;
-            _semesterRepository.UpdateAsync(semester);
+            await _semesterRepository.UpdateAsync(semester);
+        }
+
+        public async Task<Result> AcceptWeekendAvailabilityAsync(int semesterId)
+        {
+            var semester = await _semesterRepository.GetAsync(semesterId);
+
+            if (semester == null)
+                return Result.Failure($"Semester with ID {semesterId} not found.", "SEMESTER_NOT_FOUND");
+
+            // Zmieniamy status i zapisujemy
+            semester.CreationStage = ScheduleCreationStage.GeneratingPreliminarySchedule;
+            semester.UpdateDate = DateTime.UtcNow;
+
+            await _semesterRepository.UpdateAsync(semester);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _scheduleGenerator.GeneratePreliminaryScheduleAsync(semesterId);
+                }
+                catch (Exception ex)
+                {
+                    // logowanie błędu, ale nie przerywamy działania głównej metody
+                    //_logger.LogError(ex, "Error while generating preliminary schedule for semester {SemesterId}", semesterId);
+                }
+            });
+
+            return Result.Success("Weekend availability accepted. Schedule generation started.");
         }
 
         private static string FormatFieldOfStudy(StudyProgram sp)

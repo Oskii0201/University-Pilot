@@ -47,10 +47,10 @@ namespace UniversityPilot.Controllers
         [HttpPost("AcceptWeekendAvailability")]
         public async Task<IActionResult> AcceptWeekendAvailability([FromQuery] int semesterId)
         {
-            //var success = await _groupsScheduleService.AcceptWeekendAvailability(semesterId);
+            var result = await _groupsScheduleService.AcceptWeekendAvailabilityAsync(semesterId);
 
-            //if (!success)
-            //    return NotFound($"Semester with ID {semesterId} not found.");
+            if (!result.IsSuccess)
+                return NotFound(result);
 
             return Ok("Weekend availability accepted and status updated.");
         }

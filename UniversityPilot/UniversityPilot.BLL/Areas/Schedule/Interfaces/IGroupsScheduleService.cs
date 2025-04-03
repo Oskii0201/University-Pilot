@@ -1,4 +1,5 @@
 ﻿using UniversityPilot.BLL.Areas.Schedule.Models;
+using UniversityPilot.BLL.Areas.Shared;
 
 namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
 {
@@ -11,5 +12,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
         Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId);
 
         Task SaveWeekendAvailabilityAsync(WeekendAvailabilityDto model);
+
+        Task<Result> AcceptWeekendAvailabilityAsync(int semesterId);
     }
 }

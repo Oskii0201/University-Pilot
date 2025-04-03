@@ -49,6 +49,7 @@ namespace UniversityPilot.BLL
             #region Schedule
 
             services.AddScoped<IGroupsScheduleService, GroupsScheduleService>();
+            services.AddScoped<IScheduleGenerator, ScheduleGenerator>();
             services.AddScoped<ISemesterService, SemesterService>();
 
             #endregion Schedule
