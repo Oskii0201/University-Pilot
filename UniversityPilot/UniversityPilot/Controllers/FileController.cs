@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UniversityPilot.BLL.Areas.Files.DTO;
 using UniversityPilot.BLL.Areas.Files.Interfaces;
+using UniversityPilot.DAL.Areas.Shared.Enumes;
 
 namespace UniversityPilot.Controllers
 {
@@ -9,17 +10,31 @@ namespace UniversityPilot.Controllers
     public class FileController : ControllerBase
     {
         private readonly ICsvService _csvService;
+        private readonly IFileService _fileService;
 
-        public FileController(ICsvService csvService)
+        public FileController(
+            ICsvService csvService,
+            IFileService fileService)
         {
             _csvService = csvService;
+            _fileService = fileService;
+        }
+
+        [HttpGet("GetFileTypes")]
+        public IActionResult GetFileTypes()
+        {
+            var result = _fileService.GetFileTypeDictionary();
+            return Ok(result);
         }
 
         [HttpPost]
         [Route("Upload")]
         public async Task<IActionResult> Upload([FromForm] string dataset, IFormFile file)
         {
-            var result = await _csvService.UploadAsync(new UploadDatasetDto(dataset, file));
+            if (!Enum.TryParse<FileType>(dataset, out var parsedType))
+                return BadRequest("Invalid file type");
+
+            var result = await _csvService.UploadAsync(new UploadDatasetDto(parsedType, file));
 
             if (result.IsSuccess)
                 return Ok(new { message = result.Message });

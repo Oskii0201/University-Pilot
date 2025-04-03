@@ -4,26 +4,33 @@ using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
 using UniversityPilot.BLL.Areas.Shared;
+using UniversityPilot.DAL.Areas.Shared.Enumes;
 
 namespace UniversityPilot.BLL.Areas.Files.Services
 {
     internal class CsvService : ICsvService
     {
+        private readonly IClassroomService _classroomService;
         private readonly IGroupService _groupService;
         private readonly IHistoricalScheduleService _historicalScheduleService;
         private readonly IInstructorService _instructorService;
         private readonly IStudyProgramService _studyProgramService;
+        private readonly IHolidayService _holidayService;
 
         public CsvService(
+            IClassroomService classroomService,
             IGroupService groupService,
             IHistoricalScheduleService historicalScheduleService,
             IInstructorService instructorService,
-            IStudyProgramService studyProgramService)
+            IStudyProgramService studyProgramService,
+            IHolidayService holidayService)
         {
+            _classroomService = classroomService;
             _groupService = groupService;
             _historicalScheduleService = historicalScheduleService;
             _instructorService = instructorService;
             _studyProgramService = studyProgramService;
+            _holidayService = holidayService;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -49,21 +56,29 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         {
             switch (data.Dataset)
             {
-                case "StudyProgram":
+                case FileType.StudyProgram:
                     var studyProgramsCsv = ReadCsvFileToObject<StudyProgramCsv>(data.File);
                     return _studyProgramService.SaveFromCsv(studyProgramsCsv);
 
-                case "Instructors":
-                    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
-                    return _instructorService.SaveFromCsv(instructorsCsv);
+                case FileType.Classrooms:
+                    var classroomsCsv = ReadCsvFileToObject<ClassroomCsv>(data.File);
+                    return await _classroomService.SaveFromCsv(classroomsCsv);
 
-                case "HistoricalSchedule":
-                    var historicalSchedulesCsv = ReadCsvFileToObject<HistoricalScheduleCsv>(data.File);
-                    return _historicalScheduleService.SaveFromCsv(historicalSchedulesCsv);
+                case FileType.Holidays:
+                    var holidaysCsv = ReadCsvFileToObject<HolidaysCsv>(data.File);
+                    return await _holidayService.SaveFromCsv(holidaysCsv);
 
-                case "Group":
-                    var groupsCsv = ReadCsvFileToObject<GroupCsv>(data.File);
-                    return _groupService.SaveFromCsv(groupsCsv);
+                //case "Instructors":
+                //    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
+                //    return _instructorService.SaveFromCsv(instructorsCsv);
+
+                ////case "HistoricalSchedule":
+                ////    var historicalSchedulesCsv = ReadCsvFileToObject<HistoricalScheduleCsv>(data.File);
+                ////    return _historicalScheduleService.SaveFromCsv(historicalSchedulesCsv);
+
+                //case "Group":
+                //    var groupsCsv = ReadCsvFileToObject<GroupCsv>(data.File);
+                //    return _groupService.SaveFromCsv(groupsCsv);
 
                 default:
                     return Result.Failure($"Unsupported file type: {data.Dataset}");

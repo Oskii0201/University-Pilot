@@ -32,5 +32,15 @@ namespace UniversityPilot.DAL.Areas.Shared.Utilities
 
             return defaultValue;
         }
+
+        public static Dictionary<string, string> GetEnumDescriptionDictionary<TEnum>() where TEnum : Enum
+        {
+            return typeof(TEnum)
+                .GetFields(BindingFlags.Public | BindingFlags.Static)
+                .ToDictionary(
+                    field => field.Name,
+                    field => field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name
+                );
+        }
     }
 }

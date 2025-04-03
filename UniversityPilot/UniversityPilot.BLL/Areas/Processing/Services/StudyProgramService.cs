@@ -134,12 +134,13 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                                     .Replace(enrollmentYear, "")
                                     .Replace("- Studia", "")
                                     .Replace("n. l.", "")
+                                    .Replace("  ", " ")
                                     .Trim();
 
             return new StudyProgram()
             {
                 EnrollmentYear = enrollmentYear,
-                StudyDegree = studyDegreePart,
+                StudyDegree = EnumHelper.ParseEnumFromDescriptionOrDefault(studyDegreePart, StudyDegree.Unknown),
                 SummerRecruitment = summerRecruitment
             };
         }
@@ -156,8 +157,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 if (existingSemesterNames.Contains(semesterName))
                     continue;
 
-                bool isWinterSemester = (studyProgram.SummerRecruitment && i % 2 == 0) ||
-                                        (!studyProgram.SummerRecruitment && i % 2 == 1);
+                bool isWinterSemester = semesterName.Contains("Semestr zimowy");
 
                 var (startYear, endYear) = ParseSemesterYears(semesterName);
 
@@ -165,8 +165,9 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 {
                     AcademicYear = $"{startYear}/{endYear}",
                     Name = semesterName,
-                    StartDate = GenerateSemestrStartDate(startYear, isWinterSemester),
-                    EndDate = GenerateSemestrEndDate(isWinterSemester ? endYear : startYear, isWinterSemester)
+                    StartDate = GenerateSemestrStartDate(isWinterSemester ? startYear : endYear, isWinterSemester),
+                    EndDate = GenerateSemestrEndDate(endYear, isWinterSemester),
+                    CreationStage = ScheduleCreationStage.New
                 };
 
                 _semesterRepository.Add(newSemester);
@@ -201,10 +202,12 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 .Count();
 
             var coursesDictionary = new Dictionary<string, StudyProgramCsv>();
+            var newCourses = new List<Course>();
 
             foreach (var courseCsv in studyProgramWithCoursesCsv)
             {
                 string courseKey = $"{courseCsv.CourseName}_{courseCsv.SemesterNumber}";
+                // TODO: sprawdzenie czy course już istnieje w bazie jeżeli tak to nie dodawaj
                 if (!coursesDictionary.ContainsKey(courseKey))
                 {
                     int courseCountInProgram = studyProgramWithCoursesCsv.Where(c =>
@@ -214,7 +217,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                         .Distinct()
                         .Count();
 
-                    var semesterName = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, courseCsv.SemesterNumber);
+                    var semesterName = CreateSemesterName(studyProgram.EnrollmentYear, studyProgram.SummerRecruitment, courseCsv.SemesterNumber == 0 ? 1 : courseCsv.SemesterNumber);
+                    // TODO: do poprawienia dane wejściowe, dane z przecinkami do cudzysłowia
                     var semesterId = semesters.First(s => s.Name == semesterName).Id;
                     var courses = studyProgramWithCoursesCsv.Where(c =>
                             c.CourseName == courseCsv.CourseName &&
@@ -232,7 +236,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                             CoursesDetails = GenerateCoursesDetails(studyProgram, courses),
                             StudyProgramId = studyProgram.Id
                         };
-                        _courseRepository.Add(newCourse);
+                        newCourses.Add(newCourse);
                     }
                     else if (courseCountInProgram == numberOfSpecialization)
                     {
@@ -245,7 +249,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                             CoursesDetails = GenerateCoursesDetails(studyProgram, courses),
                             StudyProgramId = studyProgram.Id
                         };
-                        _courseRepository.Add(newCourse);
+                        newCourses.Add(newCourse);
                     }
                     else
                     {
@@ -261,13 +265,13 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                                 CoursesDetails = GenerateCoursesDetails(studyProgram, courseGroup.ToList()),
                                 StudyProgramId = studyProgram.Id
                             };
-                            _courseRepository.Add(newCourse);
+                            newCourses.Add(newCourse);
                         }
                     }
-
                     coursesDictionary[courseKey] = courseCsv;
                 }
             }
+            _courseRepository.AddRange(newCourses);
         }
 
         private ICollection<CourseDetails> GenerateCoursesDetails(StudyProgram dbStudyProgram, IEnumerable<StudyProgramCsv> courses)
@@ -290,17 +294,16 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
 
         private string CreateSemesterName(string enrollmentYear, bool summerRecruitment, int semesterNumber)
         {
-            var years = enrollmentYear.Split('/');
-            int startYear = int.Parse(years[0]);
+            int startYear = int.Parse(enrollmentYear.Split('/')[0]);
 
-            int yearAdjustment = summerRecruitment ? 0 : 1;
-            int semesterShift = (semesterNumber - 1) / 2;
+            int yearShift = (semesterNumber + (summerRecruitment ? 1 : 0) - 1) / 2;
+            bool isWinterSemester = (semesterNumber % 2 == (summerRecruitment ? 0 : 1));
+            string semesterName = isWinterSemester ? "Semestr zimowy" : "Semestr letni";
 
-            int resultYear = startYear + semesterShift + yearAdjustment;
+            int academicYearStart = startYear + yearShift;
+            int academicYearEnd = academicYearStart + 1;
 
-            string semesterName = semesterNumber % 2 == 1 ? "Semestr zimowy" : "Semestr letni";
-
-            return $"{resultYear}/{resultYear + 1} - {semesterName}";
+            return $"{academicYearStart}/{academicYearEnd} - {semesterName}";
         }
     }
 }

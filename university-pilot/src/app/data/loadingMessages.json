@@ -1,0 +1,30 @@
+{
+  "upload": [
+    "Plik w drodze! 🚀 To może chwilę potrwać...",
+    "Przetwarzamy Twoje arcydzieło... 🎨 Daj nam sekundkę!",
+    "Wysyłanie pliku... 📤 Idzie szybciej niż poniedziałkowy poranek!",
+    "Pakujemy bity i bajty... 📦 Może trochę potrwać!",
+    "Plik podróżuje przez cyberprzestrzeń... 🌌 Trzymaj kciuki!"
+  ],
+  "form": [
+    "Zapisujemy Twoje dane... 📝 Cierpliwości!",
+    "Formularz wysyłany... 📮 Pracujemy nad tym!",
+    "System przetwarza Twoje zgłoszenie... 🛠️ Chwila moment!",
+    "Twoja aplikacja jest w drodze... 🚀 Może się uda!",
+    "Rejestracja trwa... ⏳ Mamy nadzieję, że szybko pójdzie!"
+  ],
+  "error": [
+    "Coś poszło nie tak... 🤯 Spróbuj ponownie!",
+    "Ups! Serwer ma dziś gorszy dzień... ☁️",
+    "Błąd! 🤖 Proszę, spróbuj ponownie lub skontaktuj się z supportem.",
+    "Oj... coś się wysypało! 🛠️ Może restart pomoże?",
+    "Błąd! 🛑 Prawdopodobnie kot przebiegł po klawiaturze serwera..."
+  ],
+  "success": [
+    "Udało się! 🎉 Twoje dane zostały zapisane pomyślnie!",
+    "Sukces! ✅ Możesz odetchnąć, wszystko poszło zgodnie z planem!",
+    "Wszystko gotowe! 🚀 Dzięki za cierpliwość!",
+    "Operacja zakończona pomyślnie! 🏆 Możesz kontynuować pracę.",
+    "Super! 🥳 Wszystko się zapisało, możesz działać dalej!"
+  ]
+}

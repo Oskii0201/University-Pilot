@@ -3,9 +3,13 @@ using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Repositories;
 using UniversityPilot.DAL.Areas.Identity.Interfaces;
 using UniversityPilot.DAL.Areas.Identity.Repositories;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Repositories;
 using UniversityPilot.DAL.Areas.Shared;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
 using UniversityPilot.DAL.Areas.StudyOrganization.Repositories;
+using UniversityPilot.DAL.Areas.UniversityComponents.Interfaces;
+using UniversityPilot.DAL.Areas.UniversityComponents.Repositories;
 
 namespace UniversityPilot.DAL
 {
@@ -26,6 +30,13 @@ namespace UniversityPilot.DAL
 
             #endregion Identity
 
+            #region SemesterPlanning
+
+            services.AddScoped<IClassDayRepository, ClassDayRepository>();
+            services.AddScoped<IScheduleClassDayRepository, ScheduleClassDayRepository>();
+
+            #endregion SemesterPlanning
+
             #region Shared
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -41,6 +52,12 @@ namespace UniversityPilot.DAL
             services.AddScoped<IStudyProgramRepository, StudyProgramRepository>();
 
             #endregion StudyOrganization
+
+            #region UniversityComponents
+
+            services.AddScoped<IClassroomRepository, ClassroomRepository>();
+
+            #endregion UniversityComponents
         }
     }
 }

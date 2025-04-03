@@ -9,6 +9,8 @@ using UniversityPilot.BLL.Areas.Identity.Services;
 using UniversityPilot.BLL.Areas.Identity.Validators;
 using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
+using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+using UniversityPilot.BLL.Areas.Schedule.Services;
 using UniversityPilot.DAL.Areas.Identity.Models;
 
 namespace UniversityPilot.BLL
@@ -30,17 +32,28 @@ namespace UniversityPilot.BLL
             #region Files
 
             services.AddScoped<ICsvService, CsvService>();
+            services.AddScoped<IFileService, FileService>();
 
             #endregion Files
 
             #region Processing
 
+            services.AddScoped<IClassroomService, ClassroomService>();
             services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IHistoricalScheduleService, HistoricalScheduleService>();
+            services.AddScoped<IHolidayService, HolidayService>();
             services.AddScoped<IStudyProgramService, StudyProgramService>();
             services.AddScoped<IInstructorService, InstructorService>();
-            services.AddScoped<IHistoricalScheduleService, HistoricalScheduleService>();
 
             #endregion Processing
+
+            #region Schedule
+
+            services.AddScoped<IGroupsScheduleService, GroupsScheduleService>();
+            services.AddScoped<IScheduleGenerator, ScheduleGenerator>();
+            services.AddScoped<ISemesterService, SemesterService>();
+
+            #endregion Schedule
         }
     }
 }

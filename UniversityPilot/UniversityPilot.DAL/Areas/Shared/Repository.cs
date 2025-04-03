@@ -83,7 +83,7 @@ namespace UniversityPilot.DAL.Areas.Shared
             _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(T model)
+        public virtual async Task DeleteAsync(T model)
         {
             _context.Remove(model);
             await _context.SaveChangesAsync();
@@ -98,6 +98,11 @@ namespace UniversityPilot.DAL.Areas.Shared
         public bool Exist(int id)
         {
             return _context.Set<T>().Any(x => x.Id == id);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

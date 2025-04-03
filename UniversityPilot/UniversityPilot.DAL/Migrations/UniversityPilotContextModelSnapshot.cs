@@ -135,6 +135,12 @@ namespace UniversityPilot.DAL.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreationStage")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -144,6 +150,9 @@ namespace UniversityPilot.DAL.Migrations
                         .HasColumnType("character varying(64)");
 
                     b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdateDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -469,10 +478,8 @@ namespace UniversityPilot.DAL.Migrations
                     b.Property<int>("FieldOfStudyId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("StudyDegree")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                    b.Property<int>("StudyDegree")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StudyForm")
                         .HasColumnType("integer");
