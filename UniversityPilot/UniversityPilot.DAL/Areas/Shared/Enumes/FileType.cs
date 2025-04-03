@@ -9,5 +9,8 @@ namespace UniversityPilot.DAL.Areas.Shared.Enumes
 
         [Description("Sale lekcyjne/wykładowe")]
         Classrooms = 1,
+
+        [Description("Dni dziekańskie, wolne i święta")]
+        Holidays = 2
     }
 }

@@ -275,7 +275,6 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             if (semester == null)
                 return Result.Failure($"Semester with ID {semesterId} not found.", "SEMESTER_NOT_FOUND");
 
-            // Zmieniamy status i zapisujemy
             semester.CreationStage = ScheduleCreationStage.GeneratingPreliminarySchedule;
             semester.UpdateDate = DateTime.UtcNow;
 
