@@ -5,5 +5,6 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces
 {
     public interface IHolidayRepository : IRepository<Holiday>
     {
+        Task<List<Holiday>> GetByDateRangeAsync(DateTime start, DateTime end);
     }
 }

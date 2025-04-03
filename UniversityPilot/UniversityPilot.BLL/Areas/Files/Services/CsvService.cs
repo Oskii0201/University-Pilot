@@ -15,19 +15,22 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly IHistoricalScheduleService _historicalScheduleService;
         private readonly IInstructorService _instructorService;
         private readonly IStudyProgramService _studyProgramService;
+        private readonly IHolidayService _holidayService;
 
         public CsvService(
             IClassroomService classroomService,
             IGroupService groupService,
             IHistoricalScheduleService historicalScheduleService,
             IInstructorService instructorService,
-            IStudyProgramService studyProgramService)
+            IStudyProgramService studyProgramService,
+            IHolidayService holidayService)
         {
             _classroomService = classroomService;
             _groupService = groupService;
             _historicalScheduleService = historicalScheduleService;
             _instructorService = instructorService;
             _studyProgramService = studyProgramService;
+            _holidayService = holidayService;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -60,6 +63,10 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                 case FileType.Classrooms:
                     var classroomsCsv = ReadCsvFileToObject<ClassroomCsv>(data.File);
                     return await _classroomService.SaveFromCsv(classroomsCsv);
+
+                case FileType.Holidays:
+                    var holidaysCsv = ReadCsvFileToObject<HolidaysCsv>(data.File);
+                    return await _holidayService.SaveFromCsv(holidaysCsv);
 
                 //case "Instructors":
                 //    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);

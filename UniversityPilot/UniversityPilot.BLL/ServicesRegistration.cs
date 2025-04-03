@@ -40,15 +40,17 @@ namespace UniversityPilot.BLL
 
             services.AddScoped<IClassroomService, ClassroomService>();
             services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IHistoricalScheduleService, HistoricalScheduleService>();
+            services.AddScoped<IHolidayService, HolidayService>();
             services.AddScoped<IStudyProgramService, StudyProgramService>();
             services.AddScoped<IInstructorService, InstructorService>();
-            services.AddScoped<IHistoricalScheduleService, HistoricalScheduleService>();
 
             #endregion Processing
 
             #region Schedule
 
             services.AddScoped<IGroupsScheduleService, GroupsScheduleService>();
+            services.AddScoped<IScheduleGenerator, ScheduleGenerator>();
             services.AddScoped<ISemesterService, SemesterService>();
 
             #endregion Schedule
