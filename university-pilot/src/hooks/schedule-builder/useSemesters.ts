@@ -14,23 +14,17 @@ export const useSemesters = (stageID: number, initialSemesterID?: number) => {
     try {
       setIsLoading(true);
 
-      if (!initialSemesterID) {
-        const { data, error } = await getUpcomingSemesters(stageID);
-        if (error || !data) {
-          toast.error("Nie udało się pobrać semestrów");
-          return;
-        }
-        setSemesters(data);
+      const targetStageID = initialSemesterID ? stageID + 1 : stageID;
+      const { data, error } = await getUpcomingSemesters(targetStageID);
+
+      if (error || !data) {
+        toast.error("Nie udało się pobrać semestrów");
+        return;
       }
 
-      if (initialSemesterID) {
-        const { data, error } = await getUpcomingSemesters(stageID + 1);
-        if (error || !data) {
-          toast.error("Nie udało się pobrać semestrów");
-          return;
-        }
-        setSemesters(data);
+      setSemesters(data);
 
+      if (initialSemesterID) {
         const initialSemester = data.find((s) => s.id === initialSemesterID);
         if (initialSemester) {
           setSelectedSemester(initialSemester);
@@ -42,7 +36,7 @@ export const useSemesters = (stageID: number, initialSemesterID?: number) => {
     } finally {
       setIsLoading(false);
     }
-  }, [initialSemesterID]);
+  }, [stageID, initialSemesterID]);
 
   const handleSemesterChange = useCallback(
     async (
