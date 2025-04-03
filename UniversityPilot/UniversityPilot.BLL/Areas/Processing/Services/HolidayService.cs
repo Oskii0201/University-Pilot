@@ -25,7 +25,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 .Select(h => new Holiday
                 {
                     Name = h.Name.Trim(),
-                    Date = h.Date.Date,
+                    Date = DateTime.SpecifyKind(h.Date.Date, DateTimeKind.Utc),
                     Description = string.IsNullOrWhiteSpace(h.Description) ? null : h.Description.Trim()
                 })
                 .ToList();
