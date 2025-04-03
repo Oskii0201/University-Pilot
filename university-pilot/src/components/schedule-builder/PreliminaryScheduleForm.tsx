@@ -61,7 +61,15 @@ const PreliminaryScheduleForm: React.FC<PreliminaryScheduleFormProps> = ({
         const dateObj = new Date(row.date);
         const formattedDate = dateObj.toLocaleDateString("pl-PL");
 
-        return <div className="w-full text-center">{formattedDate}</div>;
+        const dayOfWeek = new Intl.DateTimeFormat("pl-PL", {
+          weekday: "short",
+        }).format(dateObj);
+
+        return (
+          <div className="w-full">
+            {dayOfWeek}, {formattedDate}
+          </div>
+        );
       },
     },
     ...groups.map((group) => ({
