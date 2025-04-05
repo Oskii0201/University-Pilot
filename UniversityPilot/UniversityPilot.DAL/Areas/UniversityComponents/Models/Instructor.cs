@@ -12,6 +12,7 @@ namespace UniversityPilot.DAL.Areas.UniversityComponents.Models
             CoursesDetails = new HashSet<CourseDetails>();
         }
 
+        public string Title { get; set; }
         public string ContractType { get; set; }
 
         public virtual ICollection<CourseSchedule> CourseSchedules { get; set; }

@@ -11,6 +11,9 @@ namespace UniversityPilot.DAL.Areas.Shared.Enumes
         Classrooms = 1,
 
         [Description("Dni dziekańskie, wolne i święta")]
-        Holidays = 2
+        Holidays = 2,
+
+        [Description("Prowadzący przedmiot")]
+        Instructors = 3,
     }
 }

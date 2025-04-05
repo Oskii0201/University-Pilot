@@ -344,6 +344,7 @@ namespace UniversityPilot.DAL
             modelBuilder.Entity<Instructor>(entity =>
             {
                 entity.Property(e => e.ContractType).IsRequired().HasMaxLength(64);
+                entity.Property(e => e.Title).HasMaxLength(64);
                 entity.HasMany(e => e.CourseSchedules)
                       .WithOne(cs => cs.Instructor)
                       .HasForeignKey(cs => cs.InstructorId);

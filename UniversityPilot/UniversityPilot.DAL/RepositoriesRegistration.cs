@@ -57,6 +57,7 @@ namespace UniversityPilot.DAL
             #region UniversityComponents
 
             services.AddScoped<IClassroomRepository, ClassroomRepository>();
+            services.AddScoped<IInstructorRepository, InstructorRepository>();
 
             #endregion UniversityComponents
         }

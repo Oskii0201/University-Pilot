@@ -45,6 +45,10 @@ namespace UniversityPilot.DAL.Seeder
                 new Role()
                 {
                     Name = "User"
+                },
+                new Role()
+                {
+                    Name = "Instructor"
                 }
             };
         }
