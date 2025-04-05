@@ -183,7 +183,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
                         CourseName = cd.Course.Name,
                         Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
-                        CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id))
+                        CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
+                        GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName))
                     }).ToList();
 
             return CsvBuilder.Build(courseDetailsCsv);

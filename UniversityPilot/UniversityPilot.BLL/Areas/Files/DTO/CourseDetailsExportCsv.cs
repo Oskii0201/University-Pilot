@@ -11,5 +11,7 @@
         public string Instructors { get; set; }
 
         public string CourseGroups { get; set; }
+
+        public string GroupsName { get; set; }
     }
 }
