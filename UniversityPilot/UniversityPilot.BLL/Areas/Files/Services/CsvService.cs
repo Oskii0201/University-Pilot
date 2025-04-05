@@ -177,7 +177,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         {
             var courseDetails = await _courseDetailsRepository.GetCourseDetailsExport(semesterId);
             var courseDetailsCsv = courseDetails.Select(cd =>
-                    new CourseDetailsExportCsv
+                    new CourseDetailsCsv
                     {
                         CourseDetailsId = cd.Id,
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),

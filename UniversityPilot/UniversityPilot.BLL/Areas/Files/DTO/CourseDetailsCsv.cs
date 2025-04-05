@@ -1,6 +1,6 @@
 ﻿namespace UniversityPilot.BLL.Areas.Files.DTO
 {
-    public class CourseDetailsExportCsv
+    public class CourseDetailsCsv
     {
         public int CourseDetailsId { get; set; }
 
