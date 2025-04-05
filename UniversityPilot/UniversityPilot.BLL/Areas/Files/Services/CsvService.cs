@@ -68,9 +68,9 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     var holidaysCsv = ReadCsvFileToObject<HolidaysCsv>(data.File);
                     return await _holidayService.SaveFromCsv(holidaysCsv);
 
-                //case "Instructors":
-                //    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
-                //    return _instructorService.SaveFromCsv(instructorsCsv);
+                case FileType.Instructors:
+                    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
+                    return await _instructorService.SaveFromCsv(instructorsCsv);
 
                 ////case "HistoricalSchedule":
                 ////    var historicalSchedulesCsv = ReadCsvFileToObject<HistoricalScheduleCsv>(data.File);

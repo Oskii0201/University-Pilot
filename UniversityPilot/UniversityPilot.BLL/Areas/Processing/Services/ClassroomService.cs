@@ -42,9 +42,6 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             {
                 await _classroomRepository.AddAsync(classroom);
             }
-
-            await _classroomRepository.SaveChangesAsync();
-
             return Result.Success($"{classroomsToAdd.Count} new classrooms imported successfully.");
         }
     }
