@@ -5,6 +5,8 @@ using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
 using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
+using UniversityPilot.DAL.Areas.Shared.Utilities;
+using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
 
 namespace UniversityPilot.BLL.Areas.Files.Services
 {
@@ -16,6 +18,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly IInstructorService _instructorService;
         private readonly IStudyProgramService _studyProgramService;
         private readonly IHolidayService _holidayService;
+        private readonly ICourseDetailsRepository _courseDetailsRepository;
 
         public CsvService(
             IClassroomService classroomService,
@@ -23,7 +26,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             IHistoricalScheduleService historicalScheduleService,
             IInstructorService instructorService,
             IStudyProgramService studyProgramService,
-            IHolidayService holidayService)
+            IHolidayService holidayService,
+            ICourseDetailsRepository courseDetailsRepository)
         {
             _classroomService = classroomService;
             _groupService = groupService;
@@ -31,6 +35,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             _instructorService = instructorService;
             _studyProgramService = studyProgramService;
             _holidayService = holidayService;
+            _courseDetailsRepository = courseDetailsRepository;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -166,6 +171,22 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             }
 
             return obj;
+        }
+
+        public async Task<string> GetCourseDetailsExport(int semesterId)
+        {
+            var courseDetails = await _courseDetailsRepository.GetCourseDetailsExport(semesterId);
+            var courseDetailsCsv = courseDetails.Select(cd =>
+                    new CourseDetailsExportCsv
+                    {
+                        CourseDetailsId = cd.Id,
+                        CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
+                        CourseName = cd.Course.Name,
+                        Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
+                        CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id))
+                    }).ToList();
+
+            return CsvBuilder.Build(courseDetailsCsv);
         }
     }
 }

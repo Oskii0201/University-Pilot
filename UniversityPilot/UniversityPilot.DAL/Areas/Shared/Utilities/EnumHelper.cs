@@ -33,6 +33,13 @@ namespace UniversityPilot.DAL.Areas.Shared.Utilities
             return defaultValue;
         }
 
+        public static string GetEnumDescription(Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+            return attribute?.Description ?? value.ToString();
+        }
+
         public static Dictionary<string, string> GetEnumDescriptionDictionary<TEnum>() where TEnum : Enum
         {
             return typeof(TEnum)
