@@ -13,8 +13,6 @@ namespace UniversityPilot.BLL.Areas.Files.Services
     internal class CsvService : ICsvService
     {
         private readonly IClassroomService _classroomService;
-        private readonly IGroupService _groupService;
-        private readonly IHistoricalScheduleService _historicalScheduleService;
         private readonly IInstructorService _instructorService;
         private readonly IStudyProgramService _studyProgramService;
         private readonly IHolidayService _holidayService;
@@ -22,16 +20,12 @@ namespace UniversityPilot.BLL.Areas.Files.Services
 
         public CsvService(
             IClassroomService classroomService,
-            IGroupService groupService,
-            IHistoricalScheduleService historicalScheduleService,
             IInstructorService instructorService,
             IStudyProgramService studyProgramService,
             IHolidayService holidayService,
             ICourseDetailsRepository courseDetailsRepository)
         {
             _classroomService = classroomService;
-            _groupService = groupService;
-            _historicalScheduleService = historicalScheduleService;
             _instructorService = instructorService;
             _studyProgramService = studyProgramService;
             _holidayService = holidayService;
@@ -76,14 +70,6 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                 case FileType.Instructors:
                     var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
                     return await _instructorService.SaveFromCsv(instructorsCsv);
-
-                ////case "HistoricalSchedule":
-                ////    var historicalSchedulesCsv = ReadCsvFileToObject<HistoricalScheduleCsv>(data.File);
-                ////    return _historicalScheduleService.SaveFromCsv(historicalSchedulesCsv);
-
-                //case "Group":
-                //    var groupsCsv = ReadCsvFileToObject<GroupCsv>(data.File);
-                //    return _groupService.SaveFromCsv(groupsCsv);
 
                 default:
                     return Result.Failure($"Unsupported file type: {data.Dataset}");

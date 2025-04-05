@@ -39,8 +39,6 @@ namespace UniversityPilot.BLL
             #region Processing
 
             services.AddScoped<IClassroomService, ClassroomService>();
-            services.AddScoped<IGroupService, GroupService>();
-            services.AddScoped<IHistoricalScheduleService, HistoricalScheduleService>();
             services.AddScoped<IHolidayService, HolidayService>();
             services.AddScoped<IStudyProgramService, StudyProgramService>();
             services.AddScoped<IInstructorService, InstructorService>();
