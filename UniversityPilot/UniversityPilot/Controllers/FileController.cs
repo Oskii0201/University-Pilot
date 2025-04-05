@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using UniversityPilot.BLL.Areas.Files.DTO;
 using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
@@ -27,8 +28,7 @@ namespace UniversityPilot.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
-        [Route("Upload")]
+        [HttpPost("Upload")]
         public async Task<IActionResult> Upload([FromForm] string dataset, IFormFile file)
         {
             if (!Enum.TryParse<FileType>(dataset, out var parsedType))
@@ -40,6 +40,13 @@ namespace UniversityPilot.Controllers
                 return Ok(new { message = result.Message });
 
             return BadRequest(new { message = result.Message, errors = result.Errors });
+        }
+
+        [HttpGet("export-course-details/{semesterId}")]
+        public async Task<IActionResult> ExportCourseDetailsToCsv(int semesterId)
+        {
+            var csv = await _csvService.GetCourseDetailsExport(semesterId);
+            return File(Encoding.UTF8.GetBytes(csv), "text/csv", $"CourseDetails_Semester_{semesterId}.csv");
         }
     }
 }

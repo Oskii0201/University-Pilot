@@ -5,32 +5,31 @@ using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
 using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
+using UniversityPilot.DAL.Areas.Shared.Utilities;
+using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
 
 namespace UniversityPilot.BLL.Areas.Files.Services
 {
     internal class CsvService : ICsvService
     {
         private readonly IClassroomService _classroomService;
-        private readonly IGroupService _groupService;
-        private readonly IHistoricalScheduleService _historicalScheduleService;
         private readonly IInstructorService _instructorService;
         private readonly IStudyProgramService _studyProgramService;
         private readonly IHolidayService _holidayService;
+        private readonly ICourseDetailsRepository _courseDetailsRepository;
 
         public CsvService(
             IClassroomService classroomService,
-            IGroupService groupService,
-            IHistoricalScheduleService historicalScheduleService,
             IInstructorService instructorService,
             IStudyProgramService studyProgramService,
-            IHolidayService holidayService)
+            IHolidayService holidayService,
+            ICourseDetailsRepository courseDetailsRepository)
         {
             _classroomService = classroomService;
-            _groupService = groupService;
-            _historicalScheduleService = historicalScheduleService;
             _instructorService = instructorService;
             _studyProgramService = studyProgramService;
             _holidayService = holidayService;
+            _courseDetailsRepository = courseDetailsRepository;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -68,17 +67,9 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     var holidaysCsv = ReadCsvFileToObject<HolidaysCsv>(data.File);
                     return await _holidayService.SaveFromCsv(holidaysCsv);
 
-                //case "Instructors":
-                //    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
-                //    return _instructorService.SaveFromCsv(instructorsCsv);
-
-                ////case "HistoricalSchedule":
-                ////    var historicalSchedulesCsv = ReadCsvFileToObject<HistoricalScheduleCsv>(data.File);
-                ////    return _historicalScheduleService.SaveFromCsv(historicalSchedulesCsv);
-
-                //case "Group":
-                //    var groupsCsv = ReadCsvFileToObject<GroupCsv>(data.File);
-                //    return _groupService.SaveFromCsv(groupsCsv);
+                case FileType.Instructors:
+                    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
+                    return await _instructorService.SaveFromCsv(instructorsCsv);
 
                 default:
                     return Result.Failure($"Unsupported file type: {data.Dataset}");
@@ -166,6 +157,23 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             }
 
             return obj;
+        }
+
+        public async Task<string> GetCourseDetailsExport(int semesterId)
+        {
+            var courseDetails = await _courseDetailsRepository.GetCourseDetailsExport(semesterId);
+            var courseDetailsCsv = courseDetails.Select(cd =>
+                    new CourseDetailsCsv
+                    {
+                        CourseDetailsId = cd.Id,
+                        CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
+                        CourseName = cd.Course.Name,
+                        Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
+                        CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
+                        GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName))
+                    }).ToList();
+
+            return CsvBuilder.Build(courseDetailsCsv);
         }
     }
 }

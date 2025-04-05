@@ -11,6 +11,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         {
             Instructors = new HashSet<Instructor>();
             CourseGroups = new HashSet<CourseGroup>();
+            CourseSchedules = new HashSet<CourseSchedule>();
         }
 
         public int Id { get; set; }
@@ -28,5 +29,6 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
 
         public virtual ICollection<Instructor> Instructors { get; set; }
         public virtual ICollection<CourseGroup> CourseGroups { get; set; }
+        public virtual ICollection<CourseSchedule> CourseSchedules { get; set; }
     }
 }

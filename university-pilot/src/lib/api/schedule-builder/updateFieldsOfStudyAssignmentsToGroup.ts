@@ -19,8 +19,7 @@ export const updateFieldsOfStudyAssignmentsToGroup = async (
   try {
     await apiClient.put(
       "/Schedule/UpdateFieldsOfStudyAssignmentsToGroup",
-      payload,
-    );
+      payload);
     return { success: true, error: null };
   } catch (error) {
     console.error("Błąd podczas aktualizacji przypisań:", error);

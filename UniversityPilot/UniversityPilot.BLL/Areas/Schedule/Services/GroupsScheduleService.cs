@@ -1,4 +1,5 @@
-﻿using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Models;
 using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
@@ -18,6 +19,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly IClassDayRepository _classDayRepository;
         private readonly IScheduleGenerator _scheduleGenerator;
         private readonly IHolidayRepository _holidayRepository;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public GroupsScheduleService(
             ISemesterRepository semesterRepository,
@@ -25,7 +27,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             ICourseRepository courseRepository,
             IClassDayRepository classDayRepository,
             IScheduleGenerator scheduleGenerator,
-            IHolidayRepository holidayRepository)
+            IHolidayRepository holidayRepository,
+            IServiceScopeFactory scopeFactory)
         {
             _semesterRepository = semesterRepository;
             _scheduleClassDayRepository = scheduleClassDayRepository;
@@ -33,6 +36,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _classDayRepository = classDayRepository;
             _scheduleGenerator = scheduleGenerator;
             _holidayRepository = holidayRepository;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId)
@@ -42,7 +46,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             var assignedPrograms = scheduleClassDays
                 .SelectMany(scd => scd.StudyPrograms)
-                .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                .Where(sp =>
+                    sp.StudyForm == StudyForms.PartTimeWeekend ||
+                    sp.StudyForm == StudyForms.PartTimeWeekendOnline)
                 .DistinctBy(sp => sp.Id)
                 .ToList();
 
@@ -76,7 +82,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                     GroupId = scd.Id,
                     GroupName = scd.Title,
                     AssignedFieldsOfStudy = scd.StudyPrograms
-                        .Where(sp => sp.StudyForm == StudyForms.PartTimeWeekend || sp.StudyForm == StudyForms.PartTimeWeekendOnline)
+                        .Where(sp =>
+                            sp.StudyForm == StudyForms.PartTimeWeekend ||
+                            sp.StudyForm == StudyForms.PartTimeWeekendOnline)
                         .Select(sp => new
                         {
                             Program = sp,
@@ -186,12 +194,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             var holidays = await _holidayRepository.GetByDateRangeAsync(semester.StartDate, semester.EndDate);
 
             var holidayDates = holidays.Select(h => h.Date.Date).ToHashSet();
-
             var weekends = new List<WeekendDto>();
-            var start = semester.StartDate.Date;
-            var end = semester.EndDate.Date;
 
-            for (var date = start; date <= end; date = date.AddDays(1))
+            foreach (var date in Utilities.EachDay(semester.StartDate.Date, semester.EndDate.Date))
             {
                 if ((date.DayOfWeek == DayOfWeek.Friday ||
                      date.DayOfWeek == DayOfWeek.Saturday ||
@@ -246,7 +251,9 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                 var classEnd = weekend.Date.Date.AddHours(22);
 
-                var classDay = existingClassDays.FirstOrDefault(cd => cd.StartDateTime == classStart);
+                var classDay = existingClassDays.FirstOrDefault(cd =>
+                        cd.StartDateTime == classStart &&
+                        cd.EndDateTime == classEnd);
 
                 if (classDay == null)
                 {
@@ -292,9 +299,12 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             _ = Task.Run(async () =>
             {
+                using var scope = _scopeFactory.CreateScope();
+                var scheduleGenerator = scope.ServiceProvider.GetRequiredService<IScheduleGenerator>();
+
                 try
                 {
-                    await _scheduleGenerator.GeneratePreliminaryScheduleAsync(semesterId);
+                    await scheduleGenerator.GeneratePreliminaryScheduleAsync(semesterId);
                 }
                 catch (Exception ex)
                 {

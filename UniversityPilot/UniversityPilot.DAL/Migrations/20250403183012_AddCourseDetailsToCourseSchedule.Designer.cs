@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniversityPilot.DAL;
@@ -11,9 +12,11 @@ using UniversityPilot.DAL;
 namespace UniversityPilot.DAL.Migrations
 {
     [DbContext(typeof(UniversityPilotContext))]
-    partial class UniversityPilotContextModelSnapshot : ModelSnapshot
+    [Migration("20250403183012_AddCourseDetailsToCourseSchedule")]
+    partial class AddCourseDetailsToCourseSchedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,7 +296,7 @@ namespace UniversityPilot.DAL.Migrations
                     b.Property<DateTime>("EndDateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("InstructorId")
+                    b.Property<int>("InstructorId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("StartDateTime")
@@ -532,11 +535,6 @@ namespace UniversityPilot.DAL.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
                     b.HasDiscriminator().HasValue("Instructor");
                 });
 
@@ -657,7 +655,9 @@ namespace UniversityPilot.DAL.Migrations
 
                     b.HasOne("UniversityPilot.DAL.Areas.UniversityComponents.Models.Instructor", "Instructor")
                         .WithMany("CourseSchedules")
-                        .HasForeignKey("InstructorId");
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Classroom");
 

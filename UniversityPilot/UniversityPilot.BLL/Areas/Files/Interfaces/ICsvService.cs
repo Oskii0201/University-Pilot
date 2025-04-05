@@ -6,5 +6,7 @@ namespace UniversityPilot.BLL.Areas.Files.Interfaces
     public interface ICsvService
     {
         public Task<Result> UploadAsync(UploadDatasetDto data);
+
+        public Task<string> GetCourseDetailsExport(int semesterId);
     }
 }
