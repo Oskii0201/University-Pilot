@@ -17,8 +17,9 @@ export const updateWeekendAvailability = async (
   payload: UpdateWeekendAvailabilityRequest,
 ): Promise<{ success: boolean; error: string | null }> => {
   try {
-    await apiClient.post("/Schedule/SaveWeekendAvailability", payload);
-
+    await apiClient.put(
+      "/Schedule/SaveWeekendAvailability", 
+      payload);
     return { success: true, error: null };
   } catch (error) {
     console.error("Błąd podczas aktualizacji przypisań:", error);
