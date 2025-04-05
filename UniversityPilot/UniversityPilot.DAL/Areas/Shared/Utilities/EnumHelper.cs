@@ -24,7 +24,8 @@ namespace UniversityPilot.DAL.Areas.Shared.Utilities
             foreach (var field in typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 var attribute = field.GetCustomAttribute<DescriptionAttribute>();
-                if (attribute != null && attribute.Description == description)
+                if (attribute != null &&
+                    string.Equals(attribute.Description, description, StringComparison.OrdinalIgnoreCase))
                 {
                     return (TEnum)field.GetValue(null);
                 }
