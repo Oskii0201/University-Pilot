@@ -25,7 +25,7 @@ export const exportCourseDetailsAsCSV = async (
 
   try {
     const response = await apiClient.get(
-      `/File/export-course-details/${semesterId}`,
+      `/File/ExportCourseDetails/${semesterId}`,
       {
         responseType: "blob",
       },
