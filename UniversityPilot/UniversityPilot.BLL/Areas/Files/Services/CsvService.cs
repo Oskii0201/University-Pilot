@@ -17,19 +17,22 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly IStudyProgramService _studyProgramService;
         private readonly IHolidayService _holidayService;
         private readonly ICourseDetailsRepository _courseDetailsRepository;
+        private readonly ICourseDetailsService _courseDetailsService;
 
         public CsvService(
             IClassroomService classroomService,
             IInstructorService instructorService,
             IStudyProgramService studyProgramService,
             IHolidayService holidayService,
-            ICourseDetailsRepository courseDetailsRepository)
+            ICourseDetailsRepository courseDetailsRepository,
+            ICourseDetailsService courseDetailsService)
         {
             _classroomService = classroomService;
             _instructorService = instructorService;
             _studyProgramService = studyProgramService;
             _holidayService = holidayService;
             _courseDetailsRepository = courseDetailsRepository;
+            _courseDetailsService = courseDetailsService;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -70,6 +73,10 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                 case FileType.Instructors:
                     var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
                     return await _instructorService.SaveFromCsv(instructorsCsv);
+
+                case FileType.CourseAssignment:
+                    var courseDetailsCsv = ReadCsvFileToObject<CourseDetailsCsv>(data.File);
+                    return await _courseDetailsService.UpdateFromCsv(courseDetailsCsv);
 
                 default:
                     return Result.Failure($"Unsupported file type: {data.Dataset}");
