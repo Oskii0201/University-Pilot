@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.VisualBasic.FileIO;
 using System.Text;
-using UniversityPilot.DAL.Areas.Shared.Utilities;
-using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 
 namespace UniversityPilot.BLL.Areas.Shared
 {
@@ -111,18 +109,6 @@ namespace UniversityPilot.BLL.Areas.Shared
             }
 
             return sb.ToString();
-        }
-
-        public static string BuildStudyProgramDescription(Course course)
-        {
-            var description = $"{course.StudyProgram.EnrollmentYear} sem. {course.SemesterNumber} - {course.StudyProgram.FieldOfStudy.Name}";
-
-            if (course.StudyProgram.SummerRecruitment)
-                description += " n. l.";
-
-            var formDescription = EnumHelper.GetEnumDescription(course.StudyProgram.StudyForm);
-
-            return $"{description} - {formDescription} {course.StudyProgram.StudyDegree}";
         }
     }
 }

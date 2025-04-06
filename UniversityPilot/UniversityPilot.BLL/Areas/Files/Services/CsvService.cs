@@ -88,7 +88,12 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     new CourseDetailsCsv
                     {
                         CourseDetailsId = cd.Id,
-                        StudyProgramDescription = CsvHandler.BuildStudyProgramDescription(cd.Course),
+                        EnrollmentYear = cd.Course.StudyProgram.EnrollmentYear,
+                        SemesterNumber = cd.Course.SemesterNumber,
+                        FieldOfStudy = cd.Course.StudyProgram.FieldOfStudy.Name,
+                        SummerRecruitment = cd.Course.StudyProgram.SummerRecruitment ? "Tak" : "Nie",
+                        StudyForm = EnumHelper.GetEnumDescription(cd.Course.StudyProgram.StudyForm),
+                        StudyDegree = cd.Course.StudyProgram.StudyDegree.ToString(),
                         Specialization = cd.Course.Specialization?.Name ?? "",
                         CourseName = cd.Course.Name,
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),

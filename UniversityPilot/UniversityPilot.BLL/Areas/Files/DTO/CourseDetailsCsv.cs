@@ -7,40 +7,55 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
         [CsvColumn(0, "CourseDetailsId")]
         public int CourseDetailsId { get; set; }
 
-        [CsvColumn(1, "StudyProgramDescription")]
-        public string StudyProgramDescription { get; set; }
+        [CsvColumn(1, "EnrollmentYear")]
+        public string EnrollmentYear { get; set; }
 
-        [CsvColumn(2, "Specialization")]
+        [CsvColumn(2, "SemesterNumber")]
+        public int SemesterNumber { get; set; }
+
+        [CsvColumn(3, "FieldOfStudy")]
+        public string FieldOfStudy { get; set; }
+
+        [CsvColumn(4, "SummerRecruitment")]
+        public string SummerRecruitment { get; set; }
+
+        [CsvColumn(5, "StudyForm")]
+        public string StudyForm { get; set; }
+
+        [CsvColumn(6, "StudyDegree")]
+        public string StudyDegree { get; set; }
+
+        [CsvColumn(7, "Specialization")]
         public string Specialization { get; set; }
 
-        [CsvColumn(3, "CourseName")]
+        [CsvColumn(8, "CourseName")]
         public string CourseName { get; set; }
 
-        [CsvColumn(4, "CourseType")]
+        [CsvColumn(9, "CourseType")]
         public string CourseType { get; set; }
 
-        [CsvColumn(5, "TitleScheduleClassDay")]
+        [CsvColumn(10, "TitleScheduleClassDay")]
         public string TitleScheduleClassDay { get; set; }
 
-        [CsvColumn(6, "CourseGroups")]
+        [CsvColumn(11, "CourseGroups")]
         public string CourseGroups { get; set; }
 
-        [CsvColumn(7, "GroupsName")]
+        [CsvColumn(12, "GroupsName")]
         public string GroupsName { get; set; }
 
-        [CsvColumn(8, "SharedCourseGroup")]
+        [CsvColumn(13, "SharedCourseGroup")]
         public string SharedCourseGroup { get; set; }
 
-        [CsvColumn(9, "Instructors")]
+        [CsvColumn(14, "Instructors")]
         public string Instructors { get; set; }
 
-        [CsvColumn(10, "InstructorsTitle")]
+        [CsvColumn(15, "InstructorsTitle")]
         public string InstructorsTitle { get; set; }
 
-        [CsvColumn(11, "InstructorsFirstName")]
+        [CsvColumn(16, "InstructorsFirstName")]
         public string InstructorsFirstName { get; set; }
 
-        [CsvColumn(12, "InstructorsLastName")]
+        [CsvColumn(17, "InstructorsLastName")]
         public string InstructorsLastName { get; set; }
     }
 }
