@@ -26,8 +26,8 @@ const navItems: NavItem[] = [
   { icon: <FaCalendarAlt />, label: "Kalendarz", href: "/dashboard/calendar" },
   {
     icon: <BsDatabaseFillAdd />,
-    label: "Wgraj dane",
-    href: "/dashboard/uploadData",
+    label: "Manager danych",
+    href: "/dashboard/data-manager",
   },
 ];
 

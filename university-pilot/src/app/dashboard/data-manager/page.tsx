@@ -1,5 +1,6 @@
 import { getFileTypes } from "@/lib/api/fetchFileTypes";
-import CsvUploadClient from "@/components/CsvUploadClient";
+import CsvUploadClient from "@/components/data-manager/CsvUploadClient";
+import CsvDownloadClient from "@/components/data-manager/CsvDownloadClient";
 
 export default async function CsvUploadForm() {
   const { data, error } = await getFileTypes();
@@ -17,5 +18,12 @@ export default async function CsvUploadForm() {
     label,
   }));
 
-  return <CsvUploadClient datasets={datasets} />;
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 py-8">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <CsvUploadClient datasets={datasets} />
+        <CsvDownloadClient />
+      </div>
+    </div>
+  );
 }

@@ -1,18 +1,20 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "react-toastify";
 import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 import { acceptWeekendAvailability } from "@/lib/api/schedule-builder/acceptWeekendAvailability";
+import ConfirmModal from "@/components/schedule-builder/Preliminary/ConfirmModal";
+import { useRouter } from "next/navigation";
 
 interface Props {
   id: number;
 }
 
-/*TODO
- *  Dodać potwierdzenie wykonania akceptacji
- *  Dodać odświeżenie listy semestrów*/
 export default function AcceptAction({ id }: Props) {
+  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
+
   async function handleSubmit() {
     if (!id) {
       return toast.error("Błąd identyfikatora semestru");
@@ -29,17 +31,33 @@ export default function AcceptAction({ id }: Props) {
       }
 
       toast.success(getRandomLoadingMessage("success"));
+
+      /*Zmienić na ścieżkę final jak już powstanie*/
+      router.push("/dashboard/schedule-builder/preliminary");
     } catch (error) {
       toast.error(getRandomLoadingMessage("error"));
       console.error(error);
+    } finally {
+      setShowModal(false);
     }
   }
 
   return (
-    <div className="flex w-full justify-end">
-      <Button width="w-fit" color="blue" onClick={handleSubmit}>
-        Akceptuj i generuj
-      </Button>
-    </div>
+    <>
+      <div className="flex w-full justify-end">
+        <Button width="w-fit" color="blue" onClick={() => setShowModal(true)}>
+          Akceptuj i generuj
+        </Button>
+      </div>
+
+      {showModal && (
+        <ConfirmModal
+          title="Potwierdzenie akcji"
+          description="Czy na pewno chcesz zaakceptować dostępność i rozpocząć generowanie harmonogramu?"
+          onCancel={() => setShowModal(false)}
+          onConfirm={handleSubmit}
+        />
+      )}
+    </>
   );
 }
