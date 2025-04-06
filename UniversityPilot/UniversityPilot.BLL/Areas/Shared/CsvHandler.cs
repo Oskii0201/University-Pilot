@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.VisualBasic.FileIO;
 using System.Text;
 using UniversityPilot.DAL.Areas.Shared.Utilities;
 using UniversityPilot.DAL.Areas.StudyOrganization.Models;
@@ -11,12 +12,18 @@ namespace UniversityPilot.BLL.Areas.Shared
         {
             var rows = new List<T>();
 
-            using (var reader = new StreamReader(file.OpenReadStream()))
+            using (var stream = file.OpenReadStream())
+            using (var reader = new StreamReader(stream))
+            using (var parser = new TextFieldParser(reader))
             {
+                parser.SetDelimiters(",");
+                parser.HasFieldsEnclosedInQuotes = true;
+                parser.TrimWhiteSpace = true;
+
                 bool isFirstRow = true;
-                while (!reader.EndOfStream)
+                while (!parser.EndOfData)
                 {
-                    var line = reader.ReadLine();
+                    var fields = parser.ReadFields();
 
                     if (isFirstRow)
                     {
@@ -24,8 +31,8 @@ namespace UniversityPilot.BLL.Areas.Shared
                         continue;
                     }
 
-                    var columns = line.Split(new[] { ',' }, StringSplitOptions.None);
-                    rows.Add(MapCsvRowToObject<T>(columns));
+                    if (fields != null)
+                        rows.Add(MapCsvRowToObject<T>(fields));
                 }
             }
 
