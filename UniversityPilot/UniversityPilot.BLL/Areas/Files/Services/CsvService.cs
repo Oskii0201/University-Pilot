@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using UniversityPilot.BLL.Areas.Files.DTO;
+﻿using UniversityPilot.BLL.Areas.Files.DTO;
 using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
@@ -49,7 +48,6 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             }
             catch (Exception ex)
             {
-                // TODO: logowanie błędów
                 return Result.Failure("An error occurred during CSV processing.", "500", new[] { ex.Message });
             }
         }
@@ -59,111 +57,28 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             switch (data.Dataset)
             {
                 case FileType.StudyProgram:
-                    var studyProgramsCsv = ReadCsvFileToObject<StudyProgramCsv>(data.File);
+                    var studyProgramsCsv = CsvHandler.ReadCsvFileToObject<StudyProgramCsv>(data.File);
                     return _studyProgramService.SaveFromCsv(studyProgramsCsv);
 
                 case FileType.Classrooms:
-                    var classroomsCsv = ReadCsvFileToObject<ClassroomCsv>(data.File);
+                    var classroomsCsv = CsvHandler.ReadCsvFileToObject<ClassroomCsv>(data.File);
                     return await _classroomService.SaveFromCsv(classroomsCsv);
 
                 case FileType.Holidays:
-                    var holidaysCsv = ReadCsvFileToObject<HolidaysCsv>(data.File);
+                    var holidaysCsv = CsvHandler.ReadCsvFileToObject<HolidaysCsv>(data.File);
                     return await _holidayService.SaveFromCsv(holidaysCsv);
 
                 case FileType.Instructors:
-                    var instructorsCsv = ReadCsvFileToObject<InstructorCsv>(data.File);
+                    var instructorsCsv = CsvHandler.ReadCsvFileToObject<InstructorCsv>(data.File);
                     return await _instructorService.SaveFromCsv(instructorsCsv);
 
                 case FileType.CourseAssignment:
-                    var courseDetailsCsv = ReadCsvFileToObject<CourseDetailsCsv>(data.File);
+                    var courseDetailsCsv = CsvHandler.ReadCsvFileToObject<CourseDetailsCsv>(data.File);
                     return await _courseDetailsService.UpdateFromCsv(courseDetailsCsv);
 
                 default:
                     return Result.Failure($"Unsupported file type: {data.Dataset}");
             }
-        }
-
-        private static List<T> ReadCsvFileToObject<T>(IFormFile file) where T : new()
-        {
-            var rows = new List<T>();
-
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                bool isFirstRow = true;
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-
-                    if (isFirstRow)
-                    {
-                        isFirstRow = false;
-                        continue;
-                    }
-
-                    var columns = line.Split(new[] { ',' }, StringSplitOptions.None);
-                    rows.Add(MapCsvRowToObject<T>(columns));
-                }
-            }
-
-            return rows;
-        }
-
-        private static T MapCsvRowToObject<T>(string[] csvData) where T : new()
-        {
-            T obj = new T();
-
-            var properties = typeof(T).GetProperties();
-
-            foreach (var prop in properties)
-            {
-                var attribute = (CsvColumnAttribute)Attribute.GetCustomAttribute(prop, typeof(CsvColumnAttribute));
-                if (attribute == null)
-                    continue;
-
-                int columnIndex = attribute.ColumnIndex;
-                if (columnIndex >= csvData.Length)
-                    continue;
-
-                string value = csvData[columnIndex];
-                switch (Type.GetTypeCode(prop.PropertyType))
-                {
-                    case TypeCode.Int32:
-                        if (string.IsNullOrEmpty(value))
-                            prop.SetValue(obj, null);
-                        else if (int.TryParse(value, out var intValue))
-                            prop.SetValue(obj, intValue);
-                        break;
-
-                    case TypeCode.Decimal:
-                        if (decimal.TryParse(value, out var decimalValue))
-                            prop.SetValue(obj, decimalValue);
-                        break;
-
-                    case TypeCode.Double:
-                        if (double.TryParse(value, out var doubleValue))
-                            prop.SetValue(obj, doubleValue);
-                        break;
-
-                    case TypeCode.String:
-                        prop.SetValue(obj, value);
-                        break;
-
-                    case TypeCode.Boolean:
-                        if (bool.TryParse(value, out var boolValue))
-                            prop.SetValue(obj, boolValue);
-                        break;
-
-                    case TypeCode.DateTime:
-                        if (DateTime.TryParse(value, out var dateTimeValue))
-                            prop.SetValue(obj, dateTimeValue);
-                        break;
-
-                    default:
-                        throw new InvalidOperationException($"Unsupported property type: {prop.PropertyType}");
-                }
-            }
-
-            return obj;
         }
 
         public async Task<string> GetCourseDetailsExport(int semesterId)
@@ -173,14 +88,15 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     new CourseDetailsCsv
                     {
                         CourseDetailsId = cd.Id,
-                        CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
+                        StudyProgramDescription = CsvHandler.BuildStudyProgramDescription(cd.Course),
                         CourseName = cd.Course.Name,
+                        CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
                         Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
                         CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
                         GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName))
                     }).ToList();
 
-            return CsvBuilder.Build(courseDetailsCsv);
+            return CsvHandler.Build(courseDetailsCsv);
         }
     }
 }

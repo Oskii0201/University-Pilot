@@ -15,6 +15,8 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
         {
             return await _context.CoursesDetails
                 .Include(cd => cd.Course)
+                    .ThenInclude(c => c.StudyProgram)
+                        .ThenInclude(sp => sp.FieldOfStudy)
                 .Include(cd => cd.Instructors)
                 .Include(cd => cd.CourseGroups)
                 .Where(cd => cd.Course.SemesterId == semesterId)
