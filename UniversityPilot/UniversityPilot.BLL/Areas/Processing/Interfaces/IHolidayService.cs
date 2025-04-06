@@ -3,7 +3,7 @@ using UniversityPilot.BLL.Areas.Shared;
 
 namespace UniversityPilot.BLL.Areas.Processing.Interfaces
 {
-    public interface IHolidayService
+    internal interface IHolidayService
     {
         Task<Result> SaveFromCsv(List<HolidaysCsv> csvHolidays);
     }
