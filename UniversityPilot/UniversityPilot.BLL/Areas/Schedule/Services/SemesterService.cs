@@ -22,12 +22,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             return await _semesterRepository.GetUpcomingSemestersAsync(count, status);
         }
 
-        public async Task<List<Semester>> GetAllExceptNewAsync()
+        public async Task<List<Semester>> GetSemestersWithStatusAfterGroupScheduleAsync()
         {
-            var semesters = await _semesterRepository.GetAllAsync();
-            return semesters
-                .Where(s => s.CreationStage != ScheduleCreationStage.New)
-                .ToList();
+            var semesters = await _semesterRepository.GetSemestersWithStatusAfterGroupScheduleAsync();
+            return semesters.ToList();
         }
 
         public async Task<List<Semester>> GetByStatusAsync(ScheduleCreationStage stage)

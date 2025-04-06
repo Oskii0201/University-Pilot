@@ -7,7 +7,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
     {
         Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3, int status = 0);
 
-        Task<List<Semester>> GetAllExceptNewAsync();
+        Task<List<Semester>> GetSemestersWithStatusAfterGroupScheduleAsync();
 
         Task<List<Semester>> GetByStatusAsync(ScheduleCreationStage stage);
 

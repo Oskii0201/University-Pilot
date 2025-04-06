@@ -21,5 +21,12 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Repositories
                 .Take(count)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Semester>> GetSemestersWithStatusAfterGroupScheduleAsync()
+        {
+            return await _context.Semesters
+                 .Where(s => s.CreationStage >= ScheduleCreationStage.GeneratingPreliminarySchedule)
+                 .ToListAsync();
+        }
     }
 }
