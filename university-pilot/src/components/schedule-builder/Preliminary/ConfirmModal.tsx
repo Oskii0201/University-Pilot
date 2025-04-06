@@ -21,7 +21,7 @@ export default function ConfirmModal({
         <h2 className="mb-4 text-xl font-bold">{title}</h2>
         <p className="mb-6 text-gray-700">{description}</p>
         <div className="flex justify-end gap-3">
-          <Button onClick={onCancel} color="gray">
+          <Button onClick={onCancel} color="grey">
             Anuluj
           </Button>
           <Button onClick={onConfirm} color="blue">
