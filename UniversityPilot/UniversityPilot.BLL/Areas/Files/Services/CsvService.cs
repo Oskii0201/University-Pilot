@@ -92,6 +92,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                         Specialization = cd.Course.Specialization?.Name ?? "",
                         CourseName = cd.Course.Name,
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
+                        TitleScheduleClassDay = cd.Course.StudyProgram.ScheduleClassDays.Select(d => d.Title).FirstOrDefault() ?? "",
                         CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
                         GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName)),
                         SharedCourseGroup = cd.SharedCourseGroup?.Name ?? "",
