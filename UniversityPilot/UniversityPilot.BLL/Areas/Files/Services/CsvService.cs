@@ -89,6 +89,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     {
                         CourseDetailsId = cd.Id,
                         StudyProgramDescription = CsvHandler.BuildStudyProgramDescription(cd.Course),
+                        Specialization = cd.Course.Specialization?.Name ?? "",
                         CourseName = cd.Course.Name,
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
                         CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
