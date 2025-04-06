@@ -16,16 +16,25 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
         [CsvColumn(3, "CourseType")]
         public string CourseType { get; set; }
 
-        [CsvColumn(4, "Instructors")]
-        public string Instructors { get; set; }
-
-        [CsvColumn(5, "CourseGroups")]
+        [CsvColumn(4, "CourseGroups")]
         public string CourseGroups { get; set; }
 
-        [CsvColumn(6, "GroupsName")]
+        [CsvColumn(5, "GroupsName")]
         public string GroupsName { get; set; }
 
-        [CsvColumn(7, "SharedCourseGroup")]
+        [CsvColumn(6, "SharedCourseGroup")]
         public string SharedCourseGroup { get; set; }
+
+        [CsvColumn(7, "Instructors")]
+        public string Instructors { get; set; }
+
+        [CsvColumn(8, "InstructorsTitle")]
+        public string InstructorsTitle { get; set; }
+
+        [CsvColumn(9, "InstructorsFirstName")]
+        public string InstructorsFirstName { get; set; }
+
+        [CsvColumn(10, "InstructorsLastName")]
+        public string InstructorsLastName { get; set; }
     }
 }

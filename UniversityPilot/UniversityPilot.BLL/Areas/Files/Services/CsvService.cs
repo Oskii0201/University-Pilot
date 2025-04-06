@@ -91,10 +91,13 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                         StudyProgramDescription = CsvHandler.BuildStudyProgramDescription(cd.Course),
                         CourseName = cd.Course.Name,
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
-                        Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
                         CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
                         GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName)),
-                        SharedCourseGroup = cd.SharedCourseGroup?.Name ?? ""
+                        SharedCourseGroup = cd.SharedCourseGroup?.Name ?? "",
+                        Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
+                        InstructorsTitle = string.Join("|", cd.Instructors.Select(i => i.Title)),
+                        InstructorsFirstName = string.Join("|", cd.Instructors.Select(i => i.FirstName)),
+                        InstructorsLastName = string.Join("|", cd.Instructors.Select(i => i.LastName))
                     }).ToList();
 
             return CsvHandler.Build(courseDetailsCsv);
