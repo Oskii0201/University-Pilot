@@ -24,5 +24,8 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
 
         [CsvColumn(6, "GroupsName")]
         public string GroupsName { get; set; }
+
+        [CsvColumn(7, "SharedCourseGroup")]
+        public string SharedCourseGroup { get; set; }
     }
 }
