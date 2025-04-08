@@ -1,4 +1,5 @@
-﻿using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+﻿using UniversityPilot.BLL.Areas.Files.Interfaces;
+using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
@@ -16,6 +17,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseScheduleRepository _courseScheduleRepository;
         private readonly IHolidayRepository _holidayRepository;
+        private readonly ICsvService _csvService;
 
         public ScheduleGenerator(
             ISemesterRepository semesterRepository,
@@ -23,7 +25,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             ICourseRepository courseRepository,
             IScheduleClassDayRepository scheduleClassDayRepository,
             ICourseScheduleRepository courseScheduleRepository,
-            IHolidayRepository holidayRepository)
+            IHolidayRepository holidayRepository,
+            ICsvService csvService)
         {
             _semesterRepository = semesterRepository;
             _classDayRepository = classDayRepository;
@@ -31,6 +34,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseScheduleRepository = courseScheduleRepository;
             _holidayRepository = holidayRepository;
+            _csvService = csvService;
         }
 
         public async Task GeneratePreliminaryScheduleAsync(int semesterId)
@@ -43,20 +47,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             }
 
             await GenerateClassDaysAndScheduleClassDaysAsync(semester);
-            await GeneratePreliminaryCourseSchedulesAsync(semester);
+            //await GeneratePreliminaryCourseSchedulesAsync(semester);
             await SetSemesterStageToGeneratingScheduleAsync(semester);
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await GenerateWithAiAsync(semester.Id);
-                }
-                catch (Exception ex)
-                {
-                    //_logger.LogError(ex, "Error during AI-based schedule generation");
-                }
-            });
+            await GenerateFilesCSV(semester);
+            //await GenerateWithAiAsync(semester.Id);
         }
 
         private async Task GenerateClassDaysAndScheduleClassDaysAsync(Semester semester)
@@ -76,7 +70,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             var scheduleClassDay = new ScheduleClassDay
             {
-                Title = "Stacjonarna grupa zjazdowa",
+                Title = "Stacjonarna grupa",
                 SemesterId = semester.Id
             };
 
@@ -124,6 +118,21 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             semester.CreationStage = ScheduleCreationStage.GeneratingSchedule;
             semester.UpdateDate = DateTime.UtcNow;
             await _semesterRepository.UpdateAsync(semester);
+        }
+
+        private async Task GenerateFilesCSV(Semester semester)
+        {
+            var basePath = Path.Combine("..", "..", "UniversityPilot-ML", "DataInput");
+            Directory.CreateDirectory(basePath);
+
+            var scheduleGroupDaysCsv = await _csvService.GetScheduleGroupsDaysCsv(semester.Id);
+            await File.WriteAllTextAsync(Path.Combine(basePath, "ScheduleGroupsDays.csv"), scheduleGroupDaysCsv);
+
+            var classroomsCsv = await _csvService.GetClassroomsCsv();
+            await File.WriteAllTextAsync(Path.Combine(basePath, "Classrooms.csv"), classroomsCsv);
+
+            var preliminarySchedulesCsv = await _csvService.GetPreliminaryCoursesScheduleCsv(semester.Id);
+            await File.WriteAllTextAsync(Path.Combine(basePath, "PreliminaryCoursesSchedule.csv"), preliminarySchedulesCsv);
         }
 
         private Task GenerateWithAiAsync(int semesterId)

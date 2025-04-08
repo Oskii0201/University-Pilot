@@ -15,9 +15,26 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
         {
             return await _context.CoursesDetails
                 .Include(cd => cd.Course)
+                    .ThenInclude(c => c.Specialization)
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.StudyProgram)
+                        .ThenInclude(sp => sp.FieldOfStudy)
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.StudyProgram)
+                        .ThenInclude(sp => sp.ScheduleClassDays)
                 .Include(cd => cd.Instructors)
                 .Include(cd => cd.CourseGroups)
+                .Include(cd => cd.SharedCourseGroup)
                 .Where(cd => cd.Course.SemesterId == semesterId)
+                .ToListAsync();
+        }
+
+        public async Task<List<CourseDetails>> GetByIdsWithIncludesAsync(IEnumerable<int> ids)
+        {
+            return await _context.CoursesDetails
+                .Where(cd => ids.Contains(cd.Id))
+                .Include(cd => cd.Instructors)
+                .Include(cd => cd.CourseGroups)
                 .ToListAsync();
         }
     }

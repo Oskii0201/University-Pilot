@@ -15,5 +15,8 @@ namespace UniversityPilot.DAL.Areas.Shared.Enumes
 
         [Description("Prowadzący przedmiot")]
         Instructors = 3,
+
+        [Description("Przypisanie prowadzących i grupy dla kursów")]
+        CourseAssignment = 4,
     }
 }

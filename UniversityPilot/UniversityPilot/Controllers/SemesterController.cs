@@ -27,10 +27,10 @@ namespace UniversityPilot.Controllers
             return Ok(await _semesterStatusService.GetUpcomingSemestersAsync(count, status));
         }
 
-        [HttpGet("active")]
-        public async Task<IActionResult> GetSemestersWithStatusOtherThanNew()
+        [HttpGet("GetSemestersWithStatusAfterGroupSchedule")]
+        public async Task<IActionResult> GetSemestersWithStatusAfterGroupSchedule()
         {
-            var result = await _semesterStatusService.GetAllExceptNewAsync();
+            var result = await _semesterStatusService.GetSemestersWithStatusAfterGroupScheduleAsync();
             return Ok(result);
         }
 
@@ -41,7 +41,7 @@ namespace UniversityPilot.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{semesterId}/status")]
+        [HttpGet("{semesterId}/Status")]
         public async Task<IActionResult> GetSemesterStatus(int semesterId)
         {
             var status = await _semesterStatusService.GetStatusBySemesterIdAsync(semesterId);

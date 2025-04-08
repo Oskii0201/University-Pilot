@@ -6,5 +6,7 @@ namespace UniversityPilot.BLL.Areas.Processing.Interfaces
     internal interface IClassroomService
     {
         Task<Result> SaveFromCsv(List<ClassroomCsv> csvData);
+
+        Task<List<ClassroomCsv>> GetAllClassroomsCsv();
     }
 }

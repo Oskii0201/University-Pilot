@@ -15,11 +15,18 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Repositories
         public async Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3, int status = 0)
         {
             return await _context.Semesters
-                .Where(s => s.StartDate >= DateTime.UtcNow.Date &&
+                .Where(s => s.StartDate >= DateTime.UtcNow.AddYears(-1).Date &&
                             s.CreationStage == (ScheduleCreationStage)status)
                 .OrderBy(s => s.StartDate)
                 .Take(count)
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Semester>> GetSemestersWithStatusAfterGroupScheduleAsync()
+        {
+            return await _context.Semesters
+                 .Where(s => s.CreationStage >= ScheduleCreationStage.GeneratingPreliminarySchedule)
+                 .ToListAsync();
         }
     }
 }

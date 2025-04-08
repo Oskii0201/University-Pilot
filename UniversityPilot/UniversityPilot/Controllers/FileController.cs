@@ -42,10 +42,10 @@ namespace UniversityPilot.Controllers
             return BadRequest(new { message = result.Message, errors = result.Errors });
         }
 
-        [HttpGet("export-course-details/{semesterId}")]
+        [HttpGet("ExportCourseDetails/{semesterId}")]
         public async Task<IActionResult> ExportCourseDetailsToCsv(int semesterId)
         {
-            var csv = await _csvService.GetCourseDetailsExport(semesterId);
+            var csv = await _csvService.GetCourseDetailsCsv(semesterId);
             return File(Encoding.UTF8.GetBytes(csv), "text/csv", $"CourseDetails_Semester_{semesterId}.csv");
         }
     }

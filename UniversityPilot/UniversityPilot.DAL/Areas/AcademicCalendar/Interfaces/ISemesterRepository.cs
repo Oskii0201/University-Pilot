@@ -6,5 +6,7 @@ namespace UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces
     public interface ISemesterRepository : IRepository<Semester>
     {
         Task<IEnumerable<Semester>> GetUpcomingSemestersAsync(int count = 3, int status = 0);
+
+        Task<IEnumerable<Semester>> GetSemestersWithStatusAfterGroupScheduleAsync();
     }
 }
