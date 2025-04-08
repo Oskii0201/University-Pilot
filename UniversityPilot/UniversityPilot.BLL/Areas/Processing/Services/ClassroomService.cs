@@ -27,8 +27,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
                 .ToHashSet();
 
             var classroomsToAdd = csvData
-                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
-                .Select(x => x.Name.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x.Number))
+                .Select(x => x.Number.Trim())
                 .Where(name => !existingClassroomNames.Contains(name.ToLower()))
                 .Select(name => new Classroom { RoomNumber = name })
                 .ToList();

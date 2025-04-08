@@ -81,7 +81,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             }
         }
 
-        public async Task<string> GetCourseDetailsExport(int semesterId)
+        public async Task<string> GetCourseDetailsCsv(int semesterId)
         {
             var courseDetails = await _courseDetailsRepository.GetCourseDetailsExport(semesterId);
             var courseDetailsCsv = courseDetails.Select(cd =>
@@ -108,6 +108,24 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     }).ToList();
 
             return CsvHandler.Build(courseDetailsCsv);
+        }
+
+        public async Task<string> GetScheduleGroupsDaysCsv(int id)
+        {
+            List<ScheduleGroupsDaysCsv> result = new();
+            return CsvHandler.Build(result);
+        }
+
+        public async Task<string> GetClassroomsCsv(int id)
+        {
+            List<ClassroomCsv> result = new();
+            return CsvHandler.Build(result);
+        }
+
+        public async Task<string> GetPreliminaryCoursesScheduleCsv(int id)
+        {
+            List<PreliminaryCoursesScheduleCsv> result = new();
+            return CsvHandler.Build(result);
         }
     }
 }

@@ -4,7 +4,10 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
 {
     public class ClassroomCsv
     {
-        [CsvColumn(0, "Nazwa sali")]
-        public string Name { get; set; }
+        [CsvColumn(0, "ClassroomId")]
+        public int ClassroomId { get; set; }
+
+        [CsvColumn(1, "Number")]
+        public string Number { get; set; }
     }
 }
