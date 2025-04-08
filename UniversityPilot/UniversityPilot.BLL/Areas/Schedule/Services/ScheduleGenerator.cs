@@ -70,7 +70,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
             var scheduleClassDay = new ScheduleClassDay
             {
-                Title = "Stacjonarna grupa zjazdowa",
+                Title = "Stacjonarna grupa",
                 SemesterId = semester.Id
             };
 
