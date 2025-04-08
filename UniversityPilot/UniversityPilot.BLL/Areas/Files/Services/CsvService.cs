@@ -114,6 +114,12 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             return CsvHandler.Build(courseDetailsCsv);
         }
 
+        public async Task<string> GetInstructorsCsv()
+        {
+            var instructors = await _instructorService.GetAllInstructorsCsv();
+            return CsvHandler.Build(instructors);
+        }
+
         public async Task<string> GetScheduleGroupsDaysCsv(int semesterId)
         {
             List<ScheduleGroupsDaysCsv> result = await _groupsScheduleService.GetScheduleGroupsDaysCsvAsync(semesterId);
