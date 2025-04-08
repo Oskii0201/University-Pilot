@@ -118,7 +118,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
 
         public async Task<string> GetClassroomsCsv(int id)
         {
-            List<ClassroomCsv> result = new();
+            var result = await _classroomService.GetAllClassroomsCsv();
             return CsvHandler.Build(result);
         }
 
