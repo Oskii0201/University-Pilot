@@ -2,6 +2,7 @@
 using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
+using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 using UniversityPilot.DAL.Areas.Shared.Utilities;
@@ -17,6 +18,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly IHolidayService _holidayService;
         private readonly ICourseDetailsRepository _courseDetailsRepository;
         private readonly ICourseDetailsService _courseDetailsService;
+        private readonly IGroupsScheduleService _groupsScheduleService;
 
         public CsvService(
             IClassroomService classroomService,
@@ -24,7 +26,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             IStudyProgramService studyProgramService,
             IHolidayService holidayService,
             ICourseDetailsRepository courseDetailsRepository,
-            ICourseDetailsService courseDetailsService)
+            ICourseDetailsService courseDetailsService,
+            IGroupsScheduleService groupsScheduleService)
         {
             _classroomService = classroomService;
             _instructorService = instructorService;
@@ -32,6 +35,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             _holidayService = holidayService;
             _courseDetailsRepository = courseDetailsRepository;
             _courseDetailsService = courseDetailsService;
+            _groupsScheduleService = groupsScheduleService;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -110,13 +114,13 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             return CsvHandler.Build(courseDetailsCsv);
         }
 
-        public async Task<string> GetScheduleGroupsDaysCsv(int id)
+        public async Task<string> GetScheduleGroupsDaysCsv(int semesterId)
         {
-            List<ScheduleGroupsDaysCsv> result = new();
+            List<ScheduleGroupsDaysCsv> result = await _groupsScheduleService.GetScheduleGroupsDaysCsvAsync(semesterId);
             return CsvHandler.Build(result);
         }
 
-        public async Task<string> GetClassroomsCsv(int id)
+        public async Task<string> GetClassroomsCsv()
         {
             var result = await _classroomService.GetAllClassroomsCsv();
             return CsvHandler.Build(result);

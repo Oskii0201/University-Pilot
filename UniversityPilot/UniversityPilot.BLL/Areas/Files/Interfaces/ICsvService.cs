@@ -9,9 +9,9 @@ namespace UniversityPilot.BLL.Areas.Files.Interfaces
 
         public Task<string> GetCourseDetailsCsv(int semesterId);
 
-        public Task<string> GetScheduleGroupsDaysCsv(int id);
+        public Task<string> GetScheduleGroupsDaysCsv(int semesterId);
 
-        public Task<string> GetClassroomsCsv(int id);
+        public Task<string> GetClassroomsCsv();
 
         public Task<string> GetPreliminaryCoursesScheduleCsv(int id);
     }

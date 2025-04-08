@@ -128,7 +128,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             var scheduleGroupDaysCsv = await _csvService.GetScheduleGroupsDaysCsv(semester.Id);
             await File.WriteAllTextAsync(Path.Combine(basePath, "ScheduleGroupsDays.csv"), scheduleGroupDaysCsv);
 
-            var classroomsCsv = await _csvService.GetClassroomsCsv(semester.Id);
+            var classroomsCsv = await _csvService.GetClassroomsCsv();
             await File.WriteAllTextAsync(Path.Combine(basePath, "Classrooms.csv"), classroomsCsv);
 
             var preliminarySchedulesCsv = await _csvService.GetPreliminaryCoursesScheduleCsv(semester.Id);

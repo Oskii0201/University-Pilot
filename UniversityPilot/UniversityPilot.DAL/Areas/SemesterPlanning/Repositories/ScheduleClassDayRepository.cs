@@ -20,6 +20,14 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<ScheduleClassDay>> GetWithClassDaysBySemesterAsync(int semesterId)
+        {
+            return await _context.ScheduleClassDays
+                .Include(s => s.ClassDays)
+                .Where(s => s.SemesterId == semesterId)
+                .ToListAsync();
+        }
+
         public override async Task DeleteAsync(ScheduleClassDay entity)
         {
             await _context.Database.ExecuteSqlInterpolatedAsync(
