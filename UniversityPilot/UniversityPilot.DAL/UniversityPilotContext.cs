@@ -257,6 +257,7 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.Hours).IsRequired();
                 entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.ECTS).IsRequired();
+                entity.Property(e => e.Online).IsRequired();
 
                 entity.HasOne(e => e.Course)
                       .WithMany(c => c.CoursesDetails)
