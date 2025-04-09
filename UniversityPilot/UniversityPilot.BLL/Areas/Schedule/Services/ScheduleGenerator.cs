@@ -68,13 +68,19 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             if (!fullTimePrograms.Any())
                 return;
 
-            var scheduleClassDay = new ScheduleClassDay
-            {
-                Title = "Stacjonarna grupa",
-                SemesterId = semester.Id
-            };
+            const string scheduleTitle = "Stacjonarna grupa";
+            var scheduleClassDay = await _scheduleClassDayRepository.GetBySemesterIdAndTitleAsync(semester.Id, scheduleTitle);
 
-            await _scheduleClassDayRepository.AddAsync(scheduleClassDay);
+            if (scheduleClassDay == null)
+            {
+                scheduleClassDay = new ScheduleClassDay
+                {
+                    Title = scheduleTitle,
+                    SemesterId = semester.Id
+                };
+
+                await _scheduleClassDayRepository.AddAsync(scheduleClassDay);
+            }
             await _scheduleClassDayRepository.UpdateAssignmentsAsync(scheduleClassDay.Id, fullTimePrograms.Select(p => p.Id).ToList());
 
             foreach (var date in Utilities.EachDay(semester.StartDate.Date, semester.EndDate.Date))

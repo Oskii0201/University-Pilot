@@ -12,7 +12,7 @@ namespace UniversityPilot.BLL
                 .ForMember(dest => dest.ClassroomId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.RoomNumber));
 
-            CreateMap<InstructorCsv, Instructor>()
+            CreateMap<Instructor, InstructorCsv>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
