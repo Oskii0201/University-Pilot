@@ -103,13 +103,13 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
                         TitleScheduleClassDay = cd.Course.StudyProgram.ScheduleClassDays.Select(d => d.Title).FirstOrDefault() ?? "",
                         Online = cd.Online ? "Tak" : "Nie",
-                        CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
-                        GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName)),
+                        CourseGroups = string.Join(",", cd.CourseGroups.Select(g => g.Id)),
+                        GroupsName = string.Join(",", cd.CourseGroups.Select(g => g.GroupName)),
                         SharedCourseGroup = cd.SharedCourseGroup?.Name ?? "",
-                        Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
-                        InstructorsTitle = string.Join("|", cd.Instructors.Select(i => i.Title)),
-                        InstructorsFirstName = string.Join("|", cd.Instructors.Select(i => i.FirstName)),
-                        InstructorsLastName = string.Join("|", cd.Instructors.Select(i => i.LastName))
+                        Instructors = string.Join(",", cd.Instructors.Select(i => i.Id)),
+                        InstructorsTitle = string.Join(",", cd.Instructors.Select(i => i.Title)),
+                        InstructorsFirstName = string.Join(",", cd.Instructors.Select(i => i.FirstName)),
+                        InstructorsLastName = string.Join(",", cd.Instructors.Select(i => i.LastName))
                     }).ToList();
 
             return CsvHandler.Build(courseDetailsCsv);
