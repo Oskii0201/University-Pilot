@@ -5,5 +5,6 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces
 {
     public interface ICourseScheduleRepository : IRepository<CourseSchedule>
     {
+        public Task<List<CourseSchedule>> GetAllWithDetailsBySemesterIdAsync(int semesterId);
     }
 }

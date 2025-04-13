@@ -4,6 +4,8 @@ using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Shared;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 using UniversityPilot.DAL.Areas.Shared.Utilities;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
@@ -19,6 +21,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly ICourseDetailsRepository _courseDetailsRepository;
         private readonly ICourseDetailsService _courseDetailsService;
         private readonly IGroupsScheduleService _groupsScheduleService;
+        private readonly ICourseScheduleRepository _courseScheduleRepository;
 
         public CsvService(
             IClassroomService classroomService,
@@ -27,7 +30,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             IHolidayService holidayService,
             ICourseDetailsRepository courseDetailsRepository,
             ICourseDetailsService courseDetailsService,
-            IGroupsScheduleService groupsScheduleService)
+            IGroupsScheduleService groupsScheduleService,
+            ICourseScheduleRepository courseScheduleRepository)
         {
             _classroomService = classroomService;
             _instructorService = instructorService;
@@ -36,6 +40,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             _courseDetailsRepository = courseDetailsRepository;
             _courseDetailsService = courseDetailsService;
             _groupsScheduleService = groupsScheduleService;
+            _courseScheduleRepository = courseScheduleRepository;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -133,9 +138,42 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             return CsvHandler.Build(result);
         }
 
-        public async Task<string> GetPreliminaryCoursesScheduleCsv(int id)
+        public async Task<string> GetPreliminaryCoursesScheduleCsv(int semesterId)
         {
-            List<PreliminaryCoursesScheduleCsv> result = new();
+            var schedules = await _courseScheduleRepository.GetAllWithDetailsBySemesterIdAsync(semesterId);
+
+            var result = schedules.Select(cs =>
+            {
+                var cd = cs.CourseDetails;
+                var sharedGroup = cd.SharedCourseGroup;
+
+                var dependentGroups = sharedGroup?
+                    .CoursesDetails
+                    .SelectMany(d => d.CourseGroups)
+                    .Where(g => g.Id != cs.CourseGroup.Id)
+                    .Distinct()
+                    .ToList() ?? new List<CourseGroup>();
+
+                return new PreliminaryCoursesScheduleCsv
+                {
+                    CourseScheduleId = cs.Id,
+                    CourseName = cd.Course.Name ?? string.Empty,
+                    CourseDetailsId = cd.Id.ToString(),
+                    CourseType = cd.CourseType.ToString(),
+                    Online = cd.Online ? "Yes" : "No",
+                    GroupsId = $"{cs.CourseGroup?.Id ?? 0}",
+                    GroupsName = cs.CourseGroup?.GroupName ?? string.Empty,
+                    DependentGroupsIds = string.Join(",", dependentGroups.Select(g => g.Id)),
+                    DependentGroupsNames = string.Join(",", dependentGroups.Select(g => g.GroupName)),
+                    ScheduleGroupId = 0, // Do uzupełnienia później
+                    ScheduleGroupName = "", // Do uzupełnienia później
+                    InstructorId = cs.Instructor?.Id ?? 0,
+                    DateTimeStart = cs.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
+                    DateTimeEnd = cs.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
+                    ClassroomId = cs.ClassroomId ?? 0
+                };
+            }).ToList();
+
             return CsvHandler.Build(result);
         }
     }

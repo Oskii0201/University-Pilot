@@ -11,7 +11,7 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
         public string CourseName { get; set; }
 
         [CsvColumn(2, "CourseDetailsId")]
-        public int CourseDetailsId { get; set; }
+        public string CourseDetailsId { get; set; }
 
         [CsvColumn(3, "CourseType")]
         public string CourseType { get; set; }
@@ -19,11 +19,11 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
         [CsvColumn(4, "Online")]
         public string Online { get; set; }
 
-        [CsvColumn(5, "GroupId")]
-        public int GroupId { get; set; }
+        [CsvColumn(5, "GroupsId")]
+        public string GroupsId { get; set; }
 
-        [CsvColumn(6, "GroupName")]
-        public string GroupName { get; set; }
+        [CsvColumn(6, "GroupsName")]
+        public string GroupsName { get; set; }
 
         [CsvColumn(7, "DependentGroupsIds")]
         public string DependentGroupsIds { get; set; }
