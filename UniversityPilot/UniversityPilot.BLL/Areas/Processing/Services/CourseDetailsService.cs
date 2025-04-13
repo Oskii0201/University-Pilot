@@ -70,23 +70,38 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
         {
             if (string.IsNullOrWhiteSpace(csv.GroupsName)) return;
 
-            var groupNames = csv.GroupsName.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var courseType = EnumHelper.ParseEnumFromDescriptionOrDefault<CourseTypes>(csv.CourseType, CourseTypes.Lecture);
-
-            var matchedGroups = groupNames
-                .Select(name =>
-                    allGroups.FirstOrDefault(g => g.GroupName == name && g.CourseType == courseType)
-                    ?? new CourseGroup { GroupName = name, CourseType = courseType })
+            var groupNames = csv.GroupsName
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Distinct()
                 .ToList();
 
-            foreach (var group in matchedGroups.Where(g => g.Id == 0))
-                _courseGroupRepo.Add(group);
+            var courseType = EnumHelper.ParseEnumFromDescriptionOrDefault<CourseTypes>(csv.CourseType, CourseTypes.Lecture);
+            var matchedGroups = new List<CourseGroup>();
+
+            foreach (var name in groupNames)
+            {
+                var existingGroup = allGroups.FirstOrDefault(g => g.GroupName == name && g.CourseType == courseType);
+
+                if (existingGroup != null)
+                {
+                    matchedGroups.Add(existingGroup);
+                }
+                else
+                {
+                    var newGroup = new CourseGroup { GroupName = name, CourseType = courseType };
+                    _courseGroupRepo.Add(newGroup);
+                    matchedGroups.Add(newGroup);
+                    allGroups.Add(newGroup);
+                }
+            }
 
             await _courseGroupRepo.SaveChangesAsync();
 
             await _courseDetailsRepo.UnassignCourseGroupsAsync(courseDetailsId);
             foreach (var group in matchedGroups)
+            {
                 await _courseDetailsRepo.AssignCourseGroupAsync(courseDetailsId, group.Id);
+            }
         }
 
         private async Task UpdateInstructorsAsync(int courseDetailsId, CourseDetailsCsv csv, ICollection<Instructor> allInstructors)
