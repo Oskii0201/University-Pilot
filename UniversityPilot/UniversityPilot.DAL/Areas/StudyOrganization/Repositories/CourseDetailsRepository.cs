@@ -91,5 +91,15 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
         WHERE ""CourseDetailsId"" = {courseDetailsId}");
         }
 
+        public async Task<List<CourseDetails>> GetCourseDetailsWithDependenciesAsync(int semesterId)
+        {
+            return await _context.CoursesDetails
+                .Include(cd => cd.Course)
+                .Include(cd => cd.Instructors)
+                .Include(cd => cd.CourseGroups)
+                .Include(cd => cd.SharedCourseGroup)
+                .Where(cd => cd.Course.SemesterId == semesterId)
+                .ToListAsync();
+        }
     }
 }

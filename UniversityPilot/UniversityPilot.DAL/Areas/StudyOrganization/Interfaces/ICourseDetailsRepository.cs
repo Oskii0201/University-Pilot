@@ -18,5 +18,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Interfaces
         public Task AssignCourseGroupAsync(int courseDetailsId, int groupId);
 
         public Task UnassignCourseGroupsAsync(int courseDetailsId);
+
+        public Task<List<CourseDetails>> GetCourseDetailsWithDependenciesAsync(int semesterId);
     }
 }

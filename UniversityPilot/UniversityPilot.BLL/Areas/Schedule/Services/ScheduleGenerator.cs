@@ -14,6 +14,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly ISemesterRepository _semesterRepository;
         private readonly IClassDayRepository _classDayRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly ICourseDetailsRepository _courseDetailsRepository;
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseScheduleRepository _courseScheduleRepository;
         private readonly IHolidayRepository _holidayRepository;
@@ -23,6 +24,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             ISemesterRepository semesterRepository,
             IClassDayRepository classDayRepository,
             ICourseRepository courseRepository,
+            ICourseDetailsRepository courseDetailsRepository,
             IScheduleClassDayRepository scheduleClassDayRepository,
             ICourseScheduleRepository courseScheduleRepository,
             IHolidayRepository holidayRepository,
@@ -31,6 +33,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _semesterRepository = semesterRepository;
             _classDayRepository = classDayRepository;
             _courseRepository = courseRepository;
+            _courseDetailsRepository = courseDetailsRepository;
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseScheduleRepository = courseScheduleRepository;
             _holidayRepository = holidayRepository;
@@ -47,7 +50,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             }
 
             await GenerateClassDaysAndScheduleClassDaysAsync(semester);
-            //await GeneratePreliminaryCourseSchedulesAsync(semester);
+            await GeneratePreliminaryCourseSchedulesAsync(semester);
             await SetSemesterStageToGeneratingScheduleAsync(semester);
             await GenerateFilesCSV(semester);
             //await GenerateWithAiAsync(semester.Id);
@@ -114,9 +117,81 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             }
         }
 
-        private Task GeneratePreliminaryCourseSchedulesAsync(Semester semester)
+        public async Task GeneratePreliminaryCourseSchedulesAsync(Semester semester)
         {
-            throw new NotImplementedException();
+            var courseDetails = await _courseDetailsRepository.GetCourseDetailsWithDependenciesAsync(semester.Id);
+
+            var courseSchedules = new List<CourseSchedule>();
+
+            foreach (var details in courseDetails)
+            {
+                var startDate = semester.StartDate.Date.AddHours(8);
+                var instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
+                var groupIds = details.CourseGroups.Select(g => g.Id).ToList();
+
+                var blocks = CalculateTimeBlocks(details.Hours);
+                var blockStart = startDate;
+
+                foreach (var groupId in groupIds)
+                {
+                    var instructorId = instructorQueue.Count > 0 ? instructorQueue.Dequeue() : details.Instructors.First().Id;
+
+                    foreach (var block in blocks)
+                    {
+                        var schedule = new CourseSchedule
+                        {
+                            StartDateTime = blockStart,
+                            EndDateTime = blockStart.AddMinutes(block),
+                            Status = "Planning",
+                            ClassroomId = null,
+                            CourseGroupId = groupId,
+                            InstructorId = instructorId,
+                            CourseDetailsId = details.Id
+                        };
+
+                        courseSchedules.Add(schedule);
+                    }
+                    if (instructorQueue.Count == 0)
+                        instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
+                }
+            }
+
+            await _courseScheduleRepository.AddRangeAsync(courseSchedules);
+        }
+
+        private List<int> CalculateTimeBlocks(int totalHours)
+        {
+            var blocks = new List<int>();
+
+            while (totalHours >= 4)
+            {
+                blocks.Add(4);
+                totalHours -= 4;
+            }
+
+            if (totalHours == 1)
+            {
+                if (blocks.Any())
+                    blocks[0] += 1;
+                else
+                    blocks.Add(1);
+            }
+            else if (totalHours == 2)
+            {
+                if (blocks.Count >= 1)
+                {
+                    blocks[blocks.Count - 1] = 3;
+                    blocks.Add(3);
+                }
+                else
+                    blocks.Add(2);
+            }
+            else if (totalHours == 3)
+            {
+                blocks.Add(3);
+            }
+
+            return blocks.Select(h => h * 45 + (h - 1) * 5).ToList();
         }
 
         private async Task SetSemesterStageToGeneratingScheduleAsync(Semester semester)
