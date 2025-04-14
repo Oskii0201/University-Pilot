@@ -98,7 +98,8 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
                 .Include(cd => cd.Instructors)
                 .Include(cd => cd.CourseGroups)
                 .Include(cd => cd.SharedCourseGroup)
-                .Where(cd => cd.Course.SemesterId == semesterId)
+                .Where(cd => cd.Course.SemesterId == semesterId &&
+                             cd.CourseGroups.Any())
                 .ToListAsync();
         }
     }

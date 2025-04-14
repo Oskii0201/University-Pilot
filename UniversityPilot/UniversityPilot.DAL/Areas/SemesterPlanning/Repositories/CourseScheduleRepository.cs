@@ -14,16 +14,40 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
         public async Task<List<CourseSchedule>> GetAllWithDetailsBySemesterIdAsync(int semesterId)
         {
             return await _context.CourseSchedules
-                .Include(cs => cs.CourseDetails)
+                .Include(cs => cs.CoursesDetails)
                     .ThenInclude(cd => cd.Course)
-                .Include(cs => cs.CourseDetails)
+                .Include(cs => cs.CoursesDetails)
                     .ThenInclude(cd => cd.SharedCourseGroup)
-                .Include(cs => cs.CourseDetails)
+                .Include(cs => cs.CoursesDetails)
                     .ThenInclude(cd => cd.CourseGroups)
                 .Include(cs => cs.Instructor)
-                .Include(cs => cs.CourseGroup)
-                .Where(cs => cs.CourseDetails.Course.SemesterId == semesterId)
+                .Include(cs => cs.CoursesGroups)
+                    .Where(cs => cs.CoursesDetails.Any(cd => cd.Course.SemesterId == semesterId))
                 .ToListAsync();
+        }
+
+        public async Task AssignCourseDetailsAsync(int scheduleId, int courseDetailsId)
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"
+                        INSERT INTO ""CourseScheduleCourseDetails"" (""CoursesDetailsId"", ""CourseSchedulesId"")
+                        SELECT {courseDetailsId}, {scheduleId}
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM ""CourseScheduleCourseDetails""
+                            WHERE ""CoursesDetailsId"" = {courseDetailsId}
+                              AND ""CourseSchedulesId"" = {scheduleId}
+                        )");
+        }
+
+        public async Task AssignCourseGroupAsync(int scheduleId, int courseGroupId)
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"
+                        INSERT INTO ""CourseScheduleCourseGroups"" (""CoursesGroupsId"", ""CourseSchedulesId"")
+                        SELECT {courseGroupId}, {scheduleId}
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM ""CourseScheduleCourseGroups""
+                            WHERE ""CoursesGroupsId"" = {courseGroupId}
+                              AND ""CourseSchedulesId"" = {scheduleId}
+                        )");
         }
     }
 }

@@ -144,13 +144,13 @@ namespace UniversityPilot.BLL.Areas.Files.Services
 
             var result = schedules.Select(cs =>
             {
-                var cd = cs.CourseDetails;
+                var cd = cs.CoursesDetails.First();
                 var sharedGroup = cd.SharedCourseGroup;
 
                 var dependentGroups = sharedGroup?
                     .CoursesDetails
                     .SelectMany(d => d.CourseGroups)
-                    .Where(g => g.Id != cs.CourseGroup.Id)
+                    .Where(g => g.Id != cs.CoursesGroups.First()?.Id)
                     .Distinct()
                     .ToList() ?? new List<CourseGroup>();
 
@@ -161,8 +161,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                     CourseDetailsId = cd.Id.ToString(),
                     CourseType = cd.CourseType.ToString(),
                     Online = cd.Online ? "Yes" : "No",
-                    GroupsId = $"{cs.CourseGroup?.Id ?? 0}",
-                    GroupsName = cs.CourseGroup?.GroupName ?? string.Empty,
+                    GroupsId = $"{cs.CoursesGroups.First()?.Id ?? 0}",
+                    GroupsName = cs.CoursesGroups.First()?.GroupName ?? string.Empty,
                     DependentGroupsIds = string.Join(",", dependentGroups.Select(g => g.Id)),
                     DependentGroupsNames = string.Join(",", dependentGroups.Select(g => g.GroupName)),
                     ScheduleGroupId = 0, // Do uzupełnienia później

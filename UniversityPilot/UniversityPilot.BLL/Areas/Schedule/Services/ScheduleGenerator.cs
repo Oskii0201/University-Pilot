@@ -6,6 +6,7 @@ using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
+using UniversityPilot.DAL.Areas.StudyOrganization.Models;
 
 namespace UniversityPilot.BLL.Areas.Schedule.Services
 {
@@ -119,44 +120,129 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
         public async Task GeneratePreliminaryCourseSchedulesAsync(Semester semester)
         {
-            var courseDetails = await _courseDetailsRepository.GetCourseDetailsWithDependenciesAsync(semester.Id);
-
+            var allCourseDetails = await _courseDetailsRepository.GetCourseDetailsWithDependenciesAsync(semester.Id);
             var courseSchedules = new List<CourseSchedule>();
 
-            foreach (var details in courseDetails)
+            var groupedByShared = allCourseDetails
+                .Where(cd => cd.SharedCourseGroup != null)
+                .GroupBy(cd => cd.SharedCourseGroup.Id)
+                .ToList();
+
+            var standaloneDetails = allCourseDetails
+                .Where(cd => cd.SharedCourseGroup == null)
+                .ToList();
+
+            var startDate = semester.StartDate.Date.AddHours(8);
+            var blockStart = startDate;
+
+            foreach (var sharedGroup in groupedByShared)
             {
-                var startDate = semester.StartDate.Date.AddHours(8);
-                var instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
-                var groupIds = details.CourseGroups.Select(g => g.Id).ToList();
+                var firstDetails = sharedGroup.First();
+                var allInstructors = sharedGroup.SelectMany(cd => cd.Instructors).Distinct().ToList();
+                var instructorQueue = new Queue<int>(allInstructors.Select(i => i.Id));
+                int maxGroupCount = sharedGroup.Max(cd => cd.CourseGroups.Count);
 
-                var blocks = CalculateTimeBlocks(details.Hours);
-                var blockStart = startDate;
-
-                foreach (var groupId in groupIds)
+                for (int i = 0; i < maxGroupCount; i++)
                 {
-                    var instructorId = instructorQueue.Count > 0 ? instructorQueue.Dequeue() : details.Instructors.First().Id;
+                    if (instructorQueue.Count == 0)
+                        instructorQueue = new Queue<int>(allInstructors.Select(i => i.Id));
+
+                    var instructorId = instructorQueue.Dequeue();
+                    var blocks = CalculateTimeBlocks(firstDetails.Hours);
+
+                    var courseGroupsSet = new List<CourseGroup>();
+                    var courseDetailsSet = new List<CourseDetails>();
+
+                    foreach (var cd in sharedGroup)
+                    {
+                        var group = cd.CourseGroups.ElementAtOrDefault(i);
+                        if (group != null)
+                        {
+                            courseGroupsSet.Add(group);
+                            courseDetailsSet.Add(cd);
+                        }
+                    }
 
                     foreach (var block in blocks)
                     {
-                        var schedule = new CourseSchedule
+                        var newCourseSchedule = new CourseSchedule
                         {
                             StartDateTime = blockStart,
                             EndDateTime = blockStart.AddMinutes(block),
                             Status = "Planning",
                             ClassroomId = null,
-                            CourseGroupId = groupId,
-                            InstructorId = instructorId,
-                            CourseDetailsId = details.Id
+                            InstructorId = instructorId
                         };
 
-                        courseSchedules.Add(schedule);
+                        courseSchedules.Add(newCourseSchedule);
+
+                        foreach (var courseDetails in courseDetailsSet)
+                            courseDetails.CourseSchedules.Add(newCourseSchedule);
+
+                        foreach (var courseGroup in courseGroupsSet)
+                            courseGroup.CourseSchedules.Add(newCourseSchedule);
                     }
+                }
+            }
+
+            foreach (var details in standaloneDetails)
+            {
+                var blocks = CalculateTimeBlocks(details.Hours);
+
+                var courseGroups = details.CourseGroups;
+                var instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
+
+                foreach (var courseGroup in courseGroups)
+                {
                     if (instructorQueue.Count == 0)
                         instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
+
+                    var instructorId = instructorQueue.Dequeue();
+
+                    foreach (var block in blocks)
+                    {
+                        var newCourseSchedule = new CourseSchedule
+                        {
+                            StartDateTime = blockStart,
+                            EndDateTime = blockStart.AddMinutes(block),
+                            Status = "Planning",
+                            ClassroomId = null,
+                            InstructorId = instructorId
+                        };
+
+                        courseSchedules.Add(newCourseSchedule);
+                        details.CourseSchedules.Add(newCourseSchedule);
+                        courseGroup.CourseSchedules.Add(newCourseSchedule);
+                    }
                 }
             }
 
             await _courseScheduleRepository.AddRangeAsync(courseSchedules);
+
+            var allDetailsToAssign = allCourseDetails
+                .Where(cd => cd.CourseSchedules.Any())
+                .Distinct();
+
+            var allGroupsToAssign = allCourseDetails
+                .SelectMany(cd => cd.CourseGroups)
+                .Where(g => g.CourseSchedules.Any())
+                .DistinctBy(g => g.Id);
+
+            foreach (var cd in allDetailsToAssign)
+            {
+                foreach (var schedule in cd.CourseSchedules)
+                {
+                    await _courseScheduleRepository.AssignCourseDetailsAsync(schedule.Id, cd.Id);
+                }
+            }
+
+            foreach (var group in allGroupsToAssign)
+            {
+                foreach (var schedule in group.CourseSchedules)
+                {
+                    await _courseScheduleRepository.AssignCourseGroupAsync(schedule.Id, group.Id);
+                }
+            }
         }
 
         private List<int> CalculateTimeBlocks(int totalHours)
