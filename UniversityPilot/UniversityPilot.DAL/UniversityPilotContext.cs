@@ -158,8 +158,8 @@ namespace UniversityPilot.DAL
                       .UsingEntity(j => j.ToTable("StudentCourseGroup"));
 
                 entity.HasMany(e => e.CourseSchedules)
-                      .WithOne(cs => cs.CourseGroup)
-                      .HasForeignKey(cs => cs.CourseGroupId);
+                      .WithMany(cs => cs.CoursesGroups)
+                      .UsingEntity(j => j.ToTable("CourseScheduleCourseGroups"));
             });
 
             modelBuilder.Entity<CourseSchedule>(entity =>
@@ -169,9 +169,9 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.EndDateTime).IsRequired();
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(32);
 
-                entity.HasOne(e => e.CourseGroup)
-                      .WithMany(cg => cg.CourseSchedules)
-                      .HasForeignKey(e => e.CourseGroupId);
+                entity.HasMany(cs => cs.CoursesGroups)
+                      .WithMany(g => g.CourseSchedules)
+                      .UsingEntity(j => j.ToTable("CourseScheduleCourseGroups"));
 
                 entity.HasOne(e => e.Classroom)
                       .WithMany(c => c.CourseSchedules)
@@ -181,10 +181,9 @@ namespace UniversityPilot.DAL
                       .WithMany(i => i.CourseSchedules)
                       .HasForeignKey(e => e.InstructorId);
 
-                entity.HasOne(e => e.CourseDetails)
+                entity.HasMany(cs => cs.CoursesDetails)
                       .WithMany(cd => cd.CourseSchedules)
-                      .HasForeignKey(e => e.CourseDetailsId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .UsingEntity(j => j.ToTable("CourseScheduleCourseDetails"));
             });
 
             modelBuilder.Entity<ScheduleClassDay>(entity =>
@@ -257,6 +256,7 @@ namespace UniversityPilot.DAL
                 entity.Property(e => e.Hours).IsRequired();
                 entity.Property(e => e.AssessmentType).IsRequired().HasMaxLength(64);
                 entity.Property(e => e.ECTS).IsRequired();
+                entity.Property(e => e.Online).IsRequired();
 
                 entity.HasOne(e => e.Course)
                       .WithMany(c => c.CoursesDetails)
@@ -277,9 +277,8 @@ namespace UniversityPilot.DAL
                       .UsingEntity(j => j.ToTable("CourseDetailsInstructor"));
 
                 entity.HasMany(e => e.CourseSchedules)
-                      .WithOne(cs => cs.CourseDetails)
-                      .HasForeignKey(cs => cs.CourseDetailsId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .WithMany(cs => cs.CoursesDetails)
+                      .UsingEntity(j => j.ToTable("CourseScheduleCourseDetails"));
             });
 
             modelBuilder.Entity<FieldOfStudy>(entity =>

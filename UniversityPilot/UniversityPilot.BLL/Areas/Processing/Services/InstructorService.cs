@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using UniversityPilot.BLL.Areas.Files.DTO;
 using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.Identity.Models;
@@ -11,13 +12,16 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
     {
         private readonly IInstructorRepository _instructorRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IMapper _mapper;
 
         public InstructorService(
             IInstructorRepository instructorRepository,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IMapper mapper)
         {
             _instructorRepository = instructorRepository;
             _passwordHasher = passwordHasher;
+            _mapper = mapper;
         }
 
         public async Task<Result> SaveFromCsv(List<InstructorCsv> csvData)
@@ -71,6 +75,12 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
             }
 
             return Result.Success($"{instructorsToAdd.Count()} new instructors imported successfully.");
+        }
+
+        public async Task<List<InstructorCsv>> GetAllInstructorsCsv()
+        {
+            var instructors = await _instructorRepository.GetAllAsync();
+            return _mapper.Map<List<InstructorCsv>>(instructors.ToList());
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniversityPilot.DAL;
@@ -11,9 +12,11 @@ using UniversityPilot.DAL;
 namespace UniversityPilot.DAL.Migrations
 {
     [DbContext(typeof(UniversityPilotContext))]
-    partial class UniversityPilotContextModelSnapshot : ModelSnapshot
+    [Migration("20250409204305_AddOnlineFlagToCourseDetails")]
+    partial class AddOnlineFlagToCourseDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,21 +55,6 @@ namespace UniversityPilot.DAL.Migrations
                     b.ToTable("CourseGroupCourseDetails", (string)null);
                 });
 
-            modelBuilder.Entity("CourseDetailsCourseSchedule", b =>
-                {
-                    b.Property<int>("CourseSchedulesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CoursesDetailsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CourseSchedulesId", "CoursesDetailsId");
-
-                    b.HasIndex("CoursesDetailsId");
-
-                    b.ToTable("CourseScheduleCourseDetails", (string)null);
-                });
-
             modelBuilder.Entity("CourseDetailsInstructor", b =>
                 {
                     b.Property<int>("CoursesDetailsId")
@@ -80,21 +68,6 @@ namespace UniversityPilot.DAL.Migrations
                     b.HasIndex("InstructorsId");
 
                     b.ToTable("CourseDetailsInstructor", (string)null);
-                });
-
-            modelBuilder.Entity("CourseGroupCourseSchedule", b =>
-                {
-                    b.Property<int>("CourseSchedulesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CoursesGroupsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CourseSchedulesId", "CoursesGroupsId");
-
-                    b.HasIndex("CoursesGroupsId");
-
-                    b.ToTable("CourseScheduleCourseGroups", (string)null);
                 });
 
             modelBuilder.Entity("CourseGroupStudent", b =>
@@ -314,6 +287,12 @@ namespace UniversityPilot.DAL.Migrations
                     b.Property<int?>("ClassroomId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("CourseDetailsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CourseGroupId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("EndDateTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -331,6 +310,10 @@ namespace UniversityPilot.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassroomId");
+
+                    b.HasIndex("CourseDetailsId");
+
+                    b.HasIndex("CourseGroupId");
 
                     b.HasIndex("InstructorId");
 
@@ -603,21 +586,6 @@ namespace UniversityPilot.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CourseDetailsCourseSchedule", b =>
-                {
-                    b.HasOne("UniversityPilot.DAL.Areas.SemesterPlanning.Models.CourseSchedule", null)
-                        .WithMany()
-                        .HasForeignKey("CourseSchedulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniversityPilot.DAL.Areas.StudyOrganization.Models.CourseDetails", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("CourseDetailsInstructor", b =>
                 {
                     b.HasOne("UniversityPilot.DAL.Areas.StudyOrganization.Models.CourseDetails", null)
@@ -629,21 +597,6 @@ namespace UniversityPilot.DAL.Migrations
                     b.HasOne("UniversityPilot.DAL.Areas.UniversityComponents.Models.Instructor", null)
                         .WithMany()
                         .HasForeignKey("InstructorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CourseGroupCourseSchedule", b =>
-                {
-                    b.HasOne("UniversityPilot.DAL.Areas.SemesterPlanning.Models.CourseSchedule", null)
-                        .WithMany()
-                        .HasForeignKey("CourseSchedulesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniversityPilot.DAL.Areas.SemesterPlanning.Models.CourseGroup", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesGroupsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -696,11 +649,27 @@ namespace UniversityPilot.DAL.Migrations
                         .HasForeignKey("ClassroomId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("UniversityPilot.DAL.Areas.StudyOrganization.Models.CourseDetails", "CourseDetails")
+                        .WithMany("CourseSchedules")
+                        .HasForeignKey("CourseDetailsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UniversityPilot.DAL.Areas.SemesterPlanning.Models.CourseGroup", "CourseGroup")
+                        .WithMany("CourseSchedules")
+                        .HasForeignKey("CourseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("UniversityPilot.DAL.Areas.UniversityComponents.Models.Instructor", "Instructor")
                         .WithMany("CourseSchedules")
                         .HasForeignKey("InstructorId");
 
                     b.Navigation("Classroom");
+
+                    b.Navigation("CourseDetails");
+
+                    b.Navigation("CourseGroup");
 
                     b.Navigation("Instructor");
                 });
@@ -782,6 +751,11 @@ namespace UniversityPilot.DAL.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("UniversityPilot.DAL.Areas.SemesterPlanning.Models.CourseGroup", b =>
+                {
+                    b.Navigation("CourseSchedules");
+                });
+
             modelBuilder.Entity("UniversityPilot.DAL.Areas.SemesterPlanning.Models.SharedCourseGroup", b =>
                 {
                     b.Navigation("CoursesDetails");
@@ -790,6 +764,11 @@ namespace UniversityPilot.DAL.Migrations
             modelBuilder.Entity("UniversityPilot.DAL.Areas.StudyOrganization.Models.Course", b =>
                 {
                     b.Navigation("CoursesDetails");
+                });
+
+            modelBuilder.Entity("UniversityPilot.DAL.Areas.StudyOrganization.Models.CourseDetails", b =>
+                {
+                    b.Navigation("CourseSchedules");
                 });
 
             modelBuilder.Entity("UniversityPilot.DAL.Areas.StudyOrganization.Models.FieldOfStudy", b =>

@@ -36,6 +36,7 @@ namespace UniversityPilot.DAL
             services.AddScoped<ICourseGroupRepository, CourseGroupRepository>();
             services.AddScoped<ICourseScheduleRepository, CourseScheduleRepository>();
             services.AddScoped<IScheduleClassDayRepository, ScheduleClassDayRepository>();
+            services.AddScoped<ISharedCourseGroupRepository, SharedCourseGroupRepository>();
 
             #endregion SemesterPlanning
 
