@@ -46,7 +46,10 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
         [CsvColumn(13, "DateTimeEnd")]
         public string DateTimeEnd { get; set; }
 
-        [CsvColumn(14, "ClassroomId")]
+        [CsvColumn(14, "Duration")]
+        public int Duration { get; set; }
+
+        [CsvColumn(15, "ClassroomId")]
         public int ClassroomId { get; set; }
     }
 }

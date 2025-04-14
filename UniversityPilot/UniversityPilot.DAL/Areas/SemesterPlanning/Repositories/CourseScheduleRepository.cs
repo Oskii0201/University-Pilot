@@ -16,13 +16,17 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
             return await _context.CourseSchedules
                 .Include(cs => cs.CoursesDetails)
                     .ThenInclude(cd => cd.Course)
+                        .ThenInclude(c => c.StudyProgram)
+                            .ThenInclude(sp => sp.ScheduleClassDays)
                 .Include(cs => cs.CoursesDetails)
                     .ThenInclude(cd => cd.SharedCourseGroup)
                 .Include(cs => cs.CoursesDetails)
                     .ThenInclude(cd => cd.CourseGroups)
                 .Include(cs => cs.Instructor)
                 .Include(cs => cs.CoursesGroups)
-                    .Where(cs => cs.CoursesDetails.Any(cd => cd.Course.SemesterId == semesterId))
+                .Where(cs => cs.CoursesDetails
+                    .Any(cd => cd.Course.SemesterId == semesterId &&
+                               cd.CourseGroups.Any()))
                 .ToListAsync();
         }
 
