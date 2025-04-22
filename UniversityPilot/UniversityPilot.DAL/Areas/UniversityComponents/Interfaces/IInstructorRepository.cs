@@ -5,5 +5,6 @@ namespace UniversityPilot.DAL.Areas.UniversityComponents.Interfaces
 {
     public interface IInstructorRepository : IRepository<Instructor>
     {
+        public Task<List<Instructor>> GetByIdsAsync(IEnumerable<int> ids);
     }
 }

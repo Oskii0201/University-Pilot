@@ -4,6 +4,9 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
 {
     public class InstructorCsv
     {
+        [CsvColumn(0, "Id")]
+        public string Id { get; set; }
+
         [CsvColumn(1, "Tytuł")]
         public string Title { get; set; }
 

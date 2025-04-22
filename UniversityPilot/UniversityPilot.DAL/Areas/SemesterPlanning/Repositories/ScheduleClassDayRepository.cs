@@ -53,5 +53,11 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                     VALUES ({scheduleClassDayId}, {programId})");
             }
         }
+
+        public async Task<ScheduleClassDay?> GetBySemesterIdAndTitleAsync(int semesterId, string title)
+        {
+            return await _context.ScheduleClassDays
+                .FirstOrDefaultAsync(s => s.SemesterId == semesterId && s.Title == title);
+        }
     }
 }

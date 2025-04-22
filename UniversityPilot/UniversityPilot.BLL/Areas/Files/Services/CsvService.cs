@@ -4,6 +4,7 @@ using UniversityPilot.BLL.Areas.Processing.Interfaces;
 using UniversityPilot.BLL.Areas.Processing.Services;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Shared;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 using UniversityPilot.DAL.Areas.Shared.Utilities;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
@@ -19,6 +20,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly ICourseDetailsRepository _courseDetailsRepository;
         private readonly ICourseDetailsService _courseDetailsService;
         private readonly IGroupsScheduleService _groupsScheduleService;
+        private readonly ICourseScheduleRepository _courseScheduleRepository;
 
         public CsvService(
             IClassroomService classroomService,
@@ -27,7 +29,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             IHolidayService holidayService,
             ICourseDetailsRepository courseDetailsRepository,
             ICourseDetailsService courseDetailsService,
-            IGroupsScheduleService groupsScheduleService)
+            IGroupsScheduleService groupsScheduleService,
+            ICourseScheduleRepository courseScheduleRepository)
         {
             _classroomService = classroomService;
             _instructorService = instructorService;
@@ -36,6 +39,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             _courseDetailsRepository = courseDetailsRepository;
             _courseDetailsService = courseDetailsService;
             _groupsScheduleService = groupsScheduleService;
+            _courseScheduleRepository = courseScheduleRepository;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -102,16 +106,23 @@ namespace UniversityPilot.BLL.Areas.Files.Services
                         CourseName = cd.Course.Name,
                         CourseType = EnumHelper.GetEnumDescription(cd.CourseType),
                         TitleScheduleClassDay = cd.Course.StudyProgram.ScheduleClassDays.Select(d => d.Title).FirstOrDefault() ?? "",
-                        CourseGroups = string.Join("|", cd.CourseGroups.Select(g => g.Id)),
-                        GroupsName = string.Join("|", cd.CourseGroups.Select(g => g.GroupName)),
+                        Online = cd.Online ? "Tak" : "Nie",
+                        CourseGroups = string.Join(",", cd.CourseGroups.Select(g => g.Id)),
+                        GroupsName = string.Join(",", cd.CourseGroups.Select(g => g.GroupName)),
                         SharedCourseGroup = cd.SharedCourseGroup?.Name ?? "",
-                        Instructors = string.Join("|", cd.Instructors.Select(i => i.Id)),
-                        InstructorsTitle = string.Join("|", cd.Instructors.Select(i => i.Title)),
-                        InstructorsFirstName = string.Join("|", cd.Instructors.Select(i => i.FirstName)),
-                        InstructorsLastName = string.Join("|", cd.Instructors.Select(i => i.LastName))
+                        Instructors = string.Join(",", cd.Instructors.Select(i => i.Id)),
+                        InstructorsTitle = string.Join(",", cd.Instructors.Select(i => i.Title)),
+                        InstructorsFirstName = string.Join(",", cd.Instructors.Select(i => i.FirstName)),
+                        InstructorsLastName = string.Join(",", cd.Instructors.Select(i => i.LastName))
                     }).ToList();
 
             return CsvHandler.Build(courseDetailsCsv);
+        }
+
+        public async Task<string> GetInstructorsCsv()
+        {
+            var instructors = await _instructorService.GetAllInstructorsCsv();
+            return CsvHandler.Build(instructors);
         }
 
         public async Task<string> GetScheduleGroupsDaysCsv(int semesterId)
@@ -126,9 +137,36 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             return CsvHandler.Build(result);
         }
 
-        public async Task<string> GetPreliminaryCoursesScheduleCsv(int id)
+        public async Task<string> GetPreliminaryCoursesScheduleCsv(int semesterId)
         {
-            List<PreliminaryCoursesScheduleCsv> result = new();
+            var coursesSchedule = await _courseScheduleRepository.GetAllWithDetailsBySemesterIdAsync(semesterId);
+
+            var result = coursesSchedule.Select(cs =>
+            {
+                var cd = cs.CoursesDetails.First();
+                var scheduleGroup = cd.Course.StudyProgram.ScheduleClassDays.FirstOrDefault(x => x.SemesterId == semesterId);
+
+                return new PreliminaryCoursesScheduleCsv
+                {
+                    CourseScheduleId = cs.Id,
+                    CourseName = cd.Course?.Name ?? string.Empty,
+                    CourseDetailsId = string.Join(",", cs.CoursesDetails.Select(cs => cs.Id)),
+                    CourseType = cd.CourseType.ToString(),
+                    Online = cd.Online ? "Yes" : "No",
+                    GroupsId = string.Join(",", cs.CoursesGroups.Select(cs => cs.Id)),
+                    GroupsName = string.Join(",", cs.CoursesGroups.Select(cs => cs.GroupName)),
+                    DependentGroupsIds = "", // TODO
+                    DependentGroupsNames = "", // TODO
+                    ScheduleGroupId = scheduleGroup?.Id ?? 0,
+                    ScheduleGroupName = scheduleGroup?.Title ?? "Brak przypisania",
+                    InstructorId = cs.Instructor?.Id ?? 0,
+                    DateTimeStart = cs.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
+                    DateTimeEnd = cs.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
+                    Duration = (int)(cs.EndDateTime - cs.StartDateTime).TotalMinutes,
+                    ClassroomId = cs.ClassroomId ?? 0
+                };
+            }).ToList();
+
             return CsvHandler.Build(result);
         }
     }

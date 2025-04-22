@@ -20,6 +20,7 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Models
         public int Hours { get; set; }
         public string AssessmentType { get; set; }
         public int ECTS { get; set; }
+        public bool Online { get; set; }
 
         public int CourseId { get; set; }
         public virtual Course Course { get; set; }

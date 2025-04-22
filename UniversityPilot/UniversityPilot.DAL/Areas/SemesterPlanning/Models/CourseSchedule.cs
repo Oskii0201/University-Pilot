@@ -6,14 +6,17 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
 {
     public class CourseSchedule : IModelBase
     {
+        public CourseSchedule()
+        {
+            CoursesDetails = new HashSet<CourseDetails>();
+            CoursesGroups = new HashSet<CourseGroup>();
+        }
+
         public int Id { get; set; }
 
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
         public string Status { get; set; }
-
-        public int CourseGroupId { get; set; }
-        public virtual CourseGroup CourseGroup { get; set; }
 
         public int? ClassroomId { get; set; }
         public virtual Classroom? Classroom { get; set; }
@@ -21,7 +24,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Models
         public int? InstructorId { get; set; }
         public virtual Instructor? Instructor { get; set; }
 
-        public int CourseDetailsId { get; set; }
-        public virtual CourseDetails CourseDetails { get; set; }
+        public virtual ICollection<CourseDetails> CoursesDetails { get; set; }
+        public virtual ICollection<CourseGroup> CoursesGroups { get; set; }
     }
 }
