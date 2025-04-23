@@ -8,16 +8,23 @@ import {
 } from "@daypilot/daypilot-lite-react";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
 import EventModal from "@/components/Calendar/EventModal";
-import { Event } from "@/app/types";
+import { CalendarView, Event } from "@/app/types";
 
-type CalendarView = "month" | "week";
 interface CalendarProps {
   events: Event[];
+  viewType: CalendarView;
+  currentDate: DayPilot.Date;
+  onDateChange: (date: DayPilot.Date) => void;
+  onViewTypeChange: (view: CalendarView) => void;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ events }) => {
-  const [viewType, setViewType] = useState<CalendarView>("month");
-  const [currentDate, setCurrentDate] = useState(DayPilot.Date.today());
+const Calendar: React.FC<CalendarProps> = ({
+  events,
+  viewType,
+  currentDate,
+  onDateChange,
+  onViewTypeChange,
+}) => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const [calendarConfig, setCalendarConfig] = useState({
@@ -31,7 +38,6 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
     },
     locale: "pl-pl",
   });
-
   useEffect(() => {
     setCalendarConfig((prevConfig) => ({
       ...prevConfig,
@@ -40,13 +46,11 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
       startDate: currentDate,
     }));
   }, [events, viewType, currentDate]);
-
   const changeDate = (direction: number) => {
-    setCurrentDate(
-      currentDate
-        .addMonths(viewType === "month" ? direction : 0)
-        .addDays(viewType === "week" ? direction * 7 : 0),
-    );
+    const newDate = currentDate
+      .addMonths(viewType === "month" ? direction : 0)
+      .addDays(viewType === "week" ? direction * 7 : 0);
+    onDateChange(newDate);
   };
 
   return (
@@ -55,9 +59,9 @@ const Calendar: React.FC<CalendarProps> = ({ events }) => {
         currentDate={currentDate.toDate()}
         onPrevClick={() => changeDate(-1)}
         onNextClick={() => changeDate(1)}
-        onTodayClick={() => setCurrentDate(DayPilot.Date.today())}
+        onTodayClick={() => onDateChange(DayPilot.Date.today())}
         onViewChange={() =>
-          setViewType((prev) => (prev === "month" ? "week" : "month"))
+          onViewTypeChange(viewType === "month" ? "week" : "month")
         }
         currentView={viewType}
       />

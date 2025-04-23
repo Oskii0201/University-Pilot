@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Bezpieczeństwo narodowe"
+  },
+  {
+    "id": 2,
+    "name": "Finanse i rachunkowość"
+  },
+  {
+    "id": 3,
+    "name": "Marketing i sprzedaż"
+  },
+  {
+    "id": 4,
+    "name": "Zarządzanie"
+  },
+  {
+    "id": 5,
+    "name": "Informatyka"
+  }
+]

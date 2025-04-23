@@ -1,11 +1,11 @@
 export interface Event {
   id: string;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
+  text: string;
+  start: string;
+  end: string;
+  description?: string;
   room?: string;
-  lecturer?: string;
+  instructor?: string;
 }
 export type Course = string;
 
@@ -64,3 +64,10 @@ export interface User {
   lastName: string;
   phoneNumber: string | null;
 }
+
+export interface FieldOfStudy {
+  id: number;
+  name: string;
+}
+
+export type CalendarView = "month" | "week";

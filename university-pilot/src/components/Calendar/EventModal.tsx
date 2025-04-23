@@ -11,7 +11,6 @@ const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
   const modalRef = useClickOutside(onClose);
 
   if (!event) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
@@ -25,23 +24,23 @@ const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
           ×
         </button>
 
-        <h2 className="mb-4 text-2xl font-bold text-gray-800">{event.title}</h2>
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">{event.text}</h2>
 
         <div className="space-y-2 text-sm text-gray-600">
           <p>
             <span className="font-semibold">Czas:</span>{" "}
-            {new Date(event.startTime).toLocaleString()} -{" "}
-            {new Date(event.endTime).toLocaleString()}
+            {new Date(event.start).toLocaleString()} -{" "}
+            {new Date(event.end).toLocaleString()}
           </p>
           {event.room && (
             <p>
               <span className="font-semibold">Sala:</span> {event.room}
             </p>
           )}
-          {event.lecturer && (
+          {event.instructor && (
             <p>
               <span className="font-semibold">Prowadzący:</span>{" "}
-              {event.lecturer}
+              {event.instructor}
             </p>
           )}
           <p>
