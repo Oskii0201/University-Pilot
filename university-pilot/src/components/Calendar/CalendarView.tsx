@@ -9,7 +9,12 @@ import CalendarFilters, {
 } from "@/components/Calendar/CalendarFilters";
 import { fetchScheduleEvents } from "@/lib/api/fetchScheduleEvents";
 
-const CalendarView = () => {
+interface CalendarViewProps {
+  semesterId?: number;
+}
+const CalendarView: React.FC<CalendarViewProps> = ({ semesterId }) => {
+  const parsedSemesterID = semesterId ? Number(semesterId) : undefined;
+
   const [events, setEvents] = useState<Event[] | []>([]);
   const [filters, setFilters] = useState<FilterValues | null>(null);
   const [viewType, setViewType] = useState<CalendarView>("month");
@@ -49,7 +54,10 @@ const CalendarView = () => {
 
   return (
     <div className="space-y-6">
-      <CalendarFilters onSearch={handleFiltersChange} />
+      <CalendarFilters
+        onSearch={handleFiltersChange}
+        {...(parsedSemesterID ? { semesterID: parsedSemesterID } : {})}
+      />
 
       <Calendar
         events={events}

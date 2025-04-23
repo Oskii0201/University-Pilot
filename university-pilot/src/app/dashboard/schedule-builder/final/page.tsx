@@ -3,15 +3,8 @@
 import React, { useEffect, useState } from "react";
 import ScheduleBuilderNavigation from "@/components/schedule-builder/ScheduleBuilderNavigation";
 import SemesterList from "@/components/schedule-builder/SemesterList";
-import Link from "next/link";
-import { PiFolderSimplePlusFill } from "react-icons/pi";
 import { getUpcomingSemestersAfterGroupSchedule } from "@/lib/api/schedule-builder/getUpcomingSemestersAfterGroupSchedule";
-/*
-TODO
- *  Posprzątać
- *  Dostosować widok listy i zablokować akcje
- *  Dodać creationStage do listy i jakiś komunikat o generowaniu
-*/
+
 const ScheduleBuilderFinalPage = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
@@ -74,14 +67,6 @@ const ScheduleBuilderFinalPage = () => {
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Generowane harmonogramy</h1>
-        <Link
-          href="/dashboard/schedule-builder/preliminary/new"
-          aria-label="Przypisz weekendy"
-          title="Przypisz weekendy"
-          className="text-3xl text-softGreen transition hover:scale-110 hover:text-mutedGreen"
-        >
-          <PiFolderSimplePlusFill className="cursor-pointer" />
-        </Link>
       </div>
 
       {isLoading && <div className="text-gray-600">Ładowanie...</div>}
@@ -94,7 +79,7 @@ const ScheduleBuilderFinalPage = () => {
       ) : (
         <SemesterList
           groupSets={data}
-          basePath="/dashboard/schedule-builder/preliminary"
+          basePath="/dashboard/schedule-builder/final"
         />
       )}
 
