@@ -45,8 +45,15 @@ namespace UniversityPilot.Controllers
         [HttpGet("ExportCourseDetails/{semesterId}")]
         public async Task<IActionResult> ExportCourseDetailsToCsv(int semesterId)
         {
-            var csv = await _csvService.GetCourseDetailsExport(semesterId);
+            var csv = await _csvService.GetCourseDetailsCsv(semesterId);
             return File(Encoding.UTF8.GetBytes(csv), "text/csv", $"CourseDetails_Semester_{semesterId}.csv");
+        }
+
+        [HttpGet("ExportInstructors")]
+        public async Task<IActionResult> ExportInstructorsToCsv()
+        {
+            var csv = await _csvService.GetInstructorsCsv();
+            return File(Encoding.UTF8.GetBytes(csv), "text/csv", "Instructors.csv");
         }
     }
 }

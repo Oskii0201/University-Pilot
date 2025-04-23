@@ -41,7 +41,7 @@ namespace UniversityPilot.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{semesterId}/status")]
+        [HttpGet("{semesterId}/Status")]
         public async Task<IActionResult> GetSemesterStatus(int semesterId)
         {
             var status = await _semesterStatusService.GetStatusBySemesterIdAsync(semesterId);

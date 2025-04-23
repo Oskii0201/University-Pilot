@@ -5,6 +5,8 @@ namespace UniversityPilot.BLL.Areas.Processing.Services
 {
     internal interface IInstructorService
     {
-        Task<Result> SaveFromCsv(List<InstructorCsv> instructors);
+        public Task<Result> SaveFromCsv(List<InstructorCsv> instructors);
+
+        public Task<List<InstructorCsv>> GetAllInstructorsCsv();
     }
 }

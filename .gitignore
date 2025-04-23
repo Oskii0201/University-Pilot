@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/UniversityPilot-ML/DataInput/Classrooms.csv
+/UniversityPilot-ML/DataInput/PreliminaryCoursesSchedule.csv
+/UniversityPilot-ML/DataInput/ScheduleGroupsDays.csv

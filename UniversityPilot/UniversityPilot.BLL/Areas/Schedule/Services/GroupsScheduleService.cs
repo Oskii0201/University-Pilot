@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using UniversityPilot.BLL.Areas.Files.DTO;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Models;
 using UniversityPilot.BLL.Areas.Shared;
@@ -17,7 +18,6 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         private readonly IScheduleClassDayRepository _scheduleClassDayRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IClassDayRepository _classDayRepository;
-        private readonly IScheduleGenerator _scheduleGenerator;
         private readonly IHolidayRepository _holidayRepository;
         private readonly IServiceScopeFactory _scopeFactory;
 
@@ -26,7 +26,6 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             IScheduleClassDayRepository scheduleClassDayRepository,
             ICourseRepository courseRepository,
             IClassDayRepository classDayRepository,
-            IScheduleGenerator scheduleGenerator,
             IHolidayRepository holidayRepository,
             IServiceScopeFactory scopeFactory)
         {
@@ -34,7 +33,6 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             _scheduleClassDayRepository = scheduleClassDayRepository;
             _courseRepository = courseRepository;
             _classDayRepository = classDayRepository;
-            _scheduleGenerator = scheduleGenerator;
             _holidayRepository = holidayRepository;
             _scopeFactory = scopeFactory;
         }
@@ -314,6 +312,23 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             });
 
             return Result.Success("Weekend availability accepted. Schedule generation started.");
+        }
+
+        public async Task<List<ScheduleGroupsDaysCsv>> GetScheduleGroupsDaysCsvAsync(int semesterId)
+        {
+            var scheduleClassDays = await _scheduleClassDayRepository.GetWithClassDaysBySemesterAsync(semesterId);
+
+            var result = scheduleClassDays
+                .SelectMany(scd => scd.ClassDays.Select(cd => new ScheduleGroupsDaysCsv
+                {
+                    ScheduleGroupId = scd.Id,
+                    ScheduleGroupName = scd.Title,
+                    DateTimeStart = cd.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
+                    DateTimeEnd = cd.EndDateTime.ToString("yyyy-MM-dd HH:mm")
+                }))
+                .ToList();
+
+            return result;
         }
 
         private static string FormatFieldOfStudy(StudyProgram sp)

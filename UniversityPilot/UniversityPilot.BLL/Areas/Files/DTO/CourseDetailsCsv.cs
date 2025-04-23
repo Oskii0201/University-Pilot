@@ -7,19 +7,58 @@ namespace UniversityPilot.BLL.Areas.Files.DTO
         [CsvColumn(0, "CourseDetailsId")]
         public int CourseDetailsId { get; set; }
 
-        [CsvColumn(1, "CourseType")]
-        public string CourseType { get; set; }
+        [CsvColumn(1, "EnrollmentYear")]
+        public string EnrollmentYear { get; set; }
 
-        [CsvColumn(2, "CourseName")]
+        [CsvColumn(2, "SemesterNumber")]
+        public int SemesterNumber { get; set; }
+
+        [CsvColumn(3, "FieldOfStudy")]
+        public string FieldOfStudy { get; set; }
+
+        [CsvColumn(4, "SummerRecruitment")]
+        public string SummerRecruitment { get; set; }
+
+        [CsvColumn(5, "StudyForm")]
+        public string StudyForm { get; set; }
+
+        [CsvColumn(6, "StudyDegree")]
+        public string StudyDegree { get; set; }
+
+        [CsvColumn(7, "Specialization")]
+        public string Specialization { get; set; }
+
+        [CsvColumn(8, "CourseName")]
         public string CourseName { get; set; }
 
-        [CsvColumn(3, "Instructors")]
-        public string Instructors { get; set; }
+        [CsvColumn(9, "CourseType")]
+        public string CourseType { get; set; }
 
-        [CsvColumn(4, "CourseGroups")]
+        [CsvColumn(10, "TitleScheduleClassDay")]
+        public string TitleScheduleClassDay { get; set; }
+
+        [CsvColumn(11, "Online")]
+        public string Online { get; set; }
+
+        [CsvColumn(12, "CourseGroups")]
         public string CourseGroups { get; set; }
 
-        [CsvColumn(5, "GroupsName")]
+        [CsvColumn(13, "GroupsName")]
         public string GroupsName { get; set; }
+
+        [CsvColumn(14, "SharedCourseGroup")]
+        public string SharedCourseGroup { get; set; }
+
+        [CsvColumn(15, "Instructors")]
+        public string Instructors { get; set; }
+
+        [CsvColumn(16, "InstructorsTitle")]
+        public string InstructorsTitle { get; set; }
+
+        [CsvColumn(17, "InstructorsFirstName")]
+        public string InstructorsFirstName { get; set; }
+
+        [CsvColumn(18, "InstructorsLastName")]
+        public string InstructorsLastName { get; set; }
     }
 }
