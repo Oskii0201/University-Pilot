@@ -2,8 +2,8 @@ import pandas as pd
 from ortools.sat.python import cp_model
 
 # 1. Wczytanie plików
-schedule_df = pd.read_csv('DataOutput/GeneratedSchedule.csv')
-preferences_df = pd.read_csv('DataOutput/TopN_Classroom_Predictions.csv')
+schedule_df = pd.read_csv('../DataOutput/GeneratedSchedule.csv')
+preferences_df = pd.read_csv('../DataOutput/TopN_Classroom_Predictions.csv')
 
 # 2. Normalizacja kolumn
 map_rodzaj = {
@@ -92,7 +92,7 @@ status = solver.Solve(model)
 if status in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
     assigned_classrooms = [id_to_classroom[solver.Value(var)] for var in room_vars]
     df['Sala_Przydzielona'] = assigned_classrooms
-    df.to_csv('DataOutput/assigned_classrooms.csv', index=False)
+    df.to_csv('../DataOutput/assigned_classrooms.csv', index=False)
     print("✅ Zapisano wynik do 'assigned_classrooms.csv'")
 else:
     print("❌ Nie udało się znaleźć rozwiązania.")

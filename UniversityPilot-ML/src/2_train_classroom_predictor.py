@@ -9,9 +9,9 @@ import joblib
 TOP_N = 5
 
 # 1. Wczytanie danych
-df = pd.read_csv('HistoricalData/planzajec.csv')
-sal_freq = pd.read_csv('HistoricalData/przedmioty_z_salami.csv')
-classroom_df = pd.read_csv('DataInput/Classrooms.csv')
+df = pd.read_csv('../HistoricalData/planzajec.csv')
+sal_freq = pd.read_csv('../HistoricalData/przedmioty_z_salami.csv')
+classroom_df = pd.read_csv('../DataInput/Classrooms.csv')
 
 # 2. Filtruj tylko używane sale
 saly_kluczowe = classroom_df['Number'].unique()
@@ -92,7 +92,7 @@ print(f"📊 Top-{TOP_N} zawiera poprawną salę w: {(results.apply(lambda row: 
 #joblib.dump(ohe_rodzaj, 'onehot_encoder_rodzaj.pkl')
 #joblib.dump(ohe_grupa, 'onehot_encoder_grupa.pkl')
 #joblib.dump(le_sala, 'label_encoder_sala.pkl')
-results.to_csv('DataOutput/TopN_Classroom_Predictions.csv', index=False)
+results.to_csv('../DataOutput/TopN_Classroom_Predictions.csv', index=False)
 
 # ... cały Twój kod do punktu 13 włącznie (czyli do zapisania resultów)
 '''

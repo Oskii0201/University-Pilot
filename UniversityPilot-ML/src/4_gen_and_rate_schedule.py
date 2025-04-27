@@ -1,9 +1,9 @@
 import pandas as pd
 
 # 1. Wczytaj pliki
-preliminary_df = pd.read_csv('DataInput/PreliminaryCoursesSchedule.csv')
-generated_df = pd.read_csv('DataOutput/GeneratedSchedule.csv')
-assigned_classrooms_df = pd.read_csv('DataOutput/assigned_classrooms.csv')
+preliminary_df = pd.read_csv('../DataInput/PreliminaryCoursesSchedule.csv')
+generated_df = pd.read_csv('../DataOutput/GeneratedSchedule.csv')
+assigned_classrooms_df = pd.read_csv('../DataOutput/assigned_classrooms.csv')
 
 # 2. Połącz preliminary_df z generated_df
 preliminary_df = preliminary_df.merge(
@@ -45,6 +45,6 @@ preliminary_df['Classroom'] = preliminary_df.apply(
 preliminary_df.drop(columns=['course_id_x', 'course_id_y', 'Sala_Przydzielona'], inplace=True)
 
 # 7. Zapisz wynik
-preliminary_df.to_csv('DataOutput/UpdatedPreliminaryCoursesSchedule.csv', index=False)
+preliminary_df.to_csv('../DataOutput/UpdatedPreliminaryCoursesSchedule.csv', index=False)
 
 print("✅ Plik UpdatedPreliminaryCoursesSchedule.csv został utworzony!")

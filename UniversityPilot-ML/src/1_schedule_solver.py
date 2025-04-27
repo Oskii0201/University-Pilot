@@ -7,9 +7,9 @@ ENABLE_ONLINE_RESTRICTION = False
 ENABLE_MINIMIZE_GAPS = False
 
 # --- 1. Wczytanie danych ---
-classrooms_df = pd.read_csv('DataInput/Classrooms.csv')
-schedule_groups_days_df = pd.read_csv('DataInput/ScheduleGroupsDays.csv')
-preliminary_schedule_df = pd.read_csv('DataInput/PreliminaryCoursesSchedule.csv')
+classrooms_df = pd.read_csv('../DataInput/Classrooms.csv')
+schedule_groups_days_df = pd.read_csv('../DataInput/ScheduleGroupsDays.csv')
+preliminary_schedule_df = pd.read_csv('../DataInput/PreliminaryCoursesSchedule.csv')
 
 # --- 2. Przetwarzanie danych ---
 schedule_groups_days_df['DateTimeStart'] = pd.to_datetime(schedule_groups_days_df['DateTimeStart'])
@@ -156,7 +156,7 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         })
 
     out_df = pd.DataFrame(rows)
-    out_df.to_csv('DataOutput/GeneratedSchedule.csv', index=False, encoding='utf-8')
+    out_df.to_csv('../DataOutput/GeneratedSchedule.csv', index=False, encoding='utf-8')
     print("\nZapisano do GeneratedSchedule.csv")
 else:
     print("Brak rozwiązania. Status:", status)
