@@ -52,10 +52,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 return;
             }
 
-            //await GenerateClassDaysAndScheduleClassDaysAsync(semester);
-            //await GeneratePreliminaryCourseSchedulesAsync(semester);
-            //await SetSemesterStageToGeneratingScheduleAsync(semester);
-            //await GenerateFilesCSV(semester);
+            await GenerateClassDaysAndScheduleClassDaysAsync(semester);
+            await GeneratePreliminaryCourseSchedulesAsync(semester);
+            await SetSemesterStageToGeneratingScheduleAsync(semester);
+            await GenerateFilesCSV(semester);
             await GenerateWithAiAsync();
             await SetSemesterStageToGeneratedScheduleAsync(semester);
         }
