@@ -53,5 +53,17 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                               AND ""CourseSchedulesId"" = {scheduleId}
                         )");
         }
+
+        public async Task UpdateStartEndDateAsync(int courseScheduleId, DateTime startDateTime, DateTime endDateTime)
+        {
+            var startUtc = DateTime.SpecifyKind(startDateTime, DateTimeKind.Utc);
+            var endUtc = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
+
+            await _context.Database.ExecuteSqlInterpolatedAsync($@"
+                        UPDATE ""CourseSchedules""
+                        SET ""StartDateTime"" = {startUtc}, ""EndDateTime"" = {endUtc}
+                        WHERE ""Id"" = {courseScheduleId}
+                        ");
+        }
     }
 }

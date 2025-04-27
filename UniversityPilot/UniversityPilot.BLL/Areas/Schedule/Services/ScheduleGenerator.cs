@@ -1,5 +1,7 @@
-﻿using UniversityPilot.BLL.Areas.Files.Interfaces;
+﻿using UniversityPilot.BLL.Areas.Files.DTO;
+using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
@@ -50,11 +52,12 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 return;
             }
 
-            await GenerateClassDaysAndScheduleClassDaysAsync(semester);
-            await GeneratePreliminaryCourseSchedulesAsync(semester);
-            await SetSemesterStageToGeneratingScheduleAsync(semester);
-            await GenerateFilesCSV(semester);
-            //await GenerateWithAiAsync(semester.Id);
+            //await GenerateClassDaysAndScheduleClassDaysAsync(semester);
+            //await GeneratePreliminaryCourseSchedulesAsync(semester);
+            //await SetSemesterStageToGeneratingScheduleAsync(semester);
+            //await GenerateFilesCSV(semester);
+            await GenerateWithAiAsync();
+            await SetSemesterStageToGeneratedScheduleAsync(semester);
         }
 
         private async Task GenerateClassDaysAndScheduleClassDaysAsync(Semester semester)
@@ -302,9 +305,61 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             await File.WriteAllTextAsync(Path.Combine(basePath, "PreliminaryCoursesSchedule.csv"), preliminarySchedulesCsv);
         }
 
-        private Task GenerateWithAiAsync(int semesterId)
+        private async Task GenerateWithAiAsync()
         {
-            throw new NotImplementedException();
+            // TODO: obsługa skryptów .py
+            await UpdateCourseSchedulesFromCsvAsync();
+        }
+
+        private async Task UpdateCourseSchedulesFromCsvAsync()
+        {
+            var basePath = Path.Combine("..", "..", "UniversityPilot-ML", "DataOutput");
+            var filePath = Path.Combine(basePath, "GeneratedSchedule.csv");
+
+            if (!File.Exists(filePath))
+                return;
+
+            var updates = new List<GeneratedScheduleCsv>();
+
+            using (var stream = File.OpenRead(filePath))
+            using (var reader = new StreamReader(stream))
+            using (var parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(reader))
+            {
+                parser.SetDelimiters(",");
+                parser.HasFieldsEnclosedInQuotes = true;
+                parser.TrimWhiteSpace = true;
+
+                bool isFirstRow = true;
+                while (!parser.EndOfData)
+                {
+                    var fields = parser.ReadFields();
+
+                    if (isFirstRow)
+                    {
+                        isFirstRow = false;
+                        continue;
+                    }
+
+                    if (fields != null)
+                        updates.Add(CsvHandler.MapCsvRowToObject<GeneratedScheduleCsv>(fields));
+                }
+            }
+
+            foreach (var update in updates)
+            {
+                await _courseScheduleRepository.UpdateStartEndDateAsync(
+                    update.CourseScheduleId,
+                    update.NewDateTimeStart,
+                    update.NewDateTimeEnd
+                );
+            }
+        }
+
+        private async Task SetSemesterStageToGeneratedScheduleAsync(Semester semester)
+        {
+            semester.CreationStage = ScheduleCreationStage.GeneratedSchedule;
+            semester.UpdateDate = DateTime.UtcNow;
+            await _semesterRepository.UpdateAsync(semester);
         }
     }
 }

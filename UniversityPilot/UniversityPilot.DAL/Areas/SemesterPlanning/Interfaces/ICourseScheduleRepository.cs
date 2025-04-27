@@ -10,5 +10,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces
         public Task AssignCourseGroupAsync(int scheduleId, int courseGroupId);
 
         public Task<List<CourseSchedule>> GetAllWithDetailsBySemesterIdAsync(int semesterId);
+
+        public Task UpdateStartEndDateAsync(int courseScheduleId, DateTime start, DateTime end);
     }
 }
