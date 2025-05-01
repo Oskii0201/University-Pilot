@@ -65,5 +65,25 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
                         WHERE ""Id"" = {courseScheduleId}
                         ");
         }
+
+        public async Task<List<CourseSchedule>> GetWithDetailsAsync(int semesterNumber, DateTime from, DateTime to)
+        {
+            var fromUtc = DateTime.SpecifyKind(from, DateTimeKind.Utc);
+            var toUtc = DateTime.SpecifyKind(to, DateTimeKind.Utc);
+
+            return await _context.CourseSchedules
+                                .Where(cs =>
+                                    cs.CoursesDetails.Any(cd => cd.Course.SemesterNumber == semesterNumber) &&
+                                    cs.StartDateTime >= fromUtc &&
+                                    cs.EndDateTime <= toUtc)
+                                .Include(cs => cs.CoursesDetails)
+                                    .ThenInclude(cd => cd.Course)
+                                        .ThenInclude(c => c.StudyProgram)
+                                            .ThenInclude(sp => sp.FieldOfStudy)
+                                .Include(cs => cs.Instructor)
+                                .Include(cs => cs.Classroom)
+                                .Include(cs => cs.CoursesGroups)
+                                .ToListAsync();
+        }
     }
 }

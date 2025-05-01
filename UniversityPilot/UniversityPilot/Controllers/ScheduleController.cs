@@ -9,11 +9,14 @@ namespace UniversityPilot.Controllers
     public class ScheduleController : ControllerBase
     {
         private readonly IGroupsScheduleService _groupsScheduleService;
+        private readonly IScheduleService _scheduleService;
 
         public ScheduleController(
-            IGroupsScheduleService groupsScheduleService)
+            IGroupsScheduleService groupsScheduleService,
+            IScheduleService scheduleService)
         {
             _groupsScheduleService = groupsScheduleService;
+            _scheduleService = scheduleService;
         }
 
         [HttpGet]
@@ -53,6 +56,13 @@ namespace UniversityPilot.Controllers
                 return NotFound(result);
 
             return Ok("Weekend availability accepted and status updated.");
+        }
+
+        [HttpPost("GetCalendar")]
+        public async Task<IActionResult> GetCalendar([FromBody] ScheduleRequestDto request)
+        {
+            var result = await _scheduleService.GetScheduleAsync(request);
+            return Ok(result);
         }
     }
 }
