@@ -20,5 +20,14 @@ namespace UniversityPilot.DAL.Areas.StudyOrganization.Repositories
                 .Include(sp => sp.FieldOfStudy)
                 .ToListAsync();
         }
+
+        public async Task<List<Course>> GetBySemesterIdAsync(int semesterId)
+        {
+            return await _context.Courses
+                .Where(c => c.SemesterId == semesterId)
+                .Include(c => c.StudyProgram)
+                    .ThenInclude(sp => sp.FieldOfStudy)
+                .ToListAsync();
+        }
     }
 }

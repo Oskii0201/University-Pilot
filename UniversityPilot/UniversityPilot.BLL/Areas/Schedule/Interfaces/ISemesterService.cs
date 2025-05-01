@@ -1,4 +1,5 @@
-﻿using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
+﻿using UniversityPilot.BLL.Areas.Schedule.Models;
+using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 
 namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
@@ -12,5 +13,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
         Task<List<Semester>> GetByStatusAsync(ScheduleCreationStage stage);
 
         Task<string> GetStatusBySemesterIdAsync(int semesterId);
+
+        Task<List<StudyProgramWithSemestersDto>> GetStudyProgramsWithSemestersAsync(int semesterId);
     }
 }
