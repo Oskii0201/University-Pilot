@@ -1,5 +1,7 @@
-﻿using UniversityPilot.BLL.Areas.Files.Interfaces;
+﻿using UniversityPilot.BLL.Areas.Files.DTO;
+using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
+using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Interfaces;
 using UniversityPilot.DAL.Areas.AcademicCalendar.Models;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
@@ -54,7 +56,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             await GeneratePreliminaryCourseSchedulesAsync(semester);
             await SetSemesterStageToGeneratingScheduleAsync(semester);
             await GenerateFilesCSV(semester);
-            //await GenerateWithAiAsync(semester.Id);
+            await GenerateWithAiAsync();
+            await SetSemesterStageToGeneratedScheduleAsync(semester);
         }
 
         private async Task GenerateClassDaysAndScheduleClassDaysAsync(Semester semester)
@@ -122,6 +125,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         {
             var allCourseDetails = await _courseDetailsRepository.GetCourseDetailsWithDependenciesAsync(semester.Id);
             var courseSchedules = new List<CourseSchedule>();
+            var scheduleGroupAssignments = new List<(CourseSchedule Schedule, CourseGroup Group)>();
+            var scheduleDetailAssignments = new List<(CourseSchedule Schedule, CourseDetails Details)>();
 
             var groupedByShared = allCourseDetails
                 .Where(cd => cd.SharedCourseGroup != null)
@@ -165,7 +170,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                     foreach (var block in blocks)
                     {
-                        var newCourseSchedule = new CourseSchedule
+                        var newSchedule = new CourseSchedule
                         {
                             StartDateTime = blockStart,
                             EndDateTime = blockStart.AddMinutes(block),
@@ -174,13 +179,13 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                             InstructorId = instructorId
                         };
 
-                        courseSchedules.Add(newCourseSchedule);
+                        courseSchedules.Add(newSchedule);
 
-                        foreach (var courseDetails in courseDetailsSet)
-                            courseDetails.CourseSchedules.Add(newCourseSchedule);
+                        foreach (var cd in courseDetailsSet)
+                            scheduleDetailAssignments.Add((newSchedule, cd));
 
-                        foreach (var courseGroup in courseGroupsSet)
-                            courseGroup.CourseSchedules.Add(newCourseSchedule);
+                        foreach (var cg in courseGroupsSet)
+                            scheduleGroupAssignments.Add((newSchedule, cg));
                     }
                 }
             }
@@ -188,11 +193,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             foreach (var details in standaloneDetails)
             {
                 var blocks = CalculateTimeBlocks(details.Hours);
-
                 var courseGroups = details.CourseGroups;
                 var instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
 
-                foreach (var courseGroup in courseGroups)
+                foreach (var group in courseGroups)
                 {
                     if (instructorQueue.Count == 0)
                         instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
@@ -201,7 +205,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                     foreach (var block in blocks)
                     {
-                        var newCourseSchedule = new CourseSchedule
+                        var newSchedule = new CourseSchedule
                         {
                             StartDateTime = blockStart,
                             EndDateTime = blockStart.AddMinutes(block),
@@ -210,38 +214,23 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                             InstructorId = instructorId
                         };
 
-                        courseSchedules.Add(newCourseSchedule);
-                        details.CourseSchedules.Add(newCourseSchedule);
-                        courseGroup.CourseSchedules.Add(newCourseSchedule);
+                        courseSchedules.Add(newSchedule);
+                        scheduleDetailAssignments.Add((newSchedule, details));
+                        scheduleGroupAssignments.Add((newSchedule, group));
                     }
                 }
             }
 
             await _courseScheduleRepository.AddRangeAsync(courseSchedules);
 
-            var allDetailsToAssign = allCourseDetails
-                .Where(cd => cd.CourseSchedules.Any())
-                .Distinct();
-
-            var allGroupsToAssign = allCourseDetails
-                .SelectMany(cd => cd.CourseGroups)
-                .Where(g => g.CourseSchedules.Any())
-                .DistinctBy(g => g.Id);
-
-            foreach (var cd in allDetailsToAssign)
+            foreach (var (schedule, details) in scheduleDetailAssignments)
             {
-                foreach (var schedule in cd.CourseSchedules)
-                {
-                    await _courseScheduleRepository.AssignCourseDetailsAsync(schedule.Id, cd.Id);
-                }
+                await _courseScheduleRepository.AssignCourseDetailsAsync(schedule.Id, details.Id);
             }
 
-            foreach (var group in allGroupsToAssign)
+            foreach (var (schedule, group) in scheduleGroupAssignments)
             {
-                foreach (var schedule in group.CourseSchedules)
-                {
-                    await _courseScheduleRepository.AssignCourseGroupAsync(schedule.Id, group.Id);
-                }
+                await _courseScheduleRepository.AssignCourseGroupAsync(schedule.Id, group.Id);
             }
         }
 
@@ -302,9 +291,61 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             await File.WriteAllTextAsync(Path.Combine(basePath, "PreliminaryCoursesSchedule.csv"), preliminarySchedulesCsv);
         }
 
-        private Task GenerateWithAiAsync(int semesterId)
+        private async Task GenerateWithAiAsync()
         {
-            throw new NotImplementedException();
+            // TODO: obsługa skryptów .py
+            await UpdateCourseSchedulesFromCsvAsync();
+        }
+
+        private async Task UpdateCourseSchedulesFromCsvAsync()
+        {
+            var basePath = Path.Combine("..", "..", "UniversityPilot-ML", "DataOutput");
+            var filePath = Path.Combine(basePath, "GeneratedSchedule.csv");
+
+            if (!File.Exists(filePath))
+                return;
+
+            var updates = new List<GeneratedScheduleCsv>();
+
+            using (var stream = File.OpenRead(filePath))
+            using (var reader = new StreamReader(stream))
+            using (var parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(reader))
+            {
+                parser.SetDelimiters(",");
+                parser.HasFieldsEnclosedInQuotes = true;
+                parser.TrimWhiteSpace = true;
+
+                bool isFirstRow = true;
+                while (!parser.EndOfData)
+                {
+                    var fields = parser.ReadFields();
+
+                    if (isFirstRow)
+                    {
+                        isFirstRow = false;
+                        continue;
+                    }
+
+                    if (fields != null)
+                        updates.Add(CsvHandler.MapCsvRowToObject<GeneratedScheduleCsv>(fields));
+                }
+            }
+
+            foreach (var update in updates)
+            {
+                await _courseScheduleRepository.UpdateStartEndDateAsync(
+                    update.CourseScheduleId,
+                    update.NewDateTimeStart,
+                    update.NewDateTimeEnd
+                );
+            }
+        }
+
+        private async Task SetSemesterStageToGeneratedScheduleAsync(Semester semester)
+        {
+            semester.CreationStage = ScheduleCreationStage.GeneratedSchedule;
+            semester.UpdateDate = DateTime.UtcNow;
+            await _semesterRepository.UpdateAsync(semester);
         }
     }
 }
