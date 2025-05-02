@@ -52,12 +52,12 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 return;
             }
 
-            await GenerateClassDaysAndScheduleClassDaysAsync(semester);
+            //await GenerateClassDaysAndScheduleClassDaysAsync(semester);
             await GeneratePreliminaryCourseSchedulesAsync(semester);
-            await SetSemesterStageToGeneratingScheduleAsync(semester);
+            //await SetSemesterStageToGeneratingScheduleAsync(semester);
             await GenerateFilesCSV(semester);
-            await GenerateWithAiAsync();
-            await SetSemesterStageToGeneratedScheduleAsync(semester);
+            //await GenerateWithAiAsync();
+            //await SetSemesterStageToGeneratedScheduleAsync(semester);
         }
 
         private async Task GenerateClassDaysAndScheduleClassDaysAsync(Semester semester)
@@ -125,6 +125,8 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
         {
             var allCourseDetails = await _courseDetailsRepository.GetCourseDetailsWithDependenciesAsync(semester.Id);
             var courseSchedules = new List<CourseSchedule>();
+            var scheduleGroupAssignments = new List<(CourseSchedule Schedule, CourseGroup Group)>();
+            var scheduleDetailAssignments = new List<(CourseSchedule Schedule, CourseDetails Details)>();
 
             var groupedByShared = allCourseDetails
                 .Where(cd => cd.SharedCourseGroup != null)
@@ -168,7 +170,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                     foreach (var block in blocks)
                     {
-                        var newCourseSchedule = new CourseSchedule
+                        var newSchedule = new CourseSchedule
                         {
                             StartDateTime = blockStart,
                             EndDateTime = blockStart.AddMinutes(block),
@@ -177,13 +179,13 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                             InstructorId = instructorId
                         };
 
-                        courseSchedules.Add(newCourseSchedule);
+                        courseSchedules.Add(newSchedule);
 
-                        foreach (var courseDetails in courseDetailsSet)
-                            courseDetails.CourseSchedules.Add(newCourseSchedule);
+                        foreach (var cd in courseDetailsSet)
+                            scheduleDetailAssignments.Add((newSchedule, cd));
 
-                        foreach (var courseGroup in courseGroupsSet)
-                            courseGroup.CourseSchedules.Add(newCourseSchedule);
+                        foreach (var cg in courseGroupsSet)
+                            scheduleGroupAssignments.Add((newSchedule, cg));
                     }
                 }
             }
@@ -191,11 +193,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             foreach (var details in standaloneDetails)
             {
                 var blocks = CalculateTimeBlocks(details.Hours);
-
                 var courseGroups = details.CourseGroups;
                 var instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
 
-                foreach (var courseGroup in courseGroups)
+                foreach (var group in courseGroups)
                 {
                     if (instructorQueue.Count == 0)
                         instructorQueue = new Queue<int>(details.Instructors.Select(i => i.Id));
@@ -204,7 +205,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
                     foreach (var block in blocks)
                     {
-                        var newCourseSchedule = new CourseSchedule
+                        var newSchedule = new CourseSchedule
                         {
                             StartDateTime = blockStart,
                             EndDateTime = blockStart.AddMinutes(block),
@@ -213,38 +214,23 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                             InstructorId = instructorId
                         };
 
-                        courseSchedules.Add(newCourseSchedule);
-                        details.CourseSchedules.Add(newCourseSchedule);
-                        courseGroup.CourseSchedules.Add(newCourseSchedule);
+                        courseSchedules.Add(newSchedule);
+                        scheduleDetailAssignments.Add((newSchedule, details));
+                        scheduleGroupAssignments.Add((newSchedule, group));
                     }
                 }
             }
 
             await _courseScheduleRepository.AddRangeAsync(courseSchedules);
 
-            var allDetailsToAssign = allCourseDetails
-                .Where(cd => cd.CourseSchedules.Any())
-                .Distinct();
-
-            var allGroupsToAssign = allCourseDetails
-                .SelectMany(cd => cd.CourseGroups)
-                .Where(g => g.CourseSchedules.Any())
-                .DistinctBy(g => g.Id);
-
-            foreach (var cd in allDetailsToAssign)
+            foreach (var (schedule, details) in scheduleDetailAssignments)
             {
-                foreach (var schedule in cd.CourseSchedules)
-                {
-                    await _courseScheduleRepository.AssignCourseDetailsAsync(schedule.Id, cd.Id);
-                }
+                await _courseScheduleRepository.AssignCourseDetailsAsync(schedule.Id, details.Id);
             }
 
-            foreach (var group in allGroupsToAssign)
+            foreach (var (schedule, group) in scheduleGroupAssignments)
             {
-                foreach (var schedule in group.CourseSchedules)
-                {
-                    await _courseScheduleRepository.AssignCourseGroupAsync(schedule.Id, group.Id);
-                }
+                await _courseScheduleRepository.AssignCourseGroupAsync(schedule.Id, group.Id);
             }
         }
 
