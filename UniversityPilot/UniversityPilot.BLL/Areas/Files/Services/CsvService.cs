@@ -5,6 +5,7 @@ using UniversityPilot.BLL.Areas.Processing.Services;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Shared;
 using UniversityPilot.DAL.Areas.SemesterPlanning.Interfaces;
+using UniversityPilot.DAL.Areas.SemesterPlanning.Models;
 using UniversityPilot.DAL.Areas.Shared.Enumes;
 using UniversityPilot.DAL.Areas.Shared.Utilities;
 using UniversityPilot.DAL.Areas.StudyOrganization.Interfaces;
@@ -21,6 +22,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         private readonly ICourseDetailsService _courseDetailsService;
         private readonly IGroupsScheduleService _groupsScheduleService;
         private readonly ICourseScheduleRepository _courseScheduleRepository;
+        private readonly ICourseRepository _courseRepository;
 
         public CsvService(
             IClassroomService classroomService,
@@ -30,7 +32,8 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             ICourseDetailsRepository courseDetailsRepository,
             ICourseDetailsService courseDetailsService,
             IGroupsScheduleService groupsScheduleService,
-            ICourseScheduleRepository courseScheduleRepository)
+            ICourseScheduleRepository courseScheduleRepository,
+            ICourseRepository courseRepository)
         {
             _classroomService = classroomService;
             _instructorService = instructorService;
@@ -40,6 +43,7 @@ namespace UniversityPilot.BLL.Areas.Files.Services
             _courseDetailsService = courseDetailsService;
             _groupsScheduleService = groupsScheduleService;
             _courseScheduleRepository = courseScheduleRepository;
+            _courseRepository = courseRepository;
         }
 
         public async Task<Result> UploadAsync(UploadDatasetDto data)
@@ -140,23 +144,57 @@ namespace UniversityPilot.BLL.Areas.Files.Services
         public async Task<string> GetPreliminaryCoursesScheduleCsv(int semesterId)
         {
             var coursesSchedule = await _courseScheduleRepository.GetAllWithDetailsBySemesterIdAsync(semesterId);
+            var programSemesters = coursesSchedule
+                .SelectMany(cs => cs.CoursesDetails)
+                .Select(cd => (ProgramId: cd.Course.StudyProgram.Id, SemesterNumber: cd.Course.SemesterNumber))
+                .Distinct()
+                .ToList();
+
+            var programGroupsMap = await _courseRepository.GetCourseGroupsByProgramAndSemesterAsync(programSemesters);
 
             var result = coursesSchedule.Select(cs =>
             {
                 var cd = cs.CoursesDetails.First();
-                var scheduleGroup = cd.Course.StudyProgram.ScheduleClassDays.FirstOrDefault(x => x.SemesterId == semesterId);
+                var scheduleGroup = cd.Course.StudyProgram.ScheduleClassDays
+                    .FirstOrDefault(x => x.SemesterId == semesterId);
+
+                var programId = cd.Course.StudyProgram.Id;
+                var semesterNumber = cd.Course.SemesterNumber;
+                var isLecture = cd.CourseType == CourseTypes.Lecture;
+
+                var activeGroups = cs.CoursesGroups.ToList();
+
+                var allGroupsInProgramSemester = programGroupsMap
+                    .GetValueOrDefault((programId, semesterNumber)) ?? new List<CourseGroup>();
+
+                List<CourseGroup> dependentGroups;
+
+                if (isLecture)
+                {
+                    dependentGroups = allGroupsInProgramSemester
+                        .Where(g => !activeGroups.Any(ag => ag.Id == g.Id))
+                        .ToList();
+                }
+                else
+                {
+                    dependentGroups = allGroupsInProgramSemester
+                        .Where(g =>
+                            g.CourseType != cd.CourseType &&
+                            !activeGroups.Any(ag => ag.Id == g.Id))
+                        .ToList();
+                }
 
                 return new PreliminaryCoursesScheduleCsv
                 {
                     CourseScheduleId = cs.Id,
                     CourseName = cd.Course?.Name ?? string.Empty,
-                    CourseDetailsId = string.Join(",", cs.CoursesDetails.Select(cs => cs.Id)),
+                    CourseDetailsId = string.Join(",", cs.CoursesDetails.Select(d => d.Id)),
                     CourseType = cd.CourseType.ToString(),
                     Online = cd.Online ? "Yes" : "No",
-                    GroupsId = string.Join(",", cs.CoursesGroups.Select(cs => cs.Id)),
-                    GroupsName = string.Join(",", cs.CoursesGroups.Select(cs => cs.GroupName)),
-                    DependentGroupsIds = "", // TODO
-                    DependentGroupsNames = "", // TODO
+                    GroupsId = string.Join(",", activeGroups.Select(g => g.Id)),
+                    GroupsName = string.Join(",", activeGroups.Select(g => g.GroupName)),
+                    DependentGroupsIds = string.Join(",", dependentGroups.Select(g => g.Id)),
+                    DependentGroupsNames = string.Join(",", dependentGroups.Select(g => g.GroupName)),
                     ScheduleGroupId = scheduleGroup?.Id ?? 0,
                     ScheduleGroupName = scheduleGroup?.Title ?? "Brak przypisania",
                     InstructorId = cs.Instructor?.Id ?? 0,
