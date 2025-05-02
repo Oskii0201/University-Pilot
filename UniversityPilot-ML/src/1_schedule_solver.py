@@ -2,27 +2,23 @@ import pandas as pd
 from ortools.sat.python import cp_model
 from datetime import timedelta
 
-# --- Przełączniki ograniczeń ---
 ENABLE_ONLINE_RESTRICTION = False
 ENABLE_MINIMIZE_GAPS = False
 
-# --- 1. Wczytanie danych ---
 classrooms_df = pd.read_csv('../DataInput/Classrooms.csv')
 schedule_groups_days_df = pd.read_csv('../DataInput/ScheduleGroupsDays.csv')
 preliminary_schedule_df = pd.read_csv('../DataInput/PreliminaryCoursesSchedule.csv')
 
-# --- 2. Przetwarzanie danych ---
 schedule_groups_days_df['DateTimeStart'] = pd.to_datetime(schedule_groups_days_df['DateTimeStart'])
 schedule_groups_days_df['DateTimeEnd']   = pd.to_datetime(schedule_groups_days_df['DateTimeEnd'])
 
 preliminary_schedule_df['DateTimeStart'] = pd.to_datetime(preliminary_schedule_df['DateTimeStart'])
 preliminary_schedule_df['DateTimeEnd']   = pd.to_datetime(preliminary_schedule_df['DateTimeEnd'])
-# Zakładam, że kolumna 'Duration' to długość w minutach – nie używamy DurationMinutes
+
 preliminary_schedule_df['DurationMinutes'] = (
     preliminary_schedule_df['DateTimeEnd'] - preliminary_schedule_df['DateTimeStart']
 ).dt.total_seconds() / 60
 
-# Mapowanie kolumn
 preliminary_schedule_df = preliminary_schedule_df.rename(columns={
     'CourseScheduleId': 'course_id',
     'CourseName':       'course_name',
@@ -36,18 +32,15 @@ preliminary_schedule_df = preliminary_schedule_df.rename(columns={
     'CourseType':       'course_type'
 })
 
-# --- 3. Przygotowanie modelu ---
 model = cp_model.CpModel()
 course_vars   = {}
 interval_vars = {}
 
-# Punkt odniesienia (zera czasowego)
 origin = pd.Timestamp('2024-10-01')
 
 for _, row in preliminary_schedule_df.iterrows():
     cid    = row['course_id']
     grp    = row['groups_name']
-    # długość w blokach 10-minutowych
     dur_bl = int(row['duration'] // 10)
 
     slots = schedule_groups_days_df[
@@ -80,9 +73,6 @@ for _, row in preliminary_schedule_df.iterrows():
     course_vars[cid]   = (starts, ends, presences)
     interval_vars[cid] = intervals
 
-# --- 4. Ograniczenia ---
-
-# (A) Brak nakładania w obrębie jednej grupy
 for grp in preliminary_schedule_df['groups_name'].unique():
     courses = preliminary_schedule_df[
         preliminary_schedule_df['groups_name'] == grp
@@ -90,7 +80,6 @@ for grp in preliminary_schedule_df['groups_name'].unique():
     all_iv = sum((interval_vars[c] for c in courses), [])
     model.AddNoOverlap(all_iv)
 
-# (B) Brak nakładania instruktora
 if 'instructor_id' in preliminary_schedule_df.columns:
     for instr in preliminary_schedule_df['instructor_id'].dropna().unique():
         courses = preliminary_schedule_df[
@@ -99,7 +88,6 @@ if 'instructor_id' in preliminary_schedule_df.columns:
         all_iv = sum((interval_vars[c] for c in courses), [])
         model.AddNoOverlap(all_iv)
 
-# (C) Online ≠ stacjonarne tego samego dnia (opcjonalnie)
 if ENABLE_ONLINE_RESTRICTION and 'Online' in preliminary_schedule_df.columns:
     for grp in preliminary_schedule_df['groups_name'].unique():
         dfg = preliminary_schedule_df[preliminary_schedule_df['groups_name'] == grp]
@@ -118,7 +106,6 @@ if ENABLE_ONLINE_RESTRICTION and 'Online' in preliminary_schedule_df.columns:
                         model.AddDivisionEquality(d2, s2[j], 6*24).OnlyEnforceIf([lit1, lit2])
                         model.Add(d1 != d2).OnlyEnforceIf([lit1, lit2])
 
-# --- 5. Rozwiązanie i zapis ---
 solver = cp_model.CpSolver()
 solver.parameters.max_time_in_seconds = 3600.0
 status = solver.Solve(model)
@@ -134,7 +121,6 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         dur   = int(row['duration'])
         starts, _, pres = course_vars[cid]
 
-        # znajdź aktywny blok
         for i, lit in enumerate(pres):
             if solver.BooleanValue(lit):
                 b0 = solver.Value(starts[i])
@@ -156,7 +142,7 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         })
 
     out_df = pd.DataFrame(rows)
-    out_df.to_csv('../DataOutput/GeneratedSchedule.csv', index=False, encoding='utf-8')
-    print("\nZapisano do GeneratedSchedule.csv")
+    out_df.to_csv('../DataOutput/PreGeneratedSchedule.csv', index=False, encoding='utf-8')
+    print("\nZapisano do PreGeneratedSchedule.csv")
 else:
     print("Brak rozwiązania. Status:", status)

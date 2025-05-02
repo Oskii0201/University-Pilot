@@ -1,11 +1,9 @@
 import pandas as pd
 
-# 1. Wczytaj pliki
 preliminary_df = pd.read_csv('../DataInput/PreliminaryCoursesSchedule.csv')
-generated_df = pd.read_csv('../DataOutput/GeneratedSchedule.csv')
+generated_df = pd.read_csv('../DataOutput/PreGeneratedSchedule.csv')
 assigned_classrooms_df = pd.read_csv('../DataOutput/assigned_classrooms.csv')
 
-# 2. Połącz preliminary_df z generated_df
 preliminary_df = preliminary_df.merge(
     generated_df[['course_id', 'start_datetime', 'end_datetime']],
     left_on='CourseScheduleId',
@@ -13,7 +11,6 @@ preliminary_df = preliminary_df.merge(
     how='left'
 )
 
-# 3. Zmień nazwy kolumn generated_df na NewDateTimeStart i NewDateTimeEnd
 preliminary_df.rename(
     columns={
         'start_datetime': 'NewDateTimeStart',
@@ -22,7 +19,6 @@ preliminary_df.rename(
     inplace=True
 )
 
-# 4. Połącz preliminary_df z assigned_classrooms_df
 preliminary_df = preliminary_df.merge(
     assigned_classrooms_df[['course_id', 'Sala_Przydzielona']],
     left_on='CourseScheduleId',
@@ -30,7 +26,6 @@ preliminary_df = preliminary_df.merge(
     how='left'
 )
 
-# 5. Ustaw ClassroomId i Classroom bez warunkowania typu zajęć
 preliminary_df['ClassroomId'] = preliminary_df.apply(
     lambda row: row['Sala_Przydzielona'] if pd.notna(row['Sala_Przydzielona']) else "0",
     axis=1
@@ -41,10 +36,26 @@ preliminary_df['Classroom'] = preliminary_df.apply(
     axis=1
 )
 
-# 6. Usuń pomocnicze kolumny
 preliminary_df.drop(columns=['course_id_x', 'course_id_y', 'Sala_Przydzielona'], inplace=True)
-
-# 7. Zapisz wynik
 preliminary_df.to_csv('../DataOutput/UpdatedPreliminaryCoursesSchedule.csv', index=False)
 
-print("✅ Plik UpdatedPreliminaryCoursesSchedule.csv został utworzony!")
+classrooms_df = pd.read_csv('../DataInput/Classrooms.csv')  # Upewnij się, że ścieżka jest poprawna
+
+preliminary_df = preliminary_df.merge(
+    classrooms_df[['ClassroomId', 'Number']],
+    left_on='Classroom',
+    right_on='Number',
+    how='left'
+)
+
+preliminary_df['MappedClassroomId'] = preliminary_df['ClassroomId_y']
+preliminary_df['ClassroomId'] = preliminary_df['MappedClassroomId'].fillna(0).astype(int)
+
+preliminary_df.drop(columns=['Number', 'ClassroomId_y', 'ClassroomId_x', 'MappedClassroomId'], inplace=True)
+
+preliminary_df.to_csv('../DataOutput/UpdatedPreliminaryCoursesSchedule.csv', index=False)
+
+generowanyplan_df = preliminary_df[['CourseScheduleId', 'ClassroomId', 'NewDateTimeStart', 'NewDateTimeEnd']]
+generowanyplan_df.to_csv('../DataOutput/GeneratedSchedule.csv', index=False)
+
+print("Pliki UpdatedPreliminaryCoursesSchedule.csv i GeneratedSchedule.csv zostały zaktualizowane i zapisane!")
