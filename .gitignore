@@ -8,3 +8,4 @@
 /UniversityPilot-ML/DataOutput/GeneratedSchedule.csv
 /UniversityPilot-ML/HistoricalData/planzajec.csv
 /UniversityPilot-ML/HistoricalData/przedmioty_z_salami.csv
+*.csv
