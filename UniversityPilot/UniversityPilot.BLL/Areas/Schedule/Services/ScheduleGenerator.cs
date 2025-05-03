@@ -1,4 +1,6 @@
-﻿using UniversityPilot.BLL.Areas.Files.DTO;
+﻿using System.Diagnostics;
+using System.Text;
+using UniversityPilot.BLL.Areas.Files.DTO;
 using UniversityPilot.BLL.Areas.Files.Interfaces;
 using UniversityPilot.BLL.Areas.Schedule.Interfaces;
 using UniversityPilot.BLL.Areas.Shared;
@@ -293,7 +295,20 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
 
         private async Task GenerateWithAiAsync()
         {
-            // TODO: obsługa skryptów .py
+            var basePath = Path.Combine("..", "..", "UniversityPilot-ML");
+
+            await RunPythonScriptAsync(Path.Combine(basePath, "src", "1_schedule_solver.py"),
+                                       Path.Combine(basePath, "DataOutput", "PreGeneratedSchedule.csv"));
+
+            await RunPythonScriptAsync(Path.Combine(basePath, "src", "2_train_classroom_predictor.py"),
+                                       Path.Combine(basePath, "DataOutput", "TopN_Classroom_Predictions.csv"));
+
+            await RunPythonScriptAsync(Path.Combine(basePath, "src", "3_assign_classrooms.py"),
+                                       Path.Combine(basePath, "DataOutput", "assigned_classrooms.csv"));
+
+            await RunPythonScriptAsync(Path.Combine(basePath, "src", "4_gen_and_rate_schedule.py"),
+                                       Path.Combine(basePath, "DataOutput", "GeneratedSchedule.csv"));
+
             await UpdateCourseSchedulesFromCsvAsync();
         }
 
@@ -346,6 +361,45 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
             semester.CreationStage = ScheduleCreationStage.GeneratedSchedule;
             semester.UpdateDate = DateTime.UtcNow;
             await _semesterRepository.UpdateAsync(semester);
+        }
+
+        private async Task<bool> RunPythonScriptAsync(string scriptPath, string expectedOutputPath)
+        {
+            var pythonExe = Path.Combine("..", "..", "UniversityPilot-ML", ".venv", "Scripts", "python.exe");
+            var startTime = DateTime.Now;
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = pythonExe,
+                Arguments = $"\"{scriptPath}\"",
+                WorkingDirectory = Path.GetDirectoryName(scriptPath),
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8
+            };
+
+            psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
+
+            using var process = Process.Start(psi);
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+                throw new Exception($"Script failed: {Path.GetFileName(scriptPath)}\nError: {error}");
+
+            var file = new FileInfo(expectedOutputPath);
+
+            await Task.Delay(5000);
+            file.Refresh();
+
+            if (file.Exists && file.LastWriteTime > startTime)
+                return true;
+
+            throw new TimeoutException($"Output file {Path.GetFileName(expectedOutputPath)} not updated in time.");
         }
     }
 }
