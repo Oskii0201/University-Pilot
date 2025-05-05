@@ -69,7 +69,7 @@ namespace UniversityPilot.DAL.Areas.SemesterPlanning.Repositories
         public async Task<List<CourseSchedule>> GetWithDetailsAsync(int semesterNumber, DateTime from, DateTime to)
         {
             var fromUtc = DateTime.SpecifyKind(from, DateTimeKind.Utc);
-            var toUtc = DateTime.SpecifyKind(to, DateTimeKind.Utc);
+            var toUtc = DateTime.SpecifyKind(to, DateTimeKind.Utc).AddHours(23.99);
 
             return await _context.CourseSchedules
                                 .Where(cs =>
