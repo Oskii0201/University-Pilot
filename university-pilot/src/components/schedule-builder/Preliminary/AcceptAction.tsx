@@ -6,12 +6,14 @@ import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 import { acceptWeekendAvailability } from "@/lib/api/schedule-builder/acceptWeekendAvailability";
 import ConfirmModal from "@/components/schedule-builder/Preliminary/ConfirmModal";
 import { useRouter } from "next/navigation";
+import { acceptSchedule } from "@/lib/api/schedule-builder/acceptSchedule";
 
 interface Props {
   id: number;
+  stage: number;
 }
 
-export default function AcceptAction({ id }: Props) {
+export default function AcceptAction({ id, stage }: Props) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
@@ -21,9 +23,12 @@ export default function AcceptAction({ id }: Props) {
     }
 
     try {
-      const { success, error } = await acceptWeekendAvailability({
-        semesterId: id,
-      });
+      const { success, error } =
+        stage === 2
+          ? await acceptWeekendAvailability({
+              semesterId: id,
+            })
+          : await acceptSchedule({ semesterId: id });
 
       if (!success) {
         toast.error(error ?? "Nie udało się zapisać.");
@@ -32,7 +37,11 @@ export default function AcceptAction({ id }: Props) {
 
       toast.success(getRandomLoadingMessage("success"));
 
-      router.push("/dashboard/schedule-builder/final");
+      router.push(
+        stage === 2
+          ? "/dashboard/schedule-builder/final"
+          : "/dashboard/calendar",
+      );
     } catch (error) {
       toast.error(getRandomLoadingMessage("error"));
       console.error(error);
@@ -45,14 +54,18 @@ export default function AcceptAction({ id }: Props) {
     <>
       <div className="flex w-full justify-end">
         <Button width="w-fit" color="blue" onClick={() => setShowModal(true)}>
-          Akceptuj i generuj
+          {stage === 2 ? "Akceptuj i generuj" : "Akceptuj harmonogram"}
         </Button>
       </div>
 
       {showModal && (
         <ConfirmModal
           title="Potwierdzenie akcji"
-          description="Czy na pewno chcesz zaakceptować dostępność i rozpocząć generowanie harmonogramu?"
+          description={
+            stage === 2
+              ? "Czy na pewno chcesz zaakceptować dostępność i rozpocząć generowanie harmonogramu?"
+              : "Czy na pewno chcesz zaakceptować harmonogram?"
+          }
           onCancel={() => setShowModal(false)}
           onConfirm={handleSubmit}
         />

@@ -46,11 +46,12 @@ export default function SemesterList({ groupSets, basePath }: Props) {
               </p>
             </div>
             <div className="flex flex-col items-center gap-4 md:flex-row">
-              {set.creationStage && set.creationStage == 2 && (
-                <div className="order-2 md:order-1">
-                  <AcceptAction id={set.id} />
-                </div>
-              )}
+              {set.creationStage &&
+                (set.creationStage == 2 || set.creationStage == 5) && (
+                  <div className="order-2 md:order-1">
+                    <AcceptAction id={set.id} stage={set.creationStage} />
+                  </div>
+                )}
               {set.creationStage <= 2 && (
                 <div className="order-1 flex justify-end md:order-2">
                   <GroupSetActions id={set.id} basePath={basePath} />
