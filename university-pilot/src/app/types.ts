@@ -70,4 +70,9 @@ export interface FieldOfStudy {
   name: string;
 }
 
+export interface ProgramsWithSemesters {
+  name: string;
+  semesters: number[];
+}
+
 export type CalendarView = "month" | "week";

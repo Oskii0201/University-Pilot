@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
-import { FieldOfStudy, Semester } from "@/app/types";
+import { ProgramsWithSemesters, Semester } from "@/app/types";
 import { getSemestersByStatus } from "@/lib/api/schedule-builder/getSemestersByStatus";
-import { getFieldsOfStudy } from "@/lib/api/schedule-builder/getFieldsOfStudy";
+import { getProgramsWithSemesters } from "@/lib/api/schedule-builder/getProgramsWithSemesters";
 
 export const useSemestersByStatus = (
   stageID: number,
@@ -12,9 +12,11 @@ export const useSemestersByStatus = (
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
     null,
   );
-  const [fieldsOfStudy, setFieldsOfStudy] = useState<FieldOfStudy[]>([]);
+  const [fieldsOfStudy, setFieldsOfStudy] = useState<ProgramsWithSemesters[]>(
+    [],
+  );
   const [selectedFieldOfStudy, setSelectedFieldOfStudy] =
-    useState<FieldOfStudy | null>(null);
+    useState<ProgramsWithSemesters | null>(null);
   const [selectedSemesterNumber, setSelectedSemesterNumber] =
     useState<number>(null);
 
@@ -55,7 +57,9 @@ export const useSemestersByStatus = (
     try {
       setIsLoading(true);
 
-      const { data, error } = await getFieldsOfStudy(selectedSemester.id);
+      const { data, error } = await getProgramsWithSemesters(
+        selectedSemester.id,
+      );
 
       if (error || !data) {
         toast.error("Nie udało się pobrać kierunków");
@@ -86,12 +90,13 @@ export const useSemestersByStatus = (
   );
 
   const handleFieldOfStudyChange = useCallback(
-    async (selectedOption: { value: number } | null) => {
+    async (selectedOption: { value: string } | null) => {
       if (!selectedOption) return null;
 
       const fieldOfStudy =
-        fieldsOfStudy.find((s) => s.id === selectedOption.value) || null;
+        fieldsOfStudy.find((s) => s.name === selectedOption.value) || null;
       setSelectedFieldOfStudy(fieldOfStudy);
+      setSelectedSemesterNumber(null);
       return fieldOfStudy;
     },
     [fieldsOfStudy],

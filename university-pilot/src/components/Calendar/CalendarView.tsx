@@ -23,9 +23,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ semesterId }) => {
   const loadEvents = async (
     filters: FilterValues,
     date: DayPilot.Date,
-    view: CalendarView,
+    viewType: CalendarView,
   ) => {
-    const body = { ...filters, currentDate: date.value, view };
+    const body = { ...filters, currentDate: date.value, viewType };
+
     const { data, error } = await fetchScheduleEvents(body);
 
     if (!error) {

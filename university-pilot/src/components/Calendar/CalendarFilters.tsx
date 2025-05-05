@@ -6,8 +6,8 @@ import { useSemestersByStatus } from "@/hooks/schedule-builder/useSemestersBySta
 
 export interface FilterValues {
   semesterId: number;
-  fieldOfStudyId: number;
-  selectedSemesterNumber: number;
+  name: string;
+  semester: number;
 }
 
 interface CalendarFiltersProps {
@@ -36,13 +36,13 @@ const CalendarFilters: React.FC<CalendarFiltersProps> = ({
   useEffect(() => {
     if (
       selectedSemester?.id &&
-      selectedFieldOfStudy?.id &&
+      selectedFieldOfStudy?.name &&
       selectedSemesterNumber
     ) {
       onSearch({
         semesterId: selectedSemester.id,
-        fieldOfStudyId: selectedFieldOfStudy.id,
-        selectedSemesterNumber: selectedSemesterNumber,
+        name: selectedFieldOfStudy.name,
+        semester: selectedSemesterNumber,
       });
     }
   }, [selectedSemester, selectedFieldOfStudy, selectedSemesterNumber]);
@@ -80,12 +80,12 @@ const CalendarFilters: React.FC<CalendarFiltersProps> = ({
           value={
             selectedFieldOfStudy
               ? {
-                  value: selectedFieldOfStudy.id,
+                  value: selectedFieldOfStudy.name,
                   label: selectedFieldOfStudy.name,
                 }
               : null
           }
-          options={fieldsOfStudy.map((f) => ({ value: f.id, label: f.name }))}
+          options={fieldsOfStudy.map((f) => ({ value: f.name, label: f.name }))}
           onChange={(e) =>
             handleFieldOfStudyChange({ value: e.value, label: e.label })
           }
@@ -107,7 +107,7 @@ const CalendarFilters: React.FC<CalendarFiltersProps> = ({
               ? { value: selectedSemesterNumber, label: selectedSemesterNumber }
               : null
           }
-          options={[1, 2, 3, 4, 5, 6, 7].map((n) => ({
+          options={selectedFieldOfStudy?.semesters.map((n) => ({
             value: n,
             label: n,
           }))}
