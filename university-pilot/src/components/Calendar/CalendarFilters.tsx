@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { useSemestersByStatus } from "@/hooks/schedule-builder/useSemestersByStatus";
+import { getSemesterStatus } from "@/lib/api/schedule-builder/getSemesterStatus";
 
 export interface FilterValues {
   semesterId: number;
@@ -20,6 +21,25 @@ const CalendarFilters: React.FC<CalendarFiltersProps> = ({
   onSearch,
 }) => {
   const parsedSemesterID = semesterID ? Number(semesterID) : undefined;
+  const [status, setStatus] = useState<number | null>(null);
+
+  useEffect(() => {
+    const resolveStatus = async () => {
+      try {
+        if (!parsedSemesterID) {
+          return;
+        }
+        const response = await getSemesterStatus(parsedSemesterID);
+        setStatus(response.data);
+      } catch (e) {
+        console.error("Błąd w checkSemesterStatus:", e);
+      }
+    };
+
+    if (parsedSemesterID) {
+      resolveStatus();
+    }
+  }, [parsedSemesterID]);
 
   const {
     semesters,
@@ -31,7 +51,7 @@ const CalendarFilters: React.FC<CalendarFiltersProps> = ({
     handleSemesterChange,
     handleFieldOfStudyChange,
     handleSemesterNumberChange,
-  } = useSemestersByStatus(6, parsedSemesterID);
+  } = useSemestersByStatus(status || 6, parsedSemesterID);
 
   useEffect(() => {
     if (
