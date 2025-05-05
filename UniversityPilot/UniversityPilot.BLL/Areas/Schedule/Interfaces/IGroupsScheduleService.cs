@@ -6,16 +6,18 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
 {
     public interface IGroupsScheduleService
     {
-        public Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId);
+        Task<FieldsOfStudyAssignmentDto> GetFieldsOfStudyAssignmentsToGroupAsync(int semesterId);
 
-        public Task UpdateFieldsOfStudyAssignmentsToGroupAsync(FieldsOfStudyAssignmentDto model);
+        Task UpdateFieldsOfStudyAssignmentsToGroupAsync(FieldsOfStudyAssignmentDto model);
 
-        public Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId);
+        Task<WeekendAvailabilityDto> GetWeekendAvailabilityAsync(int semesterId);
 
-        public Task SaveWeekendAvailabilityAsync(WeekendAvailabilityDto model);
+        Task SaveWeekendAvailabilityAsync(WeekendAvailabilityDto model);
 
-        public Task<Result> AcceptWeekendAvailabilityAsync(int semesterId);
+        Task<Result> AcceptWeekendAvailabilityAsync(int semesterId);
 
-        public Task<List<ScheduleGroupsDaysCsv>> GetScheduleGroupsDaysCsvAsync(int semesterId);
+        Task<List<ScheduleGroupsDaysCsv>> GetScheduleGroupsDaysCsvAsync(int semesterId);
+
+        Task<Result> AcceptScheduleAsync(int semesterId);
     }
 }

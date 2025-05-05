@@ -361,5 +361,20 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 _ => 2
             };
         }
+
+        public async Task<Result> AcceptScheduleAsync(int semesterId)
+        {
+            var semester = await _semesterRepository.GetAsync(semesterId);
+
+            if (semester == null)
+                return Result.Failure($"Semester with ID {semesterId} not found.", "SEMESTER_NOT_FOUND");
+
+            semester.CreationStage = ScheduleCreationStage.ApprovedSchedule;
+            semester.UpdateDate = DateTime.UtcNow;
+
+            await _semesterRepository.UpdateAsync(semester);
+
+            return Result.Success("Schedule accepted and status updated.");
+        }
     }
 }

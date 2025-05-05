@@ -55,7 +55,7 @@ namespace UniversityPilot.Controllers
             if (!result.IsSuccess)
                 return NotFound(result);
 
-            return Ok("Weekend availability accepted and status updated.");
+            return Ok(result.Message);
         }
 
         [HttpPost("GetCalendar")]
@@ -63,6 +63,17 @@ namespace UniversityPilot.Controllers
         {
             var result = await _scheduleService.GetScheduleAsync(request);
             return Ok(result);
+        }
+
+        [HttpGet("AcceptSchedule")]
+        public async Task<IActionResult> AcceptSchedule([FromQuery] int semesterId)
+        {
+            var result = await _groupsScheduleService.AcceptScheduleAsync(semesterId);
+
+            if (!result.IsSuccess)
+                return NotFound(result.Message);
+
+            return Ok(result.Message);
         }
     }
 }
