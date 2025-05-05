@@ -15,7 +15,7 @@ export default function SemesterList({ groupSets, basePath }: Props) {
       <p className="text-gray-600">Brak zestawów grup harmonogramowych.</p>
     );
   }
-  console.log(groupSets);
+
   return (
     <ul className="flex flex-col gap-4">
       {groupSets.map((set) => (

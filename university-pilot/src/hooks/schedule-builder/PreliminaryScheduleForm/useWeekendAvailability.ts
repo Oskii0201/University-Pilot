@@ -6,9 +6,6 @@ import { getRandomLoadingMessage } from "@/utils/getRandomLoadingMessage";
 import { updateWeekendAvailability } from "@/lib/api/schedule-builder/updateWeekendAvailability";
 import { useRouter } from "next/navigation";
 
-/**
- * Sprawdza, czy w podanym harmonogramie (schedule) znajduje się jakakolwiek wartość `true` w `availability`.
- */
 export const hasTrueValues = (schedule: Weekend[]) =>
   schedule.some(({ availability }) =>
     Object.values(availability).some(Boolean),

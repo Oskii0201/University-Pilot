@@ -41,10 +41,8 @@ const ScheduleGroupManagementForm: React.FC<
     getTotalCourses,
   } = useGroupAssignments(parsedSemesterID);
 
-  // Setup unsaved changes warning
   useUnsavedChanges(hasUnsavedChanges);
 
-  // Event handler for semester selection when user changes it manually
   const onSemesterChange = async (selectedOption: { value: number } | null) => {
     if (!selectedOption) return;
 
@@ -57,14 +55,11 @@ const ScheduleGroupManagementForm: React.FC<
     }
   };
 
-  // Combined loading state
   const isLoading = semestersLoading || groupsLoading;
 
-  // Derived values for the UI
   const totalAssignedCourses = getTotalAssignedCourses();
   const totalCourses = getTotalCourses();
 
-  // Render
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div className="col-span-1 md:col-span-2">

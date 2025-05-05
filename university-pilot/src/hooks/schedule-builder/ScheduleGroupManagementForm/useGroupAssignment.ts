@@ -159,7 +159,6 @@ export const useGroupAssignments = (initialSemesterID?: number) => {
     }
   };
 
-  // Helpers
   const getTotalAssignedCourses = () => {
     return groups.reduce(
       (sum, group) => sum + group.assignedFieldsOfStudy.length,
