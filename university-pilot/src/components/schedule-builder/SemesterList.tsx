@@ -56,15 +56,14 @@ export default function SemesterList({ groupSets, basePath }: Props) {
                   <GroupSetActions id={set.id} basePath={basePath} />
                 </div>
               )}
-              {set.creationStage == 3 ||
-                (set.creationStage == 4 && (
-                  <div className="order-1 flex items-center justify-end gap-2 text-sm font-medium text-gray-600 md:order-2">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-blue-500 border-t-transparent"></div>
-                    <span className="hidden md:block">
-                      Generowanie harmonogramu...
-                    </span>
-                  </div>
-                ))}
+              {(set.creationStage == 3 || set.creationStage == 4) && (
+                <div className="order-1 flex items-center justify-end gap-2 text-sm font-medium text-gray-600 md:order-2">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-blue-500 border-t-transparent"></div>
+                  <span className="hidden md:block">
+                    Generowanie harmonogramu...
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </li>

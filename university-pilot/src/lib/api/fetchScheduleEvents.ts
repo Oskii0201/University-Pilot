@@ -20,9 +20,7 @@ export const fetchScheduleEvents = async (
   error: string | null;
 }> => {
   try {
-    const response = await apiClient.get("/Schedule/GetCalendar", {
-      params: props,
-    });
+    const response = await apiClient.post("/Schedule/GetCalendar", props);
 
     return { data: response.data, error: null };
   } catch (error) {

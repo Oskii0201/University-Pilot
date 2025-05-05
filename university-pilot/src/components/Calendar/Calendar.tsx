@@ -37,6 +37,8 @@ const Calendar: React.FC<CalendarProps> = ({
       setSelectedEvent(args.e.data);
     },
     locale: "pl-pl",
+    showWeekends: true,
+    weekStarts: 1,
   });
   useEffect(() => {
     setCalendarConfig((prevConfig) => ({
