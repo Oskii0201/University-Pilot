@@ -12,7 +12,7 @@ namespace UniversityPilot.BLL.Areas.Schedule.Interfaces
 
         Task<List<Semester>> GetByStatusAsync(ScheduleCreationStage stage);
 
-        Task<string> GetStatusBySemesterIdAsync(int semesterId);
+        Task<int> GetStatusBySemesterIdAsync(int semesterId);
 
         Task<List<StudyProgramWithSemestersDto>> GetStudyProgramsWithSemestersAsync(int semesterId);
     }

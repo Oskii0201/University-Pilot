@@ -41,10 +41,10 @@ namespace UniversityPilot.BLL.Areas.Schedule.Services
                 .ToList();
         }
 
-        public async Task<string> GetStatusBySemesterIdAsync(int semesterId)
+        public async Task<int> GetStatusBySemesterIdAsync(int semesterId)
         {
             var semester = await _semesterRepository.GetAsync(semesterId);
-            return semester?.CreationStage.ToString();
+            return semester == null ? 0 : (int)semester.CreationStage;
         }
 
         public async Task<List<StudyProgramWithSemestersDto>> GetStudyProgramsWithSemestersAsync(int semesterId)
