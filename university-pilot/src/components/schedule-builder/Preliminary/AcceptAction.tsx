@@ -32,8 +32,7 @@ export default function AcceptAction({ id }: Props) {
 
       toast.success(getRandomLoadingMessage("success"));
 
-      /*Zmienić na ścieżkę final jak już powstanie*/
-      router.push("/dashboard/schedule-builder/preliminary");
+      router.push("/dashboard/schedule-builder/final");
     } catch (error) {
       toast.error(getRandomLoadingMessage("error"));
       console.error(error);
