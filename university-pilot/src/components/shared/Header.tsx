@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaGraduationCap } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { logout } from "@/lib/auth";
@@ -27,9 +27,17 @@ const Header: React.FC<HeaderProps> = ({ onHamburgerClick }) => {
         >
           <FaBars size={24} />
         </button>
-        <h1 className="text-lg font-semibold sm:text-xl md:text-2xl">
-          University Pilot
-        </h1>
+        <div className="flex items-center gap-2 leading-none text-sky-500">
+          <FaGraduationCap className="text-[40px] md:text-[48px]" />
+          <div className="hidden flex-col justify-center md:flex">
+            <span className="text-[20px] font-bold leading-[1.1] md:text-[24px]">
+              University
+            </span>
+            <span className="text-[20px] font-bold leading-[1.1] md:text-[24px]">
+              Pilot
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="relative" ref={dropdownRef}>

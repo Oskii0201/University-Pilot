@@ -1,5 +1,4 @@
 import Image from "next/image";
-import universityPilotDashboard from "/public/imageplacehgolder.png";
 import { Button } from "@/components/ui/Button";
 
 export const Hero = () => {
@@ -27,11 +26,13 @@ export const Hero = () => {
             Dowiedz się więcej
           </Button>
         </div>
-        <div className="mt-8 w-full md:w-auto">
+        <div className="w-full md:w-auto">
           <Image
-            src={universityPilotDashboard}
+            src={"/heroImage.png"}
             alt="University Pilot dashboard"
-            className="mx-auto h-auto w-full max-w-xs md:w-96"
+            className="mx-auto"
+            width={320}
+            height={150}
           />
         </div>
       </div>
