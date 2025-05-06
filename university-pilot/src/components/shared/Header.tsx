@@ -27,17 +27,6 @@ const Header: React.FC<HeaderProps> = ({ onHamburgerClick }) => {
         >
           <FaBars size={24} />
         </button>
-        <div className="flex items-center gap-2 leading-none text-sky-500">
-          <FaGraduationCap className="text-[40px] md:text-[48px]" />
-          <div className="hidden flex-col justify-center md:flex">
-            <span className="text-[20px] font-bold leading-[1.1] md:text-[24px]">
-              University
-            </span>
-            <span className="text-[20px] font-bold leading-[1.1] md:text-[24px]">
-              Pilot
-            </span>
-          </div>
-        </div>
       </div>
 
       <div className="relative" ref={dropdownRef}>

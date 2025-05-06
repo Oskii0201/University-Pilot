@@ -1,7 +1,6 @@
 "use client";
 import { FaHome, FaCalendarAlt, FaChalkboard } from "react-icons/fa";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { BsDatabaseFillAdd } from "react-icons/bs";
@@ -17,15 +16,19 @@ interface NavigationProps {
 }
 
 const navItems: NavItem[] = [
-  { icon: <FaHome />, label: "Dashboard", href: "/dashboard" },
+  { icon: <FaHome size={20} />, label: "Dashboard", href: "/dashboard" },
   {
-    icon: <FaChalkboard />,
+    icon: <FaChalkboard size={20} />,
     label: "Harmonogram",
     href: "/dashboard/schedule-builder",
   },
-  { icon: <FaCalendarAlt />, label: "Kalendarz", href: "/dashboard/calendar" },
   {
-    icon: <BsDatabaseFillAdd />,
+    icon: <FaCalendarAlt size={20} />,
+    label: "Kalendarz",
+    href: "/dashboard/calendar",
+  },
+  {
+    icon: <BsDatabaseFillAdd size={20} />,
     label: "Manager danych",
     href: "/dashboard/data-manager",
   },
@@ -35,33 +38,36 @@ const Navigation: React.FC<NavigationProps> = ({ onLinkClick }) => {
   const pathname = usePathname();
 
   return (
-    <ul className="flex flex-col gap-4 text-lg">
-      {navItems.map((item) => {
-        const isActive = pathname === item.href;
-        const activeLinkClass = isActive ? "text-sky-400" : "text-offWhite";
+    <nav>
+      <ul className="flex flex-col gap-3">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
 
-        return (
-          <motion.li
-            className={`font-bold ${activeLinkClass}`}
-            key={item.href}
-            animate="visible"
-            initial="hidden"
-            whileHover={{ scale: 1.1, color: "rgb(14 165 233)" }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Link
-              href={item.href}
-              aria-label={item.label}
-              className={`flex items-center justify-center space-x-2 p-2 md:justify-start ${activeLinkClass}`}
-              onClick={onLinkClick}
-            >
-              <span>{item.icon}</span>
-              <span className="hidden md:block">{item.label}</span>
-            </Link>
-          </motion.li>
-        );
-      })}
-    </ul>
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                aria-label={item.label}
+                onClick={onLinkClick}
+                className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 hover:bg-sky-800/30 ${
+                  isActive
+                    ? "bg-sky-800/50 text-sky-400"
+                    : "text-offWhite hover:text-sky-300"
+                }`}
+              >
+                <span
+                  className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? "text-sky-400" : ""}`}
+                >
+                  {item.icon}
+                </span>
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 };
+
 export default Navigation;

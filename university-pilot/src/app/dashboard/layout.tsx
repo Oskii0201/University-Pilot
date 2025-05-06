@@ -21,7 +21,7 @@ function Layout({ children }: LayoutProps) {
     <div className="flex w-full">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <div className="flex flex-1 flex-col md:ml-48 lg:ml-72">
+      <div className="flex flex-1 flex-col md:ml-60">
         <Header onHamburgerClick={() => setIsSidebarOpen(true)} />
         <Suspense fallback={<Loading />}>
           <main className="flex-1 p-4 md:p-6">
